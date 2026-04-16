@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.group1.mangaflowweb.enums.ComicEnum;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,9 +33,8 @@ public class Comics {
     @Column(length = 500)
     private String coverImg;
 
-    @Column(nullable = false, length = 50)
-    @Builder.Default
-    private String status = "ongoing";
+    @Enumerated(EnumType.STRING)
+    private ComicEnum status = ComicEnum.ONGOING;
 
     @Column(nullable = false)
     @Builder.Default

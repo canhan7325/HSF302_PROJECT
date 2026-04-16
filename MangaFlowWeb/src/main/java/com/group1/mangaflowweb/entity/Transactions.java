@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.group1.mangaflowweb.enums.ComicEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,9 +22,9 @@ public class Transactions {
     
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
-    
-    @Column(nullable = false, length = 50)
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private ComicEnum status;
     
     @Column(nullable = false)
     private LocalDateTime startedAt;
