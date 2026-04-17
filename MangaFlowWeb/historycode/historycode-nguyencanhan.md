@@ -27,4 +27,14 @@
   - `ReadingHistories.java` - Entity lịch sử đọc
   - `GenreComics.java` - Entity junction
 
+## 2026-04-17 (Ngày 17 tháng 4 năm 2026) - Lúc 8:00 (8:00 AM)
+
+### Tasks Completed:
+- **Generated UI Interface**: Dùng AI gen giao diện từ code của Google Stitch sang `buysubscriptions.html`:
+  - Tạo layout cho trang mua đăng ký với gọi các subscription packages
+  - Styling với CSS tương ứng trong `buysubscriptions.css`
+
+- **Created HTML Fragments**: Tạo các fragments cho layout chung:
+  - `headers.html` - Fragment header với navigation
+  - `footers.html` - Fragment footer với thông tin liên hệ và copyright
 

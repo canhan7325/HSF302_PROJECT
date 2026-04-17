@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>MangaCurator - Gói Hội Viên</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/clients/buysubscriptions.css}"/>
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="fragments/headers :: header"></div>
+
+<main>
+    <!-- Hero -->
+    <section class="hero">
+        <h1>
+            Nâng Tầm Trải Nghiệm <br/>
+            <span class="accent">Đọc Manga</span>
+        </h1>
+        <p>Chọn gói hội viên phù hợp để mở khóa những chương truyện mới nhất và ủng hộ trực tiếp cho các tác giả bạn yêu thích.</p>
+    </section>
+
+    <!-- Pricing Grid -->
+    <div class="pricing-grid">
+        <div class="card"
+             th:each="subscription : ${subscriptions}"
+             th:classappend="${subscription.name == 'gold' ? 'card-gold' : subscription.name == 'silver' ? 'card-silver' : 'card-free'}">
+
+            <span th:if="${subscription.name == 'gold'}" class="card-badge">Phổ Biến Nhất</span>
+            <span class="card-label" th:text="${subscription.name}">Tier</span>
+            <h3 class="card-title" th:text="${subscription.name}">Tên Gói</h3>
+            <p class="card-desc">
+                <span th:if="${subscription.name == 'free'}">Đọc miễn phí các chương đầu</span>
+                <span th:if="${subscription.name == 'silver'}">Đọc thêm nhiều chương truyện đặc sắc</span>
+                <span th:if="${subscription.name == 'gold'}">Đọc không giới hạn toàn bộ kho truyện</span>
+            </p>
+
+            <div class="card-price">
+                <span class="price-amount"
+                      th:text="${#numbers.formatDecimal(subscription.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+</span>
+                <span class="price-period" th:text="'/ ' + ${subscription.durationDays} + ' ngày'">/ 30 ngày</span>
+                <div th:if="${subscription.name == 'gold'}" class="price-savings">TIẾT KIỆM ĐẾN 40%</div>
+            </div>
+
+            <ul class="features">
+                <li class="feature-item">
+                    <span class="material-symbols-outlined icon-active">check_circle</span>
+                    <span class="feature-text" th:text="${subscription.name + ': ' + subscription.durationDays + ' ngày truy cập'}">Feature</span>
+                </li>
+            </ul>
+
+            <button class="btn-card"
+                    th:classappend="${subscription.name == 'gold' ? 'btn-gold' : subscription.name == 'silver' ? 'btn-silver' : 'btn-free'}"
+                    th:text="${subscription.name == 'gold' ? 'Đăng Ký Gói Vàng' : subscription.name == 'silver' ? 'Đăng Ký Gói Bạc' : 'Bắt Đầu Ngay'}">
+                Đăng Ký
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Editorial Section -->
+    <section class="editorial-section">
+        <div class="editorial-text-box">
+            <h4>Tại sao nên chọn <br/>MangaCurator Editorial?</h4>
+            <p>Chúng tôi không chỉ cung cấp bản dịch. Chúng tôi mang đến một trải nghiệm nghệ thuật. Mỗi khung hình đều được tối ưu hóa cho màn hình chất lượng cao, giữ nguyên vẹn từng nét vẽ của họa sĩ.</p>
+            <div class="editorial-feature">
+                <div class="editorial-icon">
+                    <span class="material-symbols-outlined">high_quality</span>
+                </div>
+                <div class="editorial-feature-body">
+                    <span class="label">4K Rendering</span>
+                    <span class="sublabel">Hình ảnh sắc nét từng chi tiết nhỏ nhất.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="editorial-image-box">
+            <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNixR1pBeTsLVPTY872hwWTLyXfwtiuBsQCCe_KJbibgl2t1is4YSzhbiM2KCnThQnjOtWsjKvcBlqr55h7zKPXmDQSLN7Kh_g0E8VtzQSoEFK1_6Rccxx71GDhwlkez0gNBQWWddtrw3KfVFx8bc4lcyYMb6bKNxxWNwV3WW139PdFo_IK-ymtIoRYWTwev5RJFrO4IuZuEc7MC3wMfE1Lx5KgiIIMhTpD3R27SKVB0tDOSmhGMKdOLWhrppfigmLvUiWJQJG7r8"
+                    alt="Manga Art Experience"
+            />
+            <div class="editorial-image-overlay">
+                <div>
+                    <h5>Giao diện Độc quyền</h5>
+                    <p>Đọc truyện theo phong cách tạp chí cao cấp, không bị gián đoạn.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
+<div th:replace="fragments/footers :: footer"></div>
+
+</body>
+</html>
