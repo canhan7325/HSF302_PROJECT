@@ -13,9 +13,68 @@
     <div th:replace="~{fragments/headers :: header}"></div>
 
     <!-- Main Content -->
-    <main class="container mt-4 mb-4" style="min-height: 500px;">
-        <h2>Welcome to MangaFlow</h2>
-        <p>Explore your favorite mangas here.</p>
+    <main class="container-fluid px-4 mt-4 mb-4" style="min-height: 500px; background-color: #f0f2f5;">
+        <h2 class="mb-4 pt-3 text-dark fw-bold">Latest Updates</h2>
+        <!-- 6 items per row on desktop; max 12 comics comes from backend page size -->
+        <div class="row g-4">
+
+            <!-- Loop through comics -->
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2" th:each="comic : ${comicPage.content}">
+                <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
+                    <div class="card h-100 border-0 bg-transparent">
+                        <div class="position-relative shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                            <img th:src="@{'/uploads/' + ${comic.coverImg}}" class="w-100" style="object-fit: cover; aspect-ratio: 5/7;" th:alt="${comic.title}">
+
+                            <!-- Top Left Badge (Time) -->
+                            <div class="position-absolute top-0 start-0 m-2 px-2 py-1 bg-info text-white rounded-pill" style="font-size: 0.75rem; background-color: #5bc0de !important;">
+                                1 Giờ Trước
+                            </div>
+
+                            <!-- Top Right Bookmark Icon -->
+                            <div class="position-absolute top-0 end-0 m-2 bg-white text-dark d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; border-radius: 6px; opacity: 0.9;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16">
+                                  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Text Content Below Image -->
+                        <div class="card-body px-1 py-2 text-center">
+                            <h6 class="card-title text-dark text-truncate fw-bold mb-1" th:text="${comic.title}">Manga Title</h6>
+                            <small class="text-secondary"
+                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chapter 1' : 'Chapter ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}">
+                            </small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Show placeholder message if no comics found -->
+            <div th:if="${comicPage.content.isEmpty()}" class="col-12 text-center text-dark py-5">
+                <p>No comics available at the moment.</p>
+            </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <nav th:if="${comicPage.totalPages > 1}" aria-label="Page navigation" class="mt-4 pb-4">
+            <ul class="pagination justify-content-center">
+                <!-- Previous Page -->
+                <li class="page-item" th:classappend="${comicPage.first} ? 'disabled'">
+                    <a class="page-link shadow-none" th:href="@{/index(page=${comicPage.number - 1},size=12)}" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+
+                <!-- Page Numbers -->
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, comicPage.totalPages - 1)}"
+                    th:classappend="${comicPage.number == i} ? 'active'">
+                    <a class="page-link shadow-none" th:href="@{/index(page=${i},size=12)}" th:text="${i + 1}">1</a>
+                </li>
+
+                <!-- Next Page -->
+                <li class="page-item" th:classappend="${comicPage.last} ? 'disabled'">
+                    <a class="page-link shadow-none" th:href="@{/index(page=${comicPage.number + 1},size=12)}">Next</a>
+                </li>
+            </ul>
+        </nav>
     </main>
 
     <!-- Include Footer -->

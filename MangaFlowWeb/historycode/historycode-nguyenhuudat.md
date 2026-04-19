@@ -22,3 +22,28 @@
   - Cấu hình Header thông minh: Tự động ẩn menu điều hướng khi ở trang Login/Register bằng biến `hideNav`.
   - Hiển thị thông tin người dùng (`username`) và nút Logout trên thanh Header sau khi đăng nhập thành công bằng `thymeleaf-extras-springsecurity6`.
 
+## 2026-04-20 (Ngày 20 tháng 4 năm 2026)
+
+### Tasks Completed:
+- **Home Page UI + Responsive Update**:
+  - Thiết kế lại trang `index.html` theo dạng card truyện, bố cục responsive.
+  - Tối ưu hiển thị desktop: **2 hàng, mỗi hàng 6 truyện**.
+
+- **Comic Listing + Pagination**:
+  - Hiển thị danh sách truyện động từ database trên trang chủ sau khi đăng nhập.
+  - Cấu hình phân trang: tối đa **12 truyện/trang**, chuyển trang bằng `Previous/Next` và số trang.
+  - Đồng bộ URL phân trang theo `/index?page=...&size=12`.
+
+- **Local Image Serving**:
+  - Cấu hình map resource local từ thư mục `D:/uploads/` thông qua `WebMvcConfig`.
+  - Chuẩn hóa hiển thị ảnh cover theo `coverImg` (ví dụ: `comics/one-piece/cover.jpg`) qua đường dẫn `/uploads/...`.
+
+- **Backend & Security Adjustments**:
+  - Cập nhật `ComicRepository` sử dụng `JpaRepository` để hỗ trợ truy vấn phân trang.
+  - Bổ sung xử lý lấy `comicPage` trong `ComicController` cho trang `/` và `/index`.
+  - Sửa lỗi **403 khi bấm trang 2** bằng cách mở quyền truy cập `/index` trong `SecurityConfig`.
+  - Mở quyền static cho `/uploads/**` để ảnh local tải đúng.
+
+- **Bug Fixes & Stability**:
+  - Sửa lỗi Thymeleaf parse expression ở phần hiển thị chapter trên `index.html`.
+  - Khắc phục lỗi startup `EOFException` của Tomcat session persistence bằng cấu hình `server.servlet.session.persistent=false`.
