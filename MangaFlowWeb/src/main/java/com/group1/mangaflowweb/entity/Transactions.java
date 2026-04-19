@@ -17,21 +17,22 @@ public class Transactions {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "transaction_id")
     private Integer transactionId;
     
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2, name = "price")
     private BigDecimal price;
     
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, name = "status")
     private String status;
     
-    @Column(nullable = false)
+    @Column(nullable = false, name = "started_at")
     private LocalDateTime startedAt;
     
-    @Column
+    @Column(name = "ended_at")
     private LocalDateTime endedAt;
     
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, name = "created_at")
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
     
@@ -44,4 +45,3 @@ public class Transactions {
     @JoinColumn(name = "subscription_id", nullable = false)
     private Subscriptions subscription;
 }
-

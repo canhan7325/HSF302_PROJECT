@@ -324,6 +324,8 @@ main {
 
 /* Buttons */
 .btn-card {
+    display: block;
+    text-align: center;
     width: 100%;
     padding: 1rem;
     border-radius: 9999px;
@@ -459,6 +461,459 @@ footer {
 .footer-links a { font-size: 0.85rem; color: #78716c; text-decoration: underline; transition: color 0.2s; }
 .footer-links a:hover { color: #1c1917; }
 
+/* ── Modal ── */
+.modal {
+    display: none !important;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hiển thị modal khi được target */
+.modal:target {
+    display: flex !important;
+}
+
+.modal-content {
+    background: var(--surface-container-lowest);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(47, 47, 46, 0.15);
+    max-width: 400px;
+    width: 90%;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--surface-variant);
+}
+
+.modal-header h2 {
+    font-family: var(--font-headline);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--on-surface-variant);
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: var(--on-surface);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-body p {
+    font-size: 1rem;
+    color: var(--on-surface);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.modal-body strong {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.modal-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface-container-high);
+    padding: 1rem;
+    border-radius: calc(var(--radius) - 0.25rem);
+    font-weight: 600;
+    color: var(--on-surface);
+}
+
+.modal-price span:last-child {
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid var(--surface-variant);
+    justify-content: flex-end;
+}
+
+.btn-modal-cancel {
+    padding: 0.6rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    background: var(--surface-container);
+    color: var(--on-surface);
+    border: 1px solid var(--surface-variant);
+    transition: all 0.2s;
+    cursor: pointer;
+    font-family: var(--font-body);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-modal-cancel:hover {
+    background: var(--surface-container-high);
+}
+
+.btn-modal-confirm {
+    padding: 0.6rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #914700 0%, #f97f06 100%);
+    color: var(--on-primary);
+    border: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    font-family: var(--font-body);
+}
+
+.btn-modal-confirm:hover {
+    filter: brightness(1.1);
+}
+
+.btn-modal-confirm:active {
+    transform: scale(0.98);
+}
+
+/* ── Modal Redesigned ── */
+.modal-overlay {
+    display: none !important;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Hiển thị modal khi được target */
+.modal-overlay:target {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.modal-main {
+    position: relative;
+    z-index: 1001;
+    width: 90%;
+    max-width: 420px;
+    background: var(--surface-container-lowest);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 24px 48px rgba(47, 47, 46, 0.15);
+    animation: slideInModal 0.3s ease-out;
+}
+
+@keyframes slideInModal {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--surface-container-lowest);
+    border-bottom: 1px solid var(--surface-variant);
+}
+
+.modal-header h1 {
+    font-family: var(--font-headline);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--on-surface);
+}
+
+.modal-close {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    font-size: 1.5rem;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--on-surface);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Package Summary */
+.package-summary {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface-container-low);
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.package-icon {
+    width: 3rem;
+    height: 3rem;
+    min-width: 3rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, #914700 0%, #f97f06 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.package-info h2 {
+    font-family: var(--font-headline);
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    color: var(--on-surface);
+}
+
+.package-info p {
+    font-size: 0.8rem;
+    color: var(--on-surface-variant);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Payment Section */
+.payment-section {
+    margin-bottom: 1.5rem;
+}
+
+.payment-section h3 {
+    font-family: var(--font-headline);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--on-surface);
+    margin: 0 0 1rem 0;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.payment-option {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: var(--surface-container-low);
+    border: 2px solid var(--surface-variant);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.payment-option input {
+    display: none;
+}
+
+.payment-option:hover {
+    background: var(--surface-container);
+}
+
+.payment-option.active {
+    border-color: var(--primary);
+    background: rgba(145, 71, 0, 0.05);
+}
+
+.payment-badge {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: #ffc0cb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 0.65rem;
+    color: #c2185b;
+    margin-bottom: 0.5rem;
+}
+
+.payment-badge.zalopay {
+    background: #e3f2fd;
+    color: #0068ff;
+}
+
+.payment-name {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    text-align: center;
+}
+
+.payment-check {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    color: var(--primary);
+    font-size: 1.2rem;
+    display: none;
+}
+
+.payment-option.active .payment-check {
+    display: block;
+}
+
+.modal-divider {
+    border: none;
+    border-top: 1px solid var(--surface-variant);
+    margin: 1rem 0;
+}
+
+/* Order Summary */
+.order-summary {
+    font-size: 0.9rem;
+    color: var(--on-surface-variant);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    color: var(--on-surface-variant);
+}
+
+.summary-row.discount {
+    color: #e67400;
+}
+
+.summary-row.total {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-variant);
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--on-surface);
+}
+
+.summary-row.total span:last-child {
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    background: var(--surface-container-lowest);
+    display: flex;
+    gap: 1rem;
+    border-top: 1px solid var(--surface-variant);
+}
+
+.btn-cancel,
+.btn-confirm {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-cancel {
+    flex: 1;
+    background: var(--surface-container-high);
+    color: var(--primary);
+}
+
+.btn-cancel:hover {
+    background: var(--surface-container-highest);
+}
+
+.btn-confirm {
+    flex: 1.5;
+    background: linear-gradient(135deg, #914700 0%, #f97f06 100%);
+    color: var(--on-primary);
+    box-shadow: 0 8px 24px rgba(145, 71, 0, 0.15);
+}
+
+.btn-confirm:hover {
+    filter: brightness(1.1);
+}
+
+.btn-confirm:active {
+    transform: scale(0.98);
+}
+
 /* ── Responsive ── */
 @media (min-width: 640px) {
     .nav { padding: 1rem 2rem; }
@@ -468,10 +923,9 @@ footer {
 @media (min-width: 768px) {
     .pricing-grid {
         grid-template-columns: repeat(3, 1fr);
-        align-items: start;
+        align-items: stretch;
     }
     .card-silver {
-        transform: scale(1.05);
         position: relative;
         z-index: 10;
     }
@@ -484,4 +938,3 @@ footer {
     .nav-links { display: none; }
     .btn-login { display: none; }
 }
-
