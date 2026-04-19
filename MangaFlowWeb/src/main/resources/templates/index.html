@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MangaFlow</title>
+    <!-- Add Bootstrap CSS and custom CSS -->
+    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+    <!-- Include Header -->
+    <div th:replace="~{fragments/headers :: header}"></div>
+
+    <!-- Main Content -->
+    <main class="container mt-4 mb-4" style="min-height: 500px;">
+        <h2>Welcome to MangaFlow</h2>
+        <p>Explore your favorite mangas here.</p>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footers :: footer}"></div>
+
+    <!-- Add Bootstrap JS -->
+    <script th:src="@{/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
