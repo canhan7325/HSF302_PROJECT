@@ -22,11 +22,11 @@ public class Transactions {
     
     @Column(nullable = false, precision = 10, scale = 2, name = "price")
     private BigDecimal price;
+
+    @Enumerated(EnumType.STRING)
+    private ComicEnum status;
     
-    @Column(nullable = false, length = 50, name = "status")
-    private String status;
-    
-    @Column(nullable = false, name = "started_at")
+    @Column(nullable = false)
     private LocalDateTime startedAt;
     
     @Column(name = "ended_at")
@@ -45,3 +45,4 @@ public class Transactions {
     @JoinColumn(name = "subscription_id", nullable = false)
     private Subscriptions subscription;
 }
+

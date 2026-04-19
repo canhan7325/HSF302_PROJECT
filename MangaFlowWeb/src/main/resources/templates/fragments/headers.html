@@ -6,18 +6,31 @@
 <body>
 
 <!-- Header Fragment -->
-<header class="header" th:fragment="header">
+<header class="header" th:fragment="header" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <nav class="nav">
-        <div class="nav-logo">MangaCurator</div>
-        <div class="nav-links">
-            <a href="#">Library</a>
+        <div class="nav-logo"><a th:href="@{/}" style="text-decoration:none; color:inherit;">MangaCurator</a></div>
+        <div class="nav-links" th:unless="${hideNav == true}">
+            <a th:href="@{/}">Library</a>
             <a href="#">Trending</a>
             <a href="#">Community</a>
             <a href="#" class="active">Pricing</a>
         </div>
-        <div class="nav-actions">
-            <button class="btn-login">Log In</button>
-            <button class="btn-signup editorial-gradient">Sign Up</button>
+        <div class="nav-actions" th:unless="${hideNav == true}">
+            <!-- Unauthenticated -->
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}" class="btn-login" style="text-decoration:none; display:inline-block; padding:8px 16px;">Log In</a>
+                <a th:href="@{/register}" class="btn-signup editorial-gradient" style="text-decoration:none; display:inline-block; padding:8px 16px;">Sign Up</a>
+            </div>
+
+            <!-- Authenticated -->
+            <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-weight: 500;">
+                    Xin chào, <b sec:authentication="name"></b>
+                </span>
+                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="btn-login" style="border: none; background: transparent; cursor: pointer;">Đăng xuất</button>
+                </form>
+            </div>
         </div>
     </nav>
 </header>
