@@ -62,15 +62,15 @@
                 <div class="text-center mb-4">
                     <i class="bi bi-book-fill text-brand fs-1"></i>
                     <h2 class="fw-bold mt-2" style="color: #212529;">Đăng nhập</h2>
-                    <p class="text-muted small">Chào mừng bạn trở lại với Editorial Manga.</p>
+                    <p class="text-muted small">Chào mừng bạn trở lại với MangaCurator.</p>
                 </div>
                 <div th:if="${error}" class="alert alert-danger small" th:text="${error}"></div>
                 <form th:action="@{/login}" method="post">
                     <div class="mb-3">
-                        <label for="username" class="form-label small mb-1" style="color: #212529;">Tên đăng nhập hoặc Email</label>
+                        <label for="username" class="form-label small mb-1" style="color: #212529;">Tên đăng nhập</label>
                         <div class="form-icon-wrap">
                             <i class="bi bi-person-fill bi-left"></i>
-                            <input type="text" class="form-control form-control-lg rounded-3 fs-6" id="username" name="username" placeholder="Nhập tên đăng nhập hoặc email" required>
+                            <input type="text" class="form-control form-control-lg rounded-3 fs-6" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
                         </div>
                     </div>
                     <div class="mb-4">
