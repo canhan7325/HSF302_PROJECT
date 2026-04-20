@@ -34,6 +34,7 @@ public class ComicServiceImpl implements ComicService {
 				.orElseThrow(() -> new IllegalArgumentException("Comic not found"));
 
 		comic.setViewCount((comic.getViewCount() == null ? 0 : comic.getViewCount()) + 1);
+		comicRepository.save(comic);
 
 		List<Chapters> chapters = chapterRepository.findByComic_ComicIdOrderByChapterNumberDesc(comic.getComicId());
 		long followerCount = bookmarkService.countFollowers(comic.getComicId());
@@ -49,7 +50,9 @@ public class ComicServiceImpl implements ComicService {
 				.viewCount(comic.getViewCount())
 				.followerCount(followerCount)
 				.bookmarked(bookmarked)
-				.genres(comic.getGenres().stream().map(genre -> genre.getName()).toList())
+				.genres(comic.getGenreComics().stream()
+						.map(gc -> gc.getGenre().getName())
+						.toList())
 				.chapters(chapters.stream().map(this::toChapterItem).toList())
 				.build();
 	}

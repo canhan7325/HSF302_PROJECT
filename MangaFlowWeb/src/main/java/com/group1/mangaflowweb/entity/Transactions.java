@@ -2,8 +2,8 @@ package com.group1.mangaflowweb.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import com.group1.mangaflowweb.enums.TransactionEnum;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -21,10 +21,11 @@ public class Transactions {
     @Column(name = "transaction_id")
     private Integer transactionId;
 
-    @Column(nullable = false, precision = 10, scale = 2, name = "price")
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private TransactionEnum status;
 
     @Column(name = "started_at", nullable = false)
@@ -46,4 +47,3 @@ public class Transactions {
     @JoinColumn(name = "subscription_id", nullable = false)
     private Subscriptions subscription;
 }
-

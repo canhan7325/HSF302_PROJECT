@@ -35,6 +35,7 @@ public class Comics {
     private String coverImg;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private ComicEnum status = ComicEnum.ONGOING;
 
     @Column(name = "view_count", nullable = false)
