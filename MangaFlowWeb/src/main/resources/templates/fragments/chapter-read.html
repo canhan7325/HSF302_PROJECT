@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Reusable fragments for chapter reader -->
+
+<th:block th:fragment="prevNextButtons(prevChapterId, nextChapterId)">
+    <div class="chapter-nav">
+        <a th:href="${prevChapterId != null} ? @{/chapters/{id}/read(id=${prevChapterId})} : '#'"
+           th:classappend="${prevChapterId == null} ? ' disabled' : ''"
+           class="chap-btn prev">
+            ‹ Chap trước
+        </a>
+
+        <a th:href="${nextChapterId != null} ? @{/chapters/{id}/read(id=${nextChapterId})} : '#'"
+           th:classappend="${nextChapterId == null} ? ' disabled' : ''"
+           class="chap-btn next">
+            Chap sau ›
+        </a>
+    </div>
+</th:block>
+
+<th:block th:fragment="breadcrumbToChapter(comicId, comicTitle, chapter)">
+    <div class="breadcrumb">
+        <a href="/">Trang chủ</a>
+        <span class="separator">»</span>
+
+        <a th:href="@{/comics/{id}(id=${comicId})}"
+           th:text="${comicTitle}">Tên truyện</a>
+        <span class="separator">»</span>
+
+        <a class="current"
+           th:href="@{/chapters/{id}(id=${chapter.chapterId})}"
+           th:text="'Chapter ' + ${chapter.chapterNumber}">
+        </a>
+    </div>
+</th:block>
+
+<th:block th:fragment="breadcrumbEnd(comicId, comicTitle, chapter)">
+    <div class="breadcrumb">
+        <a href="/">Trang chủ</a>
+        <span class="separator">»</span>
+
+        <a th:href="@{/comics/{id}(id=${comicId})}"
+           th:text="${comicTitle}">Tên truyện</a>
+        <span class="separator">»</span>
+
+        <a class="current"
+           th:href="@{/chapters/{id}(id=${chapter.chapterId})}"
+           th:text="'Chapter ' + ${chapter.chapterNumber}">
+        </a>
+    </div>
+</th:block>
+
+<th:block th:fragment="chapterTitle(comicTitle, chapter)">
+    <div class="chapter-title">
+        <span th:text="${comicTitle} + ' - Chapter ' + ${chapter.chapterNumber}"></span>
+        <span class="time">
+            (Đăng lúc:
+            <span th:text="${#temporals.format(chapter.createdAt, 'HH:mm dd/MM/yyyy')}"></span>
+            )
+        </span>
+    </div>
+</th:block>
+
+</body>
+</html>

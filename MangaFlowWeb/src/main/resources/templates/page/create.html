@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Page</title>
+</head>
+<body>
+
+<h1>Create Page</h1>
+
+<div th:if="${error}" style="color:red" th:text="${error}"></div>
+
+<form th:action="@{/pages/create}" method="post" th:object="${page}">
+
+    <label>Image URL:</label><br>
+    <input type="text" th:field="*{imgPath}" /><br><br>
+
+    <label>Page Number:</label><br>
+    <input type="number" th:field="*{pageNumber}" /><br><br>
+
+    <label>Chapter ID:</label><br>
+    <input type="number" th:field="*{chapterId}" /><br><br>
+
+    <button type="submit">Create</button>
+</form>
+
+<a href="/pages">Back</a>
+
+</body>
+</html>

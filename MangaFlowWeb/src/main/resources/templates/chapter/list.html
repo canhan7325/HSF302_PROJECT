@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chapter List</title>
+</head>
+<body>
+
+<h1>Chapter List</h1>
+
+<a href="/chapters/create">Create Chapter</a>
+
+<form method="get" action="/chapters">
+    <label>Filter by ComicId:</label>
+    <input type="number" name="comicId"/>
+    <button type="submit">Search</button>
+</form>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Chapter Number</th>
+        <th>Comic ID</th>
+        <th>Action</th>
+    </tr>
+
+    <tr th:each="c : ${chapters}">
+        <td th:text="${c.chapterId}"></td>
+        <td th:text="${c.title}"></td>
+        <td th:text="${c.chapterNumber}"></td>
+        <td th:text="${c.comicId}"></td>
+        <td>
+            <a th:href="@{/chapters/{chapterId}(chapterId=${c.chapterId})}">Detail</a> |
+            <a th:href="@{/chapters/edit/{chapterId}(chapterId=${c.chapterId})}">Edit</a> |
+            <a th:href="@{/chapters/delete/{chapterId}(chapterId=${c.chapterId})}"
+               onclick="return confirm('Delete?')">Delete</a> |
+            <a th:href="@{/chapters/{chapterId}/read(chapterId=${c.chapterId})}">Read</a>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

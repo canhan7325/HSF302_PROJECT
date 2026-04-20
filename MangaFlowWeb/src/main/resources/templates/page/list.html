@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Page List</title>
+</head>
+<body>
+
+<h1>Page List</h1>
+
+<a href="/pages/create">Create New Page</a>
+
+<form method="get" action="/pages">
+    <label>Filter by ChapterId:</label>
+    <input type="number" name="chapterId"/>
+    <button type="submit">Search</button>
+</form>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Image Path</th>
+        <th>Page Number</th>
+        <th>Chapter ID</th>
+        <th>Action</th>
+    </tr>
+
+    <tr th:each="p : ${pages}">
+        <td th:text="${p.pageId}"></td>
+        <td th:text="${p.imgPath}"></td>
+        <td th:text="${p.pageNumber}"></td>
+        <td th:text="${p.chapterId}"></td>
+        <td>
+            <a th:href="@{/pages/{pageId}(pageId=${p.pageId})}">Detail</a> |
+            <a th:href="@{/pages/edit/{pageId}(pageId=${p.pageId})}">Edit</a> |
+            <a th:href="@{/pages/delete/{pageId}(pageId=${p.pageId})}"
+               onclick="return confirm('Delete this page?')">Delete</a>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

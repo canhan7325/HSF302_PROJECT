@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Library</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+            margin: 0;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: white;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 20px;
+            color: #ff6b00;
+        }
+
+        .nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #555;
+        }
+
+        /* CONTENT */
+        .container {
+            padding: 30px 40px;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .sub {
+            color: gray;
+            margin-bottom: 20px;
+        }
+
+        /* SUB + FILTER ROW */
+        .sub-filter-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .sub-filter-row .sub {
+            margin-bottom: 0;
+            flex: 1;
+        }
+
+        .sub-filter-row .filter {
+            margin-bottom: 0;
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter button {
+            margin-right: 0;
+        }
+
+        /* FILTER */
+        .filter {
+            margin-bottom: 20px;
+        }
+
+        .filter button {
+            border: none;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            background: #eee;
+        }
+
+        .filter .active {
+            background: #ff6b00;
+            color: white;
+        }
+
+        /* GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        /* CARD */
+        .card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: 0.2s;
+            box-sizing: border-box;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-sizing: border-box;
+        }
+
+        .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .chapter {
+            font-size: 12px;
+            color: gray;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 0 -10px -10px -10px; /* cancel card-body padding on sides + bottom */
+        }
+
+        /* Ensure button aligns with card edges (no inset) */
+        .read {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            float: none;
+            width: 100%;
+            margin: 0;
+            border: none;
+            box-sizing: border-box;
+            padding: 12px 12px;
+            border-radius: 0 0 15px 15px; /* flush with card bottom */
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            background: #ff6b00;
+            color: #fff;
+            box-shadow: none;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+
+        /* Small status text above button */
+        .chapter-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 0 10px; /* keep status text aligned with title */
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .badge.unread {
+            background: rgba(255, 107, 0, 0.12);
+            color: #b54800;
+        }
+
+        /* LOAD MORE */
+        .load-more {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .load-more button {
+            background: #a65a00;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Filtering */
+        .card.is-hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="logo">Manga Curator</div>
+    <div class="nav">
+        <a href="#">Browse</a>
+        <a href="#">Library</a>
+        <a href="#">Latest</a>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="container">
+
+    <h1>My Library</h1>
+
+    <div class="sub-filter-row">
+        <div class="sub">
+            You have <span th:text="${#lists.size(bookmarks)}"></span> bookmarked series
+        </div>
+
+        <!-- FILTER -->
+        <div class="filter" id="bookmarkFilter">
+            <button class="active" type="button" data-filter="all">All Manga</button>
+            <button type="button" data-filter="reading">Reading</button>
+            <button type="button" data-filter="unread">Unread</button>
+        </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid" id="bookmarkGrid">
+        <div class="card"
+             th:each="b : ${bookmarks}"
+             th:attr="data-status=${b.continueChapterId != null ? 'reading' : 'unread'}">
+            <img th:src="${b.thumbnailUrl}" alt="cover">
+
+            <div class="card-body">
+                <div class="title" th:text="${b.comicName}">Comic Name</div>
+
+                <div class="chapter">
+                    <th:block th:if="${b.continueChapterId != null}">
+                        <div class="chapter-status">
+                            <span>Continue: Ch. <span th:text="${b.continueChapterNumber}">0</span></span>
+                            <span class="badge">Reading</span>
+                        </div>
+                        <a class="read"
+                           th:href="@{/chapters/{id}/read(id=${b.continueChapterId})}">
+                            Continue
+                        </a>
+                    </th:block>
+
+                    <th:block th:if="${b.continueChapterId == null}">
+                        <div class="chapter-status">
+                            <span>&nbsp;</span>
+                            <span class="badge unread">Unread</span>
+                        </div>
+                        <a class="read" th:href="@{/chapters(comicId=${b.comicId})}">Read Now</a>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOAD MORE -->
+    <div class="load-more">
+        <button>Load More Bookmarks</button>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    const STORAGE_KEY = 'bookmarkFilter';
+
+    const filterRoot = document.getElementById('bookmarkFilter');
+    const grid = document.getElementById('bookmarkGrid');
+    if (!filterRoot || !grid) return;
+
+    const buttons = Array.from(filterRoot.querySelectorAll('button[data-filter]'));
+    const cards = () => Array.from(grid.querySelectorAll('.card[data-status]'));
+
+    function setActiveByValue(value) {
+        const v = (value || 'all').toLowerCase();
+        buttons.forEach(b => b.classList.toggle('active', (b.getAttribute('data-filter') || '').toLowerCase() === v));
+    }
+
+    function applyFilter(value) {
+        const v = (value || 'all').toLowerCase();
+        cards().forEach(card => {
+            const status = (card.getAttribute('data-status') || '').toLowerCase();
+            const show = (v === 'all') || (status === v);
+            card.classList.toggle('is-hidden', !show);
+        });
+
+        setActiveByValue(v);
+
+        try {
+            localStorage.setItem(STORAGE_KEY, v);
+        } catch (e) {
+            // ignore storage errors (private mode/quota)
+        }
+    }
+
+    filterRoot.addEventListener('click', function (e) {
+        const btn = e.target && e.target.closest ? e.target.closest('button[data-filter]') : null;
+        if (!btn) return;
+        const value = btn.getAttribute('data-filter');
+        applyFilter(value);
+    });
+
+    // restore last selected filter
+    let initial = 'all';
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && ['all', 'reading', 'unread'].includes(saved.toLowerCase())) {
+            initial = saved.toLowerCase();
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    applyFilter(initial);
+})();
+</script>
+
+</body>
+</html>

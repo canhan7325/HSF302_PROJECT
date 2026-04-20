@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Page</title>
+</head>
+<body>
+
+<h1>Edit Page</h1>
+
+<form th:action="@{/pages/edit/{pageId}(pageId=${page.pageId})}" method="post" th:object="${page}">
+
+    <p>ID: <span th:text="${page.pageId}"></span></p>
+
+    <label>Image Path:</label><br>
+    <input type="text" th:field="*{imgPath}" /><br><br>
+
+    <label>Page Number:</label><br>
+    <input type="number" th:field="*{pageNumber}" /><br><br>
+
+    <label>Chapter ID:</label><br>
+    <input type="number" th:field="*{chapterId}" /><br><br>
+
+    <button type="submit">Update</button>
+</form>
+
+<a href="/pages">Back</a>
+
+</body>
+</html>
