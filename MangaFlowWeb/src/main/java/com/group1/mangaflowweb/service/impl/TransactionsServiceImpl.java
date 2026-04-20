@@ -1,5 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
+import com.group1.mangaflowweb.dto.SubscriptionCheckDTO;
 import com.group1.mangaflowweb.dto.TransactionsDTO;
 import com.group1.mangaflowweb.entity.Subscriptions;
 import com.group1.mangaflowweb.entity.Transactions;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -45,10 +47,14 @@ public class TransactionsServiceImpl implements TransactionsService {
 
     @Override
     public TransactionsDTO completeTransaction(Integer transactionId) {
+        return completeTransaction(transactionId, 0L, false);
+    }
+
+    @Override
+    public TransactionsDTO completeTransaction(Integer transactionId, Long discountAmount, boolean isUpgrade) {
         Transactions transaction = transactionsRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
 
-        transaction.setStatus(TransactionEnum.SUCCESS);
         LocalDateTime now = LocalDateTime.now();
 
         // Set startedAt only if it's not already set
@@ -56,14 +62,103 @@ public class TransactionsServiceImpl implements TransactionsService {
             transaction.setStartedAt(now);
         }
 
+        // Discount cứng: 60000
+        // (không lưu vào DB vì DB không có column này)
+
         int durationDays = 30;
         if (transaction.getSubscription() != null && transaction.getSubscription().getDurationDays() != null) {
             durationDays = transaction.getSubscription().getDurationDays();
         }
+
+        // Nếu upgrade từ Bạc → Vàng: 45 ngày, status BLOCK, discount cứng 60000
+        if (isUpgrade && discountAmount == 60000) {
+            transaction.setStatus(TransactionEnum.BLOCK);
+            durationDays = 45;
+        } else {
+            transaction.setStatus(TransactionEnum.SUCCESS);
+        }
+
         transaction.setEndedAt(transaction.getStartedAt().plusDays(durationDays));
 
         Transactions saved = transactionsRepository.save(transaction);
         return toDTO(saved);
+    }
+
+    @Override
+    public TransactionsDTO createAndCompleteTransaction(Integer userId, Integer subscriptionId, BigDecimal price) {
+        TransactionsDTO dto = createTransaction(userId, subscriptionId, price);
+        return completeTransaction(dto.getTransactionId());
+    }
+
+    @Override
+    public String getMembershipFromPrice(BigDecimal price) {
+        Long priceValue = price.longValue();
+        if (priceValue >= 100000) {
+            return "Hội viên Vàng";
+        } else if (priceValue >= 1000) {
+            return "Hội viên Bạc";
+        }
+        return null;
+    }
+
+    @Override
+    public Long getCurrentMembershipPrice(Integer userId) {
+        java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        if (transactions.isEmpty()) {
+            return 0L;
+        }
+
+        Transactions latest = transactions.get(0);
+        return latest.getSubscription().getPrice().longValue();
+    }
+
+    @Override
+    public SubscriptionCheckDTO checkSubscription(Integer userId, Long newSubscriptionPrice, BigDecimal newSubscriptionPriceBigDecimal) {
+        Long currentPrice = getCurrentMembershipPrice(userId);
+        boolean isUpgrade = newSubscriptionPrice > currentPrice;
+        long discountAmount = 0;
+
+        // Nếu chưa có membership, có thể đăng kí
+        if (currentPrice == 0) {
+            return SubscriptionCheckDTO.builder()
+                    .canSubscribe(true)
+                    .currentPrice(0L)
+                    .discountAmount(0L)
+                    .isUpgrade(false)
+                    .build();
+        }
+
+        // Nếu đăng kí cùng gói → BLOCK
+        if (currentPrice.equals(newSubscriptionPrice)) {
+            String membership = getMembershipFromPrice(BigDecimal.valueOf(currentPrice));
+            java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+            if (!transactions.isEmpty()) {
+                Transactions current = transactions.get(0);
+                String startDate = current.getStartedAt() != null ? current.getStartedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+                String endDate = current.getEndedAt() != null ? current.getEndedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+                String message = "Bạn đã là " + membership + " từ ngày " + startDate + " đến ngày " + endDate;
+                return SubscriptionCheckDTO.builder()
+                        .canSubscribe(false)
+                        .message(message)
+                        .currentPrice(currentPrice)
+                        .discountAmount(0L)
+                        .isUpgrade(false)
+                        .build();
+            }
+        }
+
+        // Upgrade từ Bạc (90k-100k) → Vàng (200k): discount cứng 60k
+        if (currentPrice < 100000 && newSubscriptionPrice >= 100000) {
+            discountAmount = 60000;
+        }
+
+        return SubscriptionCheckDTO.builder()
+                .canSubscribe(true)
+                .currentPrice(currentPrice)
+                .discountAmount(discountAmount)
+                .isUpgrade(isUpgrade)
+                .build();
     }
 
     /**

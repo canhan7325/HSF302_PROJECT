@@ -616,18 +616,20 @@ footer {
 
 /* ── Modal Redesigned ── */
 .modal-overlay {
-    display: none !important;
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Hiển thị modal khi được target */
 .modal-overlay:target {
-    display: flex !important;
+    display: flex;
     align-items: center;
     justify-content: center;
 }

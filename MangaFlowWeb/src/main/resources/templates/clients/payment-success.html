@@ -235,17 +235,18 @@
             <div class="transaction-info">
                 <p class="transaction-info-title">Chi tiết giao dịch</p>
 
-                <div class="info-row">
+                <div class="info-row" style="display: none;">
                     <span class="info-label">Mã giao dịch</span>
                     <span class="info-value highlight" th:text="${transactionId}">TXN-00000</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Gói đăng ký</span>
-                    <span class="info-value" th:text="${subscriptionName}">Gói Vàng</span>
+                    <span class="info-value" th:with="amountStr=${#strings.replace(amount, ',', '')}, amountNum=${T(java.lang.Long).parseLong(amountStr)}"
+                          th:text="${amountNum < 1000 ? 'Gói Miễn Phí' : (amountNum < 100000 ? 'Gói Bạc' : 'Gói Vàng')}">Gói Vàng</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Số tiền</span>
-                    <span class="info-value amount" th:text="${amount} + 'đ'">99,000đ</span>
+                    <span class="info-value amount" th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' đ'">99,000đ</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Ngày bắt đầu</span>
