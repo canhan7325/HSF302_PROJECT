@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Admin Sidebar Fragment -->
+<aside class="admin-sidebar" th:fragment="admin-sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-menu">
+            <!-- Dashboard Section -->
+            <div class="menu-section">
+                <h3 class="menu-title">Dashboard</h3>
+                <ul class="menu-items">
+                    <li>
+                        <a th:href="@{/admin/view-tracking}" class="menu-link">
+                            <i class="fas fa-eye menu-icon"></i>
+                            <span class="menu-label">View Tracking</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/revenue}" class="menu-link">
+                            <i class="fas fa-dollar-sign menu-icon"></i>
+                            <span class="menu-label">Revenue</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</aside>
+
+</body>
+</html>
+
+
+
+
+
+
+

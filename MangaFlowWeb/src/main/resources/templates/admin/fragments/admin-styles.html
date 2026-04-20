@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<!-- Admin Styles Fragment -->
+<th:block th:fragment="admin-styles">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+            background-color: #f5f5f5;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        /* Admin Header - Sticky Top */
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            order: 1;
+        }
+        .admin-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .admin-nav-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        .admin-nav-logo a {
+            color: white;
+            text-decoration: none;
+        }
+        .admin-nav-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .admin-btn-logout {
+            padding: 8px 16px;
+            border: 2px solid white;
+            background-color: transparent;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .admin-btn-logout:hover {
+            background-color: white;
+            color: #667eea;
+        }
+
+        /* Admin Layout */
+        .admin-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            order: 2;
+        }
+
+        /* Admin Sidebar - Sticky with Independent Scroll */
+        .admin-sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100%;
+        }
+        .admin-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .admin-sidebar::-webkit-scrollbar-track {
+            background: #34495e;
+        }
+        .admin-sidebar::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 3px;
+        }
+        .admin-sidebar::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+        }
+        .menu-section {
+            margin-bottom: 25px;
+        }
+        .menu-title {
+            color: #95a5a6;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 0 20px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        .menu-items {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+        .menu-items li {
+            margin-bottom: 5px;
+        }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .menu-link:hover {
+            background-color: #34495e;
+            border-left-color: #667eea;
+            padding-left: 18px;
+        }
+        .menu-link:active {
+            background-color: #667eea;
+            border-left-color: #667eea;
+        }
+        .menu-icon {
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            color: #ecf0f1;
+            width: 24px;
+            height: 24px;
+        }
+        .menu-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Dashboard Container - Independent Scroll */
+        .dashboard-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: #f5f5f5;
+        }
+        .dashboard-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .dashboard-container::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+        .dashboard-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+        .dashboard-container::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        /* Page Title */
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* Cards & Content */
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 18px;
+            color: #666;
+            font-weight: 500;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        /* Footer - Sticky Bottom */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px 0;
+            border-top: 1px solid #ecf0f1;
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+            order: 3;
+        }
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .footer-brand {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .footer-copy {
+            font-size: 14px;
+            color: #bdc3c7;
+            margin: 0;
+        }
+        .footer-links {
+            display: flex;
+            gap: 30px;
+        }
+        .footer-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        .footer-links a:hover {
+            color: #3498db;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-layout {
+                flex-direction: column;
+            }
+            .admin-sidebar {
+                width: 100%;
+                max-height: 250px;
+                position: relative;
+                top: auto;
+            }
+            .dashboard-container {
+                padding: 20px;
+            }
+            .footer-inner {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</th:block>
+
+</body>
+</html>
+

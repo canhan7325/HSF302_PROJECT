@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.config;
 
 import com.group1.mangaflowweb.security.CustomUserDetailsService;
 import com.group1.mangaflowweb.security.JwtAuthenticationFilter;
+import com.group1.mangaflowweb.security.CustomAccessDeniedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,10 +23,13 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthFilter) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthFilter,
+                         CustomAccessDeniedHandler customAccessDeniedHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
 
     @Bean
@@ -35,7 +39,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/error", "/api/auth/**", "/*.css", "/*.js", "/images/**", "/fonts/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/reader/**").hasRole("READER")
+                .requestMatchers("/reader/**").hasAnyRole("READER", "USER")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
@@ -44,6 +48,12 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .formLogin(form -> form.disable())
+            .exceptionHandling(exception -> exception
+                .accessDeniedHandler(customAccessDeniedHandler)
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendRedirect("/login");
+                })
+            )
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")

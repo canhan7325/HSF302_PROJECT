@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Admin Base Styles -->
+    <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
+</head>
+<body>
+
+    <!-- Include Admin Header -->
+    <div th:replace="~{admin/fragments/admin-header :: admin-header}"></div>
+
+    <!-- Main Layout -->
+    <div class="admin-layout">
+        <!-- Include Admin Sidebar -->
+        <div th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar}"></div>
+
+        <!-- Main Content -->
+        <div class="dashboard-container">
+            <!-- Page Title -->
+            <div class="page-title" style="display: flex; align-items: center; gap: 10px; font-size: 32px; color: #333; margin-bottom: 30px;">
+                <i class="fas fa-chart-line" style="color: #667eea;"></i>
+                Admin Dashboard
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-row">
+                <!-- Total Comics Card -->
+                <div class="stat-card">
+                    <div style="font-size: 40px; color: #667eea;">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-label">Total Comics</div>
+                    <div class="stat-number" th:text="${totalComics}">0</div>
+                </div>
+
+                <!-- Total Users Card -->
+                <div class="stat-card">
+                    <div style="font-size: 40px; color: #667eea;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-number" th:text="${totalUsers}">0</div>
+                </div>
+            </div>
+
+            <!-- Additional Info Section -->
+            <div class="stat-card" style="margin-top: 30px;">
+                <h3 style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; color: #333;">
+                    <i class="fas fa-info-circle" style="color: #667eea;"></i>
+                    Welcome to Admin Panel
+                </h3>
+                <p style="color: #666; margin-top: 15px;">
+                    This is the temporary management dashboard. Additional administrative features can be added here.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Admin Footer -->
+    <div th:replace="~{admin/fragments/admin-footer :: admin-footer}"></div>
+
+    <!-- Add Bootstrap JS -->
+    <script th:src="@{/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
+

@@ -59,7 +59,7 @@ public class AuthController {
 
             // Redirect based on role
             if ("ADMIN".equalsIgnoreCase(role)) {
-                return "redirect:/admin/dashboard";
+                return "redirect:/admin";
             } else if ("READER".equalsIgnoreCase(role)) {
                 return "redirect:/";
             } else {

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' - Admin'">Admin Page</title>
+    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Admin Styles -->
+    <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
+</head>
+<body>
+
+    <!-- Include Admin Header -->
+    <div th:replace="~{admin/fragments/admin-header :: admin-header}"></div>
+
+    <!-- Main Layout -->
+    <div class="admin-layout">
+        <!-- Include Sidebar -->
+        <div th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar}"></div>
+
+        <!-- Main Content (to be filled by child pages) -->
+        <div class="dashboard-container">
+            <!-- Child content will be inserted here via th:block -->
+            <th:block th:utext="${#strings.defaultString(content, '')}"></th:block>
+        </div>
+    </div>
+
+    <!-- Include Admin Footer -->
+    <div th:replace="~{admin/fragments/admin-footer :: admin-footer}"></div>
+
+    <!-- Add Bootstrap JS -->
+    <script th:src="@{/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
+

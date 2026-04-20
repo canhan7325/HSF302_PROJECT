@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class MangaFlowWebApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MangaFlowWebApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(MangaFlowWebApplication.class, args);
+    }
 }

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue - Admin</title>
+    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Admin Base Styles -->
+    <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
+    <style>
+        .revenue-stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .revenue-stat-icon {
+            font-size: 32px;
+            color: #667eea;
+            opacity: 0.8;
+        }
+        .revenue-stat-text h4 {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .revenue-stat-text .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 5px;
+        }
+        .revenue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .subscription-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+        }
+        .subscription-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .subscription-revenue {
+            font-size: 20px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .transactions-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .table-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 100px 100px 120px;
+            gap: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 100px 100px 120px;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
+        .table-row:hover {
+            background-color: #f9f9f9;
+        }
+        .transaction-id {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 13px;
+        }
+        .transaction-subscription {
+            color: #333;
+            font-size: 13px;
+        }
+        .transaction-amount {
+            background-color: #d4edda;
+            color: #28a745;
+            padding: 6px 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .transaction-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 3px;
+            text-align: center;
+        }
+        .status-active {
+            background-color: #d4edda;
+            color: #28a745;
+            font-weight: 500;
+        }
+        .status-completed {
+            background-color: #cfe2ff;
+            color: #0d6efd;
+            font-weight: 500;
+        }
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #dc3545;
+            font-weight: 500;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+        }
+        .empty-icon {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+        .empty-text {
+            color: #999;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Include Admin Header -->
+    <th:block th:replace="~{admin/fragments/admin-header :: admin-header}"></th:block>
+
+    <!-- Main Layout -->
+    <div class="admin-layout">
+        <!-- Include Sidebar -->
+        <th:block th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar}"></th:block>
+
+        <!-- Main Content -->
+        <div class="dashboard-container">
+            <!-- Page Title -->
+            <div class="page-title" style="display: flex; align-items: center; gap: 10px; font-size: 32px; color: #333; margin-bottom: 30px;">
+                <i class="fas fa-dollar-sign" style="color: #28a745;"></i>
+                Revenue Management
+            </div>
+
+            <!-- Revenue Summary Cards -->
+            <div class="revenue-grid">
+                <!-- Total Revenue Card -->
+                <div class="revenue-stat-card">
+                    <div class="revenue-stat-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="revenue-stat-text">
+                        <h4>Total Revenue</h4>
+                        <div class="amount">$<span th:text="${#numbers.formatDecimal(totalRevenue, 1, 2)}">0.00</span></div>
+                    </div>
+                </div>
+
+                <!-- Total Transactions Card -->
+                <div class="revenue-stat-card">
+                    <div class="revenue-stat-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="revenue-stat-text">
+                        <h4>Total Transactions</h4>
+                        <div class="amount" th:text="${totalTransactions}">0</div>
+                    </div>
+                </div>
+
+                <!-- Active Subscriptions Card -->
+                <div class="revenue-stat-card">
+                    <div class="revenue-stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="revenue-stat-text">
+                        <h4>Active Subscriptions</h4>
+                        <div class="amount" th:text="${#lists.size(activeTransactions)}">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue by Subscription -->
+            <h3 style="margin-bottom: 20px; color: #333; font-weight: 600;">
+                <i class="fas fa-chart-pie" style="color: #667eea; margin-right: 10px;"></i>
+                Revenue by Subscription
+            </h3>
+
+            <div class="revenue-grid" th:if="${!revenueBySubscription.isEmpty()}">
+                <div class="subscription-item" th:each="item : ${revenueBySubscription}">
+                    <div class="subscription-name" th:text="${item.subscriptionName}">Premium</div>
+                    <div class="subscription-revenue">$<span th:text="${#numbers.formatDecimal(item.revenue, 1, 2)}">0.00</span></div>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${revenueBySubscription.isEmpty()}">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <div class="empty-text">No revenue data available</div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <h3 style="margin: 30px 0 20px 0; color: #333; font-weight: 600;">
+                <i class="fas fa-history" style="color: #667eea; margin-right: 10px;"></i>
+                Recent Transactions
+            </h3>
+
+            <div class="transactions-table" th:if="${!transactions.isEmpty()}">
+                <!-- Table Header -->
+                <div class="table-header">
+                    <div>Trans ID</div>
+                    <div>Subscription</div>
+                    <div>Amount</div>
+                    <div>Status</div>
+                    <div>Date</div>
+                </div>
+
+                <!-- Table Rows -->
+                <div th:each="transaction : ${transactions}" class="table-row">
+                    <div class="transaction-id">#[[${transaction.transactionId}]]</div>
+                    <div class="transaction-subscription">[[${transaction.subscription.name}]]</div>
+                    <div class="transaction-amount">$[[${#numbers.formatDecimal(transaction.price, 1, 2)}]]</div>
+                    <div class="transaction-status" th:classappend="${transaction.status.toString().equals('ACTIVE') ? 'status-active' : (transaction.status.toString().equals('COMPLETED') ? 'status-completed' : 'status-cancelled')}">
+                        [[${transaction.status}]]
+                    </div>
+                    <div style="font-size: 13px; color: #666;">[[${#temporals.format(transaction.createdAt, 'dd/MM/yyyy')}]]</div>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${transactions.isEmpty()}">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <div class="empty-text">No transactions found</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Admin Footer -->
+    <th:block th:replace="~{admin/fragments/admin-footer :: admin-footer}"></th:block>
+
+    <!-- Add Bootstrap JS -->
+    <script th:src="@{/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
+
