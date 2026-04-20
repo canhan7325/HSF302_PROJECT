@@ -1,345 +1,94 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Tracking - Admin</title>
-    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/style.css}">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Admin Base Styles -->
-    <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
-    <style>
-        .search-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .search-box {
-            display: flex;
-            gap: 10px;
-        }
-        .search-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-            font-family: Arial, sans-serif;
-        }
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .search-btn {
-            padding: 12px 24px;
-            background-color: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .search-btn:hover {
-            background-color: #764ba2;
-            transform: translateY(-2px);
-        }
-        .comics-table {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        .table-header {
-            display: grid;
-            grid-template-columns: 80px 1fr 120px 150px 100px;
-            gap: 20px;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-        .table-row {
-            display: grid;
-            grid-template-columns: 80px 1fr 120px 150px 100px;
-            gap: 20px;
-            padding: 20px;
-            border-bottom: 1px solid #f0f0f0;
-            align-items: center;
-            transition: background-color 0.3s ease;
-        }
-        .table-row:hover {
-            background-color: #f9f9f9;
-        }
-        .table-row:last-child {
-            border-bottom: none;
-        }
-        .comic-id {
-            font-weight: 600;
-            color: #667eea;
-            font-size: 14px;
-        }
-        .comic-title {
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-            word-break: break-word;
-        }
-        .comic-author {
-            color: #555;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .view-count {
-            background-color: #e3f2fd;
-            color: #667eea;
-            padding: 8px 12px;
-            border-radius: 6px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        /* Filter Section */
-        .filter-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .filter-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .filter-label {
-            font-weight: 600;
-            color: #333;
-            font-size: 13px;
-            text-transform: uppercase;
-            min-width: 80px;
-        }
-        .filter-btn-group {
-            display: flex;
-            gap: 8px;
-        }
-        .filter-btn {
-            padding: 8px 14px;
-            border: 2px solid #e0e0e0;
-            background-color: white;
-            color: #333;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .filter-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
-        }
-        .filter-btn.active {
-            background-color: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        .view-btn {
-            padding: 8px 14px;
-            background-color: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .view-btn:hover {
-            background-color: #764ba2;
-            text-decoration: none;
-            color: white;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 60px 30px;
-            background: white;
-            border-radius: 8px;
-        }
-        .empty-icon {
-            font-size: 48px;
-            color: #ccc;
-            margin-bottom: 15px;
-        }
-        .empty-text {
-            color: #999;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        form {
-            margin: 0;
-        }
-    </style>
+<meta charset="UTF-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>View Tracking — Admin Panel</title>
+<th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
 </head>
-<body>
+<body class="bg-background text-on-surface flex min-h-screen">
 
-    <!-- Include Admin Header -->
-    <div th:replace="~{admin/fragments/admin-header :: admin-header}"></div>
+<th:block th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar(activeSection='view-tracking')}"></th:block>
 
-    <!-- Main Layout -->
-    <div class="admin-layout">
-        <!-- Include Sidebar -->
-        <div th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar}"></div>
+<main class="ml-72 flex-1 p-8 bg-background">
+  <header class="mb-6">
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Analytics</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter">View Tracking</h2>
+  </header>
 
-        <!-- Main Content -->
-        <div class="dashboard-container">
-            <!-- Page Title -->
-            <div class="page-title">
-                <i class="fas fa-eye" style="color: #667eea;"></i>
-                View Tracking
-            </div>
+  <!-- Search + filters -->
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm p-4 mb-6">
+    <form th:action="@{/admin/view-tracking}" method="get" class="flex flex-wrap gap-3 items-end">
+      <div class="relative flex-1 min-w-48">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size:18px">search</span>
+        <input type="text" name="search" th:value="${searchQuery}" placeholder="Search by title..."
+               class="w-full pl-9 pr-3 py-2 text-sm border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-surface-container-lowest"/>
+      </div>
+      <div class="flex gap-1">
+        <a th:href="@{/admin/view-tracking(sortBy='id',sortOrder='asc',filterBy=${filterBy})}"
+           class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
+           th:classappend="${sortBy == 'id' and sortOrder == 'asc'} ? ' bg-primary text-on-primary border-primary' : ''">ID ↑</a>
+        <a th:href="@{/admin/view-tracking(sortBy='id',sortOrder='desc',filterBy=${filterBy})}"
+           class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
+           th:classappend="${sortBy == 'id' and sortOrder == 'desc'} ? ' bg-primary text-on-primary border-primary' : ''">ID ↓</a>
+        <a th:href="@{/admin/view-tracking(sortBy='name',sortOrder='asc',filterBy=${filterBy})}"
+           class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
+           th:classappend="${sortBy == 'name' and sortOrder == 'asc'} ? ' bg-primary text-on-primary border-primary' : ''">A–Z</a>
+        <a th:href="@{/admin/view-tracking(sortBy='name',sortOrder='desc',filterBy=${filterBy})}"
+           class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
+           th:classappend="${sortBy == 'name' and sortOrder == 'desc'} ? ' bg-primary text-on-primary border-primary' : ''">Z–A</a>
+      </div>
+      <div class="flex gap-1">
+        <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder})}"
+           class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
+           th:classappend="${filterBy == null or filterBy == ''} ? ' bg-secondary text-white border-secondary' : ''">All</a>
+        <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder},filterBy='most-viewed')}"
+           class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
+           th:classappend="${filterBy == 'most-viewed'} ? ' bg-secondary text-white border-secondary' : ''">Most Viewed</a>
+        <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder},filterBy='least-viewed')}"
+           class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
+           th:classappend="${filterBy == 'least-viewed'} ? ' bg-secondary text-white border-secondary' : ''">Least Viewed</a>
+      </div>
+      <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dim text-on-primary rounded-lg text-sm font-bold">Search</button>
+    </form>
+  </div>
 
-            <!-- Filter Section -->
-            <div class="filter-container">
-                <div class="filter-group">
-                    <span class="filter-label">Sort By</span>
-                    <div class="filter-btn-group">
-                        <a th:href="@{/admin/view-tracking(sortBy=id,sortOrder=asc,filterBy=${filterBy})}"
-                           class="filter-btn" th:classappend="${sortBy == 'id' and sortOrder == 'asc'} ? 'active' : ''">
-                            ID ↑
-                        </a>
-                        <a th:href="@{/admin/view-tracking(sortBy=id,sortOrder=desc,filterBy=${filterBy})}"
-                           class="filter-btn" th:classappend="${sortBy == 'id' and sortOrder == 'desc'} ? 'active' : ''">
-                            ID ↓
-                        </a>
-                        <a th:href="@{/admin/view-tracking(sortBy=name,sortOrder=asc,filterBy=${filterBy})}"
-                           class="filter-btn" th:classappend="${sortBy == 'name' and sortOrder == 'asc'} ? 'active' : ''">
-                            Name A-Z
-                        </a>
-                        <a th:href="@{/admin/view-tracking(sortBy=name,sortOrder=desc,filterBy=${filterBy})}"
-                           class="filter-btn" th:classappend="${sortBy == 'name' and sortOrder == 'desc'} ? 'active' : ''">
-                            Name Z-A
-                        </a>
-                    </div>
-                </div>
-                <div class="filter-group">
-                    <span class="filter-label">Filter</span>
-                    <div class="filter-btn-group">
-                        <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder})}"
-                           class="filter-btn" th:classappend="${filterBy == null or filterBy == ''} ? 'active' : ''">
-                            All
-                        </a>
-                        <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder},filterBy='most-viewed')}"
-                           class="filter-btn" th:classappend="${filterBy == 'most-viewed'} ? 'active' : ''">
-                            Most Viewed
-                        </a>
-                        <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder},filterBy='least-viewed')}"
-                           class="filter-btn" th:classappend="${filterBy == 'least-viewed'} ? 'active' : ''">
-                            Least Viewed
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Search Section -->
-            <div class="search-container">
-                <form th:action="@{/admin/view-tracking}" method="get" class="search-box">
-                    <input
-                        type="text"
-                        name="search"
-                        class="search-input"
-                        placeholder="Search comics by name..."
-                        th:value="${searchQuery}"
-                    >
-                    <button type="submit" class="search-btn">
-                        <i class="fas fa-search"></i>
-                        Search
-                    </button>
-                </form>
-            </div>
-
-            <!-- Comics Table -->
-            <div class="comics-table" th:if="${comics != null && !comics.isEmpty()}">
-                <!-- Table Header -->
-                <div class="table-header">
-                    <div>Comic ID</div>
-                    <div>Title</div>
-                    <div>Author</div>
-                    <div style="text-align: center;">View Count</div>
-                    <div style="text-align: center;">Action</div>
-                </div>
-
-                <!-- Table Rows -->
-                <div th:each="comic : ${comics}" class="table-row">
-                    <div class="comic-id">#[[${comic.comicId}]]</div>
-                    <div class="comic-title">[[${comic.title}]]</div>
-                    <div class="comic-author">[[${comic.user.username}]]</div>
-                    <div class="view-count">
-                        <i class="fas fa-eye"></i>
-                        [[${comic.viewCount}]]
-                    </div>
-                    <div style="text-align: center;">
-                        <a th:href="@{'/'}" class="view-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            View
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty State -->
-            <div class="empty-state" th:if="${comics != null && comics.isEmpty()}">
-                <div class="empty-icon">
-                    <i class="fas fa-inbox"></i>
-                </div>
-                <div class="empty-text">
-                    No comics found
-                </div>
-                <div style="font-size: 12px; color: #ccc;">
-                    Try searching with different keywords
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Include Admin Footer -->
-    <div th:replace="~{admin/fragments/admin-footer :: admin-footer}"></div>
-
-    <!-- Add Bootstrap JS -->
-    <script th:src="@{/bootstrap.bundle.min.js}"></script>
-    <script>
-        // Auto-focus search input on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.querySelector('.search-input');
-            if (searchInput) {
-                searchInput.focus();
-            }
-        });
-    </script>
-
+  <!-- Comics table -->
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden" th:if="${comics != null and !comics.isEmpty()}">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b border-surface-container-high">
+          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">ID</th>
+          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Title</th>
+          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Author</th>
+          <th class="px-6 py-3 text-on-surface-variant text-right" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Views</th>
+          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-container">
+        <tr th:each="comic : ${comics}" class="hover:bg-surface-container-low transition-colors">
+          <td class="px-6 py-3 text-sm font-mono text-on-surface-variant" th:text="'#' + ${comic.comicId}"></td>
+          <td class="px-6 py-3 text-sm font-medium" th:text="${comic.title}"></td>
+          <td class="px-6 py-3 text-sm text-on-surface-variant" th:text="${comic.user != null ? comic.user.username : '—'}"></td>
+          <td class="px-6 py-3 text-right">
+            <span class="inline-flex items-center gap-1 text-sm font-bold text-secondary">
+              <span class="material-symbols-outlined" style="font-size:14px">visibility</span>
+              <span th:text="${comic.viewCount}">0</span>
+            </span>
+          </td>
+          <td class="px-6 py-3">
+            <span th:if="${comic.status.name() == 'ONGOING'}"   class="text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full" th:text="${comic.status}"></span>
+            <span th:if="${comic.status.name() == 'SCHEDULED'}" class="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full"  th:text="${comic.status}"></span>
+            <span th:if="${comic.status.name() == 'CANCELED'}"  class="text-xs font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-full" th:text="${comic.status}"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div th:if="${comics == null or comics.isEmpty()}"
+       class="bg-surface-container-lowest rounded-xl shadow-sm py-16 text-center text-on-surface-variant text-sm">
+    No comics found.
+  </div>
+</main>
 </body>
 </html>
-
-
-

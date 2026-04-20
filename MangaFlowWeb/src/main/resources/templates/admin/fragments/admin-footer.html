@@ -1,27 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head><meta charset="UTF-8"/></head>
 <body>
 
-<!-- Admin Footer Fragment -->
-<footer th:fragment="admin-footer">
-    <div class="footer-inner">
-        <div>
-            <div class="footer-brand">MangaCurator</div>
-            <p class="footer-copy">&copy; 2026 MangaCurator. All rights reserved.</p>
-        </div>
-        <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Contact Us</a>
-        </div>
-    </div>
-</footer>
+<!--
+  admin-footer fragment — no visible footer in the new style.
+  Kept as an empty fragment for backward compatibility.
+-->
+<th:block th:fragment="admin-footer"></th:block>
 
 </body>
 </html>
-
-
-

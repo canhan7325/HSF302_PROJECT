@@ -7,13 +7,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    
+
     private final AdminRedirectInterceptor adminRedirectInterceptor;
-    
+
     public WebConfig(AdminRedirectInterceptor adminRedirectInterceptor) {
         this.adminRedirectInterceptor = adminRedirectInterceptor;
     }
-    
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(adminRedirectInterceptor)
@@ -21,4 +21,3 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/login", "/register", "/api/auth/**");
     }
 }
-

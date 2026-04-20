@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Genre Management — Admin Panel</title>
+<th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
+</head>
+<body class="bg-background text-on-surface flex min-h-screen">
+
+<th:block th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar(activeSection='genres')}"></th:block>
+
+<main class="ml-72 flex-1 p-8 bg-background">
+
+<!-- LIST -->
+<th:block th:if="${view == 'list'}">
+  <header class="mb-8 flex justify-between items-end">
+    <div>
+      <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Catalog</p>
+      <h2 class="text-4xl font-extrabold tracking-tighter">Genre Management</h2>
+    </div>
+    <a th:href="@{/admin/genres/new}" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-sm">
+      <span class="material-symbols-outlined" style="font-size:18px">add</span>Add Genre
+    </a>
+  </header>
+  <th:block th:replace="~{admin/fragments/admin :: flash(${successMessage}, ${errorMessage})}"></th:block>
+  <form th:action="@{/admin/genres}" method="get" class="flex gap-2 max-w-md mb-6">
+    <div class="relative flex-1">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size:18px">search</span>
+      <input type="text" name="search" th:value="${search}" placeholder="Search..."
+             class="w-full pl-9 pr-3 py-2 text-sm border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-surface-container-lowest"/>
+    </div>
+    <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dim text-on-primary rounded-lg text-sm font-bold">Search</button>
+    <a th:if="${search != null and search != ''}" th:href="@{/admin/genres}" class="px-3 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container">Clear</a>
+  </form>
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b border-surface-container-high">
+          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Name</th>
+          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Slug</th>
+          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Comics</th>
+          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-container">
+        <tr th:each="g : ${genres}" class="hover:bg-surface-container-low transition-colors">
+          <td class="px-6 py-4 font-medium text-sm" th:text="${g.name}"></td>
+          <td class="px-6 py-4 text-sm text-on-surface-variant font-mono" th:text="${g.slug}"></td>
+          <td class="px-6 py-4 text-sm" th:text="${g.comicCount}"></td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-1">
+              <a th:href="@{/admin/genres/{id}/edit(id=${g.genreId})}" title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-secondary transition-colors">
+                <span class="material-symbols-outlined" style="font-size:18px">edit</span>
+              </a>
+              <form th:action="@{/admin/genres/{id}/delete(id=${g.genreId})}" method="post" onsubmit="return confirm('Delete this genre?')">
+                <button type="submit" title="Delete" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors">
+                  <span class="material-symbols-outlined" style="font-size:18px">delete</span>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <tr th:if="${genres.empty}">
+          <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant text-sm">No genres found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</th:block>
+
+<!-- FORM -->
+<th:block th:if="${view == 'form'}">
+  <header class="mb-8">
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Catalog</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter" th:text="${editMode} ? 'Edit Genre' : 'Add Genre'">Genre Form</h2>
+  </header>
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8 max-w-lg">
+    <div th:if="${duplicateError}" class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium" th:text="${duplicateError}"></div>
+
+    <!-- Create -->
+    <form th:if="${!editMode}" th:action="@{/admin/genres/new}" method="post" class="space-y-6">
+      <div>
+        <label class="block text-sm font-bold mb-1">Genre Name</label>
+        <input type="text" name="name" placeholder="e.g. Action" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+        <p class="text-xs text-on-surface-variant mt-1">Slug will be auto-generated from the name.</p>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Create Genre</button>
+        <a th:href="@{/admin/genres}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Cancel</a>
+      </div>
+    </form>
+
+    <!-- Edit -->
+    <form th:if="${editMode}" th:action="@{/admin/genres/{id}/edit(id=${genreId})}" method="post" class="space-y-6">
+      <div>
+        <label class="block text-sm font-bold mb-1">Genre Name</label>
+        <input type="text" name="name" th:value="${genreInfo != null ? genreInfo.name : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+        <p class="text-xs text-on-surface-variant mt-1">Slug will be regenerated from the updated name.</p>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Save Changes</button>
+        <a th:href="@{/admin/genres}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Cancel</a>
+      </div>
+    </form>
+  </div>
+</th:block>
+
+</main>
+</body>
+</html>

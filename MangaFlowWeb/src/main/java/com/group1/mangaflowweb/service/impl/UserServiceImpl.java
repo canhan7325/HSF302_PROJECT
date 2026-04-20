@@ -1,18 +1,122 @@
 package com.group1.mangaflowweb.service.impl;
 
+import com.group1.mangaflowweb.dto.request.UserRequest;
+import com.group1.mangaflowweb.dto.response.UserAdminResponse;
+import com.group1.mangaflowweb.entity.Users;
 import com.group1.mangaflowweb.repository.UserRepository;
 import com.group1.mangaflowweb.service.UserService;
+
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class UserServiceImpl implements UserService {
-    
+
     private final UserRepository userRepository;
-    
-    public UserServiceImpl(UserRepository userRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
-    
+
+    @Override
+    public Page<UserAdminResponse> getUsersPage(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(u -> new UserAdminResponse(
+                        u.getUserId(),
+                        u.getUsername(),
+                        u.getEmail(),
+                        u.getRole(),
+                        u.getEnabled(),
+                        u.getCreatedAt()));
+    }
+
+    @Override
+    public Page<UserAdminResponse> searchUsers(String query, Pageable pageable) {
+        return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query, pageable)
+                .map(u -> new UserAdminResponse(u.getUserId(), u.getUsername(), u.getEmail(), u.getRole(), u.getEnabled(), u.getCreatedAt()));
+    }
+
+    @Override
+    public UserAdminResponse getUserById(Integer id) {
+        Users u = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+        return new UserAdminResponse(u.getUserId(), u.getUsername(), u.getEmail(), u.getRole(), u.getEnabled(), u.getCreatedAt());
+    }
+
+    @Override
+    @Transactional
+    public void createUser(UserRequest form) {
+        if (userRepository.findByUsername(form.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already exists: " + form.getUsername());
+        }
+        if (userRepository.findByEmail(form.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists: " + form.getEmail());
+        }
+        Users user = new Users();
+        user.setUsername(form.getUsername());
+        user.setEmail(form.getEmail());
+        user.setRole(form.getRole());
+        user.setPassword(passwordEncoder.encode(form.getPassword()));
+        user.setEnabled(true);
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("Username or email already exists", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(Integer id, UserRequest form) {
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+
+        userRepository.findByUsername(form.getUsername())
+                .filter(u -> !u.getUserId().equals(id))
+                .ifPresent(u -> { throw new IllegalArgumentException("Username already exists: " + form.getUsername()); });
+
+        userRepository.findByEmail(form.getEmail())
+                .filter(u -> !u.getUserId().equals(id))
+                .ifPresent(u -> { throw new IllegalArgumentException("Email already exists: " + form.getEmail()); });
+
+        user.setUsername(form.getUsername());
+        user.setEmail(form.getEmail());
+        user.setRole(form.getRole());
+        if (form.getPassword() != null && !form.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(form.getPassword()));
+        }
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("Username or email already exists", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void softDeleteUser(Integer id) {
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+        user.setEnabled(false);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void restoreUser(Integer id) {
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+        user.setEnabled(true);
+        userRepository.save(user);
+    }
+
     @Override
     public long getTotalUsers() {
         return userRepository.count();

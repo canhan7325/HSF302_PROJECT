@@ -1,74 +1,179 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/style.css}">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Admin Base Styles -->
-    <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Overview — Admin Panel</title>
+<th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
-<body>
+<body class="bg-background text-on-surface flex min-h-screen">
 
-    <!-- Include Admin Header -->
-    <div th:replace="~{admin/fragments/admin-header :: admin-header}"></div>
+<th:block th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar(activeSection='dashboard')}"></th:block>
 
-    <!-- Main Layout -->
-    <div class="admin-layout">
-        <!-- Include Admin Sidebar -->
-        <div th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar}"></div>
+<main class="ml-72 flex-1 p-8 bg-background">
+    <header class="mb-8">
+        <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Overview</p>
+        <h2 class="text-4xl font-extrabold tracking-tighter text-on-surface">Dashboard</h2>
+    </header>
 
-        <!-- Main Content -->
-        <div class="dashboard-container">
-            <!-- Page Title -->
-            <div class="page-title" style="display: flex; align-items: center; gap: 10px; font-size: 32px; color: #333; margin-bottom: 30px;">
-                <i class="fas fa-chart-line" style="color: #667eea;"></i>
-                Admin Dashboard
+    <!-- Stats cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="material-symbols-outlined text-primary">group</span>
+                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Users</p>
             </div>
-
-            <!-- Statistics Cards -->
-            <div class="stats-row">
-                <!-- Total Comics Card -->
-                <div class="stat-card">
-                    <div style="font-size: 40px; color: #667eea;">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="stat-label">Total Comics</div>
-                    <div class="stat-number" th:text="${totalComics}">0</div>
-                </div>
-
-                <!-- Total Users Card -->
-                <div class="stat-card">
-                    <div style="font-size: 40px; color: #667eea;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-label">Total Users</div>
-                    <div class="stat-number" th:text="${totalUsers}">0</div>
-                </div>
+            <p class="text-3xl font-extrabold tracking-tighter" th:text="${stats.totalActiveUsers}">0</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="material-symbols-outlined text-primary">menu_book</span>
+                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Manga</p>
             </div>
-
-            <!-- Additional Info Section -->
-            <div class="stat-card" style="margin-top: 30px;">
-                <h3 style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; color: #333;">
-                    <i class="fas fa-info-circle" style="color: #667eea;"></i>
-                    Welcome to Admin Panel
-                </h3>
-                <p style="color: #666; margin-top: 15px;">
-                    This is the temporary management dashboard. Additional administrative features can be added here.
-                </p>
+            <p class="text-3xl font-extrabold tracking-tighter" th:text="${stats.totalActiveComics}">0</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="material-symbols-outlined text-primary">visibility</span>
+                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Views</p>
             </div>
+            <p class="text-3xl font-extrabold tracking-tighter" th:text="${stats.totalViewCount}">0</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="material-symbols-outlined text-primary">category</span>
+                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Genres</p>
+            </div>
+            <p class="text-3xl font-extrabold tracking-tighter" th:text="${stats.totalActiveGenres}">0</p>
         </div>
     </div>
 
-    <!-- Include Admin Footer -->
-    <div th:replace="~{admin/fragments/admin-footer :: admin-footer}"></div>
+    <div class="grid grid-cols-1 gap-6 mb-8">
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-bold">Most Viewed Manga</h3>
+                <div class="flex gap-1">
+                    <button data-limit="5"  class="manga-limit-btn px-3 py-1 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors">Top 5</button>
+                    <button data-limit="10" class="manga-limit-btn px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">Top 10</button>
+                    <button data-limit="0"  class="manga-limit-btn px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">All</button>
+                </div>
+            </div>
+            <canvas id="mangaViewsChart" height="120"></canvas>
+        </div>
+    </div>
 
-    <!-- Add Bootstrap JS -->
-    <script th:src="@{/bootstrap.bundle.min.js}"></script>
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold">Revenue Over Time</h3>
+            <div class="flex gap-2">
+                <button onclick="loadRevenue('week')" id="btn-week"
+                        class="px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">Week</button>
+                <button onclick="loadRevenue('month')" id="btn-month"
+                        class="px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">Month</button>
+                <button onclick="loadRevenue('year')" id="btn-year"
+                        class="px-3 py-1 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors">Year</button>
+            </div>
+        </div>
+        <canvas id="revenueChart" height="120"></canvas>
+    </div>
+</main>
 
+<script th:inline="javascript">
+    const allComics = /*[[${topComics}]]*/ [];
+    let mangaChart  = null;
+    let activeLimit = 5;
+
+    const PALETTE = [
+        '#914700','#1a73e8','#0f9d58','#f4b400','#db4437',
+        '#7b1fa2','#00838f','#e65100','#37474f','#6d4c41'
+    ];
+
+    function renderMangaChart() {
+        const slice  = activeLimit <= 0 ? allComics : allComics.slice(0, activeLimit);
+        const labels = slice.map(c => c.title);
+        const data   = slice.map(c => c.viewCount);
+        const colors = slice.map((_, i) => PALETTE[i % PALETTE.length]);
+        if (mangaChart) { mangaChart.destroy(); }
+        mangaChart = new Chart(document.getElementById('mangaViewsChart'), {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Views', data, backgroundColor: colors, borderRadius: 6 }] },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x.toLocaleString()} views` } } },
+                scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
+    }
+
+    document.querySelectorAll('.manga-limit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            activeLimit = parseInt(btn.dataset.limit);
+            document.querySelectorAll('.manga-limit-btn').forEach(b => {
+                b.classList.remove('bg-primary', 'text-on-primary');
+                b.classList.add('border', 'border-outline-variant', 'hover:bg-surface-container');
+            });
+            btn.classList.remove('border', 'border-outline-variant', 'hover:bg-surface-container');
+            btn.classList.add('bg-primary', 'text-on-primary');
+            renderMangaChart();
+        });
+    });
+
+    renderMangaChart();
+
+    let revenueChart = null;
+
+    function loadRevenue(period) {
+        ['week', 'month', 'year'].forEach(p => {
+            const btn = document.getElementById('btn-' + p);
+            if (p === period) {
+                btn.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors';
+            } else {
+                btn.className = 'px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors';
+            }
+        });
+        fetch('/admin/dashboard/revenue?period=' + period)
+            .then(r => r.json())
+            .then(data => {
+                const labels = data.map(d => d.period);
+                const values = data.map(d => parseFloat(d.revenue));
+                if (revenueChart) {
+                    revenueChart.destroy();
+                    revenueChart = null;
+                }
+                revenueChart = new Chart(document.getElementById('revenueChart'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Revenue ($)',
+                            data: values,
+                            backgroundColor: '#914700cc',
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ' $' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+                                }
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: v => '$' + v } },
+                            x: { ticks: { maxRotation: 45 } }
+                        }
+                    }
+                });
+            });
+    }
+
+    loadRevenue('year');
+</script>
 </body>
 </html>
-

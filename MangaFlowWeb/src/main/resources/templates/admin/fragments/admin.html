@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<!-- flash(successMessage, errorMessage) -->
+<th:block th:fragment="flash(successMessage, errorMessage)">
+    <div th:if="${successMessage}" class="mb-4 px-4 py-3 bg-green-100 text-green-800 rounded-lg text-sm font-medium" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}"   class="mb-4 px-4 py-3 bg-red-100 text-red-800 rounded-lg text-sm font-medium"   th:text="${errorMessage}"></div>
+</th:block>
+
+<!-- statusBadge(status) -->
+<th:block th:fragment="statusBadge(status)">
+    <span th:if="${status.name() == 'ONGOING'}"   class="text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full" th:text="${status}"></span>
+    <span th:if="${status.name() == 'SCHEDULED'}" class="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full"  th:text="${status}"></span>
+    <span th:if="${status.name() == 'CANCELED'}"  class="text-xs font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-full" th:text="${status}"></span>
+</th:block>
+
+<!-- coverImg(src, alt) -->
+<th:block th:fragment="coverImg(src, alt)">
+    <img th:if="${src != null and src != ''}" th:src="${src}" th:alt="${alt}" class="w-full h-full object-cover"/>
+    <div th:if="${src == null or src == ''}"
+         class="w-full h-full flex items-center justify-center bg-surface-container-high">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#afadac" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+    </div>
+</th:block>
+
+<!-- pagination(page, baseUrl, extraQuery) — extraQuery e.g. '&search=foo' or '' -->
+<th:block th:fragment="pagination(page, baseUrl, extraQuery)">
+    <div class="mt-4 flex items-center justify-between text-sm">
+        <span class="text-on-surface-variant">Page <span th:text="${page.number + 1}"></span> of <span th:text="${page.totalPages}"></span></span>
+        <div class="flex gap-2">
+            <a th:if="${page.hasPrevious()}" th:href="${baseUrl + '?page=' + (page.number - 1) + '&size=' + page.size + extraQuery}" class="px-3 py-1 rounded-lg bg-surface-container-lowest border border-outline-variant hover:bg-surface-container font-medium">Previous</a>
+            <span th:if="${!page.hasPrevious()}" class="px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant font-medium cursor-not-allowed">Previous</span>
+            <a th:if="${page.hasNext()}" th:href="${baseUrl + '?page=' + (page.number + 1) + '&size=' + page.size + extraQuery}" class="px-3 py-1 rounded-lg bg-surface-container-lowest border border-outline-variant hover:bg-surface-container font-medium">Next</a>
+            <span th:if="${!page.hasNext()}" class="px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant font-medium cursor-not-allowed">Next</span>
+        </div>
+    </div>
+</th:block>
+
+</body>
+</html>

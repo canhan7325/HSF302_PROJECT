@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manga Management — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config={darkMode:"class",theme:{extend:{colors:{"background":"#f9f6f5","on-surface":"#2f2f2e","on-surface-variant":"#5c5b5b","surface-container-lowest":"#ffffff","surface-container-low":"#f3f0ef","surface-container":"#eae7e7","surface-container-high":"#e4e2e1","primary":"#914700","primary-dim":"#7f3d00","on-primary":"#fff0e8","secondary":"#005e9f","outline-variant":"#afadac","error":"#b02500"},fontFamily:{headline:["Plus Jakarta Sans"],body:["Manrope"]}}}}
+</script>
+<style>
+body{font-family:'Manrope',sans-serif;}
+h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;}
+.cover-box{width:100%;padding-top:150%;position:relative;overflow:hidden;}
+.cover-box>*{position:absolute;inset:0;}
+.cover-thumb{width:36px;height:54px;overflow:hidden;flex-shrink:0;}
+.page-card{cursor:grab;user-select:none;}
+.page-card:active{cursor:grabbing;}
+.page-card.dragging{opacity:0.4;}
+.page-card.drag-over{outline:2px dashed #914700;outline-offset:2px;}
+</style>
+</head>
+<body class="bg-background text-on-surface flex min-h-screen">
+
+<th:block th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar(activeSection='manga')}"></th:block>
+
+<main class="ml-72 flex-1 p-8 bg-background">
+
+<!-- ═══════════════════════════════════════════════════════ LIST VIEW ═══ -->
+<th:block th:if="${view == 'list'}">
+  <header class="mb-6 flex justify-between items-end">
+    <div>
+      <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Content</p>
+      <h2 class="text-4xl font-extrabold tracking-tighter">Manga Management</h2>
+    </div>
+    <a th:href="@{/admin/manga/new}" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-sm">
+      <span class="material-symbols-outlined" style="font-size:18px">add</span>Add Manga
+    </a>
+  </header>
+
+  <th:block th:replace="~{admin/fragments/admin :: flash(${successMessage}, ${errorMessage})}"></th:block>
+
+  <div class="flex items-center gap-3 mb-6">
+    <form th:action="@{/admin/manga}" method="get" class="flex gap-2 max-w-md flex-1">
+      <div class="relative flex-1">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size:18px">search</span>
+        <input type="text" name="search" th:value="${search}" placeholder="Search title..."
+               class="w-full pl-9 pr-3 py-2 text-sm border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-surface-container-lowest"/>
+      </div>
+      <button type="submit" class="px-4 py-2 bg-primary text-on-primary rounded-lg text-sm font-bold hover:bg-primary-dim">Search</button>
+      <a th:if="${search != null and search != ''}" th:href="@{/admin/manga}" class="px-3 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container">Clear</a>
+    </form>
+    <div class="flex gap-1 ml-auto">
+      <button id="btn-grid" onclick="setView('grid')" class="p-2 rounded-lg bg-primary text-on-primary transition-colors" title="Grid">
+        <span class="material-symbols-outlined" style="font-size:20px">grid_view</span>
+      </button>
+      <button id="btn-list" onclick="setView('list')" class="p-2 rounded-lg border border-outline-variant hover:bg-surface-container transition-colors" title="List">
+        <span class="material-symbols-outlined" style="font-size:20px">view_list</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid view -->
+  <div id="view-grid" th:if="${view == 'list'}" class="grid gap-4 mb-6" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">
+    <div th:each="comic : ${page.content}" class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col group">
+      <div class="cover-box bg-surface-container relative">
+        <th:block th:replace="~{admin/fragments/admin :: coverImg(${comic.coverImg}, ${comic.title})}"></th:block>
+        <span th:if="${comic.status.name() == 'ONGOING'}"   class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Ongoing</span>
+        <span th:if="${comic.status.name() == 'SCHEDULED'}" class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Scheduled</span>
+        <span th:if="${comic.status.name() == 'CANCELED'}"  class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Canceled</span>
+      </div>
+      <div class="p-3 flex flex-col gap-1 flex-1">
+        <p class="text-sm font-bold leading-tight" th:text="${comic.title}"></p>
+        <p class="text-xs text-on-surface-variant">
+          <span class="material-symbols-outlined" style="font-size:13px;vertical-align:-2px">visibility</span>
+          <span th:text="${comic.viewCount}"></span>
+          &nbsp;·&nbsp;
+          <span class="material-symbols-outlined" style="font-size:13px;vertical-align:-2px">menu_book</span>
+          <span th:text="${comic.chapterCount}"></span> ch
+        </p>
+        <div class="flex items-center gap-1 mt-auto pt-2">
+          <a th:href="@{/admin/manga/{id}/edit(id=${comic.comicId})}" title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-secondary transition-colors">
+            <span class="material-symbols-outlined" style="font-size:18px">edit</span>
+          </a>
+          <a th:href="@{/admin/manga/{id}/chapters(id=${comic.comicId})}" title="Chapters" class="p-1.5 rounded-lg hover:bg-surface-container text-primary transition-colors">
+            <span class="material-symbols-outlined" style="font-size:18px">auto_stories</span>
+          </a>
+          <form th:action="@{/admin/manga/{id}/delete(id=${comic.comicId})}" method="post" onsubmit="return confirm('Soft-delete this manga?')" class="ml-auto">
+            <button type="submit" title="Delete" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors">
+              <span class="material-symbols-outlined" style="font-size:18px">delete</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <p th:if="${page.content.empty}" class="text-on-surface-variant text-sm py-10">No manga found.</p>
+  </div>
+
+  <!-- List view -->
+  <div id="view-list" class="hidden bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-6" th:if="${view == 'list'}">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b border-surface-container-high">
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:48px"></th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Title</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Status</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Views</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Ch.</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Uploader</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Created</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-container">
+        <tr th:each="comic : ${page.content}" class="hover:bg-surface-container-low transition-colors">
+          <td class="px-4 py-3">
+            <div class="cover-thumb rounded bg-surface-container">
+              <th:block th:replace="~{admin/fragments/admin :: coverImg(${comic.coverImg}, ${comic.title})}"></th:block>
+            </div>
+          </td>
+          <td class="px-4 py-3 font-medium text-sm" th:text="${comic.title}"></td>
+          <td class="px-4 py-3">
+            <span th:if="${comic.status.name() == 'ONGOING'}"   class="text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full" th:text="${comic.status}"></span>
+            <span th:if="${comic.status.name() == 'SCHEDULED'}" class="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full"  th:text="${comic.status}"></span>
+            <span th:if="${comic.status.name() == 'CANCELED'}"  class="text-xs font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-full" th:text="${comic.status}"></span>
+          </td>
+          <td class="px-4 py-3 text-sm" th:text="${comic.viewCount}"></td>
+          <td class="px-4 py-3 text-sm" th:text="${comic.chapterCount}"></td>
+          <td class="px-4 py-3 text-sm" th:text="${comic.uploaderUsername}"></td>
+          <td class="px-4 py-3 text-sm" th:text="${#temporals.format(comic.createdAt,'yyyy-MM-dd')}"></td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-1">
+              <a th:href="@{/admin/manga/{id}/edit(id=${comic.comicId})}" title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-secondary transition-colors">
+                <span class="material-symbols-outlined" style="font-size:18px">edit</span>
+              </a>
+              <a th:href="@{/admin/manga/{id}/chapters(id=${comic.comicId})}" title="Chapters" class="p-1.5 rounded-lg hover:bg-surface-container text-primary transition-colors">
+                <span class="material-symbols-outlined" style="font-size:18px">auto_stories</span>
+              </a>
+              <form th:action="@{/admin/manga/{id}/delete(id=${comic.comicId})}" method="post" onsubmit="return confirm('Soft-delete this manga?')">
+                <button type="submit" title="Delete" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors">
+                  <span class="material-symbols-outlined" style="font-size:18px">delete</span>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <tr th:if="${page.content.empty}">
+          <td colspan="8" class="px-6 py-10 text-center text-on-surface-variant text-sm">No manga found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <th:block th:replace="~{admin/fragments/admin :: pagination(${page}, '/admin/manga', ${search != null and search != '' ? '&search=' + search : ''})}"></th:block>
+</th:block>
+
+<!-- ═══════════════════════════════════════════════════════ FORM VIEW ════ -->
+<th:block th:if="${view == 'form'}">
+  <header class="mb-8">
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Content</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter text-on-surface" th:text="${editMode} ? 'Edit Manga' : 'Add Manga'">Manga Form</h2>
+  </header>
+
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8 max-w-2xl">
+    <!-- Create form -->
+    <form th:if="${!editMode}" th:action="@{/admin/manga/new}" method="post" class="space-y-6">
+      <div>
+        <label class="block text-sm font-bold mb-1" for="title">Title</label>
+        <input id="title" type="text" name="title" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1" for="description">Description</label>
+        <textarea id="description" name="description" rows="4" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1" for="coverImg">Cover Image URL</label>
+        <input id="coverImg" type="text" name="coverImg" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1" for="status">Status</label>
+        <select id="status" name="status" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+          <option value="">-- Select Status --</option>
+          <option value="SCHEDULED">SCHEDULED</option>
+          <option value="ONGOING">ONGOING</option>
+          <option value="CANCELED">CANCELED</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-2">Genres</label>
+        <div class="grid grid-cols-2 gap-2">
+          <label th:each="genre : ${genres}" class="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="genreIds" th:value="${genre.genreId}" class="rounded border-outline-variant text-primary focus:ring-primary"/>
+            <span th:text="${genre.name}"></span>
+          </label>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Create Manga</button>
+        <a th:href="@{/admin/manga}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Cancel</a>
+      </div>
+    </form>
+
+    <!-- Edit form -->
+    <form th:if="${editMode}" th:action="@{/admin/manga/{id}/edit(id=${comicId})}" method="post" class="space-y-6">
+      <div>
+        <label class="block text-sm font-bold mb-1" for="titleEdit">Title</label>
+        <input id="titleEdit" type="text" name="title"
+               th:value="${comicInfo != null ? comicInfo.title() : ''}"
+               class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1" for="descriptionEdit">Description</label>
+        <textarea id="descriptionEdit" name="description" rows="4" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1" for="coverImgEdit">Cover Image URL</label>
+        <input id="coverImgEdit" type="text" name="coverImg"
+               th:value="${comicInfo != null ? comicInfo.coverImg() : ''}"
+               class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1" for="statusEdit">Status</label>
+        <select id="statusEdit" name="status" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+          <option value="">-- Select Status --</option>
+          <option value="SCHEDULED" th:selected="${comicInfo != null and comicInfo.status() != null and comicInfo.status().name() == 'SCHEDULED'}">SCHEDULED</option>
+          <option value="ONGOING"   th:selected="${comicInfo != null and comicInfo.status() != null and comicInfo.status().name() == 'ONGOING'}">ONGOING</option>
+          <option value="CANCELED"  th:selected="${comicInfo != null and comicInfo.status() != null and comicInfo.status().name() == 'CANCELED'}">CANCELED</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-2">Genres</label>
+        <div class="grid grid-cols-2 gap-2">
+          <label th:each="genre : ${genres}" class="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="genreIds" th:value="${genre.genreId}" class="rounded border-outline-variant text-primary focus:ring-primary"/>
+            <span th:text="${genre.name}"></span>
+          </label>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Save Changes</button>
+        <a th:href="@{/admin/manga}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Cancel</a>
+      </div>
+    </form>
+  </div>
+</th:block>
+
+<!-- ══════════════════════════════════════════════════════ CHAPTERS VIEW ═ -->
+<th:block th:if="${view == 'chapters'}">
+  <header class="mb-6">
+    <a th:href="@{/admin/manga}" class="text-sm text-primary font-bold hover:underline flex items-center gap-1 mb-3">
+      <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>Back to Manga
+    </a>
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Chapters</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter" th:text="'Chapters — ' + ${comic.title}">Chapters</h2>
+  </header>
+
+  <div th:if="${successMessage}" class="mb-4 px-4 py-3 bg-green-100 text-green-800 rounded-lg text-sm font-medium" th:text="${successMessage}"></div>
+
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b border-surface-container-high">
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:80px">Ch #</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Title</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:60px">Pages</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:100px">Created</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:120px">Actions</th>
+        </tr>
+        <!-- Add chapter row at top -->
+        <tr class="border-b border-surface-container bg-surface-container-low">
+          <td colspan="5" class="px-4 py-3">
+            <form th:action="${comic != null ? '/admin/manga/' + comic.comicId + '/chapters/new' : '#'}" method="post"
+                  class="flex items-center gap-2">
+              <input type="number" name="chapterNumber" placeholder="Ch #"
+                     class="border border-outline-variant rounded-lg px-2 py-1.5 text-sm w-20 focus:outline-none focus:ring-2 focus:ring-primary"/>
+              <input type="text" name="title" placeholder="Chapter title"
+                     class="border border-outline-variant rounded-lg px-2 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-primary"/>
+              <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1">
+                <span class="material-symbols-outlined" style="font-size:16px">add</span>Add
+              </button>
+            </form>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Chapters sorted descending (controller sends them asc, we reverse with CSS order trick via th:each) -->
+        <th:block th:each="ch : ${chapters}">
+          <!-- Chapter row -->
+          <tr class="border-t border-surface-container hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 text-sm font-bold" th:text="${ch.chapterNumber}"></td>
+            <td class="px-4 py-3 text-sm" th:text="${ch.title}"></td>
+            <td class="px-4 py-3 text-sm text-on-surface-variant" th:text="${ch.pageCount}"></td>
+            <td class="px-4 py-3 text-sm text-on-surface-variant" th:text="${#temporals.format(ch.createdAt,'yyyy-MM-dd')}"></td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-1">
+                <form th:action="@{/admin/manga/{id}/chapters/{chId}/edit(id=${comic.comicId},chId=${ch.chapterId})}"
+                      method="post" class="flex items-center gap-1">
+                  <input type="text" name="title" th:value="${ch.title}"
+                         class="border border-outline-variant rounded px-2 py-1 text-xs w-28 focus:outline-none focus:ring-1 focus:ring-primary"/>
+                  <input type="hidden" name="chapterNumber" th:value="${ch.chapterNumber}"/>
+                  <button type="submit" title="Save" class="p-1 rounded hover:bg-surface-container text-secondary transition-colors">
+                    <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                  </button>
+                </form>
+                <form th:action="@{/admin/manga/{id}/chapters/{chId}/delete(id=${comic.comicId},chId=${ch.chapterId})}"
+                      method="post" onsubmit="return confirm('Delete this chapter?')">
+                  <button type="submit" title="Delete" class="p-1 rounded hover:bg-red-50 text-red-500 transition-colors">
+                    <span class="material-symbols-outlined" style="font-size:16px">delete</span>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <!-- Pages row (inline drag-to-reorder grid) -->
+          <tr class="bg-surface-container-low">
+            <td colspan="5" class="px-4 py-3">
+              <div th:attr="data-chapter-id=${ch.chapterId},data-comic-id=${comic.comicId}"
+                   class="pages-container flex flex-wrap gap-2">
+                <span class="text-xs text-on-surface-variant">Loading pages...</span>
+              </div>
+            </td>
+          </tr>
+        </th:block>
+        <tr th:if="${chapters.empty}">
+          <td colspan="5" class="px-4 py-10 text-center text-on-surface-variant text-sm">No chapters yet. Add one above.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</th:block>
+
+<script th:if="${view == 'chapters'}" th:inline="javascript">
+(function() {
+  var COMIC_ID = /*[[${comic != null ? comic.comicId : 0}]]*/ 0;
+
+  // ── Build a page card element ──────────────────────────────────────────
+  function makeCard(p, chapterId) {
+    var wrap = document.createElement('div');
+    wrap.className = 'page-card-inline relative rounded overflow-hidden shadow-sm bg-surface-container group';
+    wrap.style.cssText = 'width:64px;flex-shrink:0;cursor:grab;user-select:none;';
+    wrap.draggable = true;
+    wrap.dataset.pageId = p.pageId;
+
+    var box = document.createElement('div');
+    box.style.cssText = 'width:100%;padding-top:150%;position:relative;overflow:hidden;';
+
+    var img = document.createElement('img');
+    img.src = p.imgPath;
+    img.alt = 'Page ' + p.pageNumber;
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+    img.onerror = function() { this.style.display = 'none'; };
+
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:#fff;font-size:9px;font-weight:700;text-align:center;padding:1px 0;';
+    lbl.textContent = p.pageNumber;
+
+    box.appendChild(img);
+    box.appendChild(lbl);
+    wrap.appendChild(box);
+
+    // Red X
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.title = 'Delete page';
+    del.style.cssText = 'position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#dc2626;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;font-size:10px;line-height:1;padding:0;';
+    del.innerHTML = '&#x2715;';
+    del.addEventListener('click', function() { deletePage(p.pageId, chapterId, wrap, lbl); });
+    wrap.appendChild(del);
+
+    wrap.addEventListener('mouseenter', function() { del.style.opacity = '1'; });
+    wrap.addEventListener('mouseleave', function() { del.style.opacity = '0'; });
+
+    // Drag
+    bindDragInline(wrap, chapterId);
+    return wrap;
+  }
+
+  // ── Add-page button ────────────────────────────────────────────────────
+  function makeAddBtn(chapterId, container) {
+    var lbl = document.createElement('label');
+    lbl.title = 'Add page';
+    lbl.style.cssText = 'width:64px;flex-shrink:0;border:2px dashed #afadac;border-radius:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;';
+    lbl.style.paddingTop = '96px'; // ~150% of 64px
+
+    var inner = document.createElement('div');
+    inner.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#afadac;';
+    inner.innerHTML = '<span style="font-size:20px;font-family:\'Material Symbols Outlined\';font-variation-settings:\'FILL\' 0,\'wght\' 300,\'GRAD\' 0,\'opsz\' 24;">add</span>';
+
+    var inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'image/*';
+    inp.multiple = true;
+    inp.style.display = 'none';
+    inp.addEventListener('change', function() { handleAddFiles(this.files, chapterId, container, lbl); this.value = ''; });
+
+    lbl.appendChild(inner);
+    lbl.appendChild(inp);
+    return lbl;
+  }
+
+  // ── Load pages for a chapter ───────────────────────────────────────────
+  function loadPages(container) {
+    var chapterId = container.dataset.chapterId;
+    var comicId   = container.dataset.comicId;
+    fetch('/admin/manga/' + comicId + '/chapters/' + chapterId + '/pages/json')
+      .then(function(r) { return r.json(); })
+      .then(function(pages) {
+        container.innerHTML = '';
+        pages.forEach(function(p) { container.appendChild(makeCard(p, chapterId)); });
+        container.appendChild(makeAddBtn(chapterId, container));
+      });
+  }
+
+  // ── Delete ─────────────────────────────────────────────────────────────
+  function deletePage(pageId, chapterId, card, lbl) {
+    if (!confirm('Delete this page?')) return;
+    fetch('/admin/manga/' + COMIC_ID + '/chapters/' + chapterId + '/pages/' + pageId + '/delete', { method: 'POST' })
+      .then(function(r) {
+        if (r.ok) {
+          card.remove();
+          renumberInline(card.parentElement);
+        }
+      });
+  }
+
+  // ── Renumber ───────────────────────────────────────────────────────────
+  function renumberInline(container) {
+    var cards = container.querySelectorAll('.page-card-inline');
+    cards.forEach(function(c, i) {
+      var lbl = c.querySelector('div[style*="bottom:0"]');
+      if (lbl) lbl.textContent = i + 1;
+    });
+  }
+
+  // ── Drag-to-reorder ────────────────────────────────────────────────────
+  var dragSrcInline = null;
+  function bindDragInline(card, chapterId) {
+    card.addEventListener('dragstart', function(e) {
+      dragSrcInline = card;
+      card.style.opacity = '0.4';
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', function() {
+      card.style.opacity = '1';
+      saveOrderInline(card.parentElement, chapterId);
+    });
+    card.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      card.style.outline = '2px dashed #914700';
+    });
+    card.addEventListener('dragleave', function() { card.style.outline = ''; });
+    card.addEventListener('drop', function(e) {
+      e.preventDefault();
+      card.style.outline = '';
+      if (dragSrcInline && dragSrcInline !== card) {
+        var parent = card.parentElement;
+        var cards  = Array.from(parent.querySelectorAll('.page-card-inline'));
+        var si = cards.indexOf(dragSrcInline);
+        var di = cards.indexOf(card);
+        if (si < di) parent.insertBefore(dragSrcInline, card.nextSibling);
+        else         parent.insertBefore(dragSrcInline, card);
+        renumberInline(parent);
+      }
+    });
+  }
+
+  function saveOrderInline(container, chapterId) {
+    var ids = Array.from(container.querySelectorAll('.page-card-inline')).map(function(c) { return parseInt(c.dataset.pageId); });
+    fetch('/admin/manga/' + COMIC_ID + '/chapters/' + chapterId + '/pages/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ids)
+    });
+  }
+
+  // ── Add files ──────────────────────────────────────────────────────────
+  function handleAddFiles(files, chapterId, container, addBtn) {
+    var uploads = Array.from(files).map(function(file) {
+      var fd = new FormData();
+      fd.append('file', file);
+      return fetch('/admin/manga/' + COMIC_ID + '/chapters/' + chapterId + '/pages/add', {
+        method: 'POST',
+        body: fd
+      }).then(function(r) { return r.text(); });
+    });
+    Promise.all(uploads).then(function() { loadPages(container); });
+  }
+
+  // ── Init: load all chapters' pages ────────────────────────────────────
+  document.querySelectorAll('.pages-container').forEach(loadPages);
+})();
+</script>
+
+<!-- ════════════════════════════════════════════════════════ PAGES VIEW ══ -->
+<th:block th:if="${view == 'pages'}">
+  <header class="mb-6">
+    <a th:href="@{/admin/manga/{id}/chapters(id=${comic.comicId})}" class="text-sm text-primary font-bold hover:underline flex items-center gap-1 mb-3">
+      <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>Back to Chapters
+    </a>
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Pages</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter" th:text="${comic.title} + ' — Ch.' + ${chapter.chapterNumber} + ': ' + ${chapter.title}">Pages</h2>
+  </header>
+
+  <div id="flash-msg" class="hidden mb-4 px-4 py-3 bg-green-100 text-green-800 rounded-lg text-sm font-medium"></div>
+  <div id="error-msg" class="hidden mb-4 px-4 py-3 bg-red-100 text-red-800 rounded-lg text-sm font-medium"></div>
+
+  <div id="page-grid" class="flex flex-wrap gap-3 mb-6">
+    <div th:each="p : ${pages}"
+         th:attr="data-page-id=${p.pageId}"
+         class="page-card relative rounded-lg overflow-hidden shadow-sm bg-surface-container group"
+         style="width:80px;"
+         draggable="true">
+      <div style="width:100%;padding-top:150%;position:relative;overflow:hidden;">
+        <img th:src="${p.imgPath}" th:alt="'Page ' + ${p.pageNumber}"
+             class="w-full h-full object-cover" style="position:absolute;inset:0;"
+             onerror="this.style.display='none'"/>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white font-bold px-1 py-0.5 text-center" style="font-size:10px"
+           th:text="${p.pageNumber}"></div>
+      <button type="button"
+              th:attr="data-page-id=${p.pageId}"
+              onclick="deletePage(this)"
+              class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+              title="Delete page">
+        <span class="material-symbols-outlined" style="font-size:12px;line-height:1">close</span>
+      </button>
+    </div>
+
+    <label class="rounded-lg border-2 border-dashed border-outline-variant cursor-pointer hover:bg-surface-container transition-colors text-on-surface-variant flex flex-col items-center justify-center"
+           style="width:80px;padding-top:150%;position:relative;" title="Add page">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <span class="material-symbols-outlined" style="font-size:24px">add</span>
+        <span class="font-bold" style="font-size:10px">Add</span>
+      </div>
+      <input type="file" accept="image/*" multiple class="hidden" onchange="handleFileAdd(event)"/>
+    </label>
+  </div>
+
+  <p class="text-xs text-on-surface-variant">
+    <span class="material-symbols-outlined" style="font-size:13px;vertical-align:-2px">drag_indicator</span>
+    Drag to reorder. Saves automatically.
+  </p>
+</th:block>
+
+</main>
+
+<script>
+    function setView(v) {
+        localStorage.setItem('mangaView', v);
+        document.getElementById('view-grid').classList.toggle('hidden', v !== 'grid');
+        document.getElementById('view-list').classList.toggle('hidden', v !== 'list');
+        const on  = 'p-2 rounded-lg bg-primary text-on-primary transition-colors';
+        const off = 'p-2 rounded-lg border border-outline-variant hover:bg-surface-container transition-colors';
+        document.getElementById('btn-grid').className = v === 'grid' ? on : off;
+        document.getElementById('btn-list').className = v === 'list' ? on : off;
+    }
+    if (document.getElementById('view-grid')) {
+        setView(localStorage.getItem('mangaView') || 'grid');
+    }
+</script>
+
+<script th:inline="javascript">
+    (function() {
+        var v = /*[[${view}]]*/ '';
+        if (v !== 'pages') return;
+        var COMIC_ID   = /*[[${comicId != null ? comicId : 0}]]*/ 0;
+        var CHAPTER_ID = /*[[${chapterId != null ? chapterId : 0}]]*/ 0;
+        var BASE = '/admin/manga/' + COMIC_ID + '/chapters/' + CHAPTER_ID + '/pages';
+
+        var dragSrc = null;
+
+        function getCards() {
+            return Array.from(document.querySelectorAll('#page-grid .page-card'));
+        }
+
+        function bindDrag(card) {
+            card.addEventListener('dragstart', function(e) {
+                dragSrc = card;
+                card.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            card.addEventListener('dragend', function() {
+                card.classList.remove('dragging');
+                document.querySelectorAll('.drag-over').forEach(function(c) { c.classList.remove('drag-over'); });
+                saveOrder();
+            });
+            card.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (card !== dragSrc) card.classList.add('drag-over');
+            });
+            card.addEventListener('dragleave', function() { card.classList.remove('drag-over'); });
+            card.addEventListener('drop', function(e) {
+                e.preventDefault();
+                card.classList.remove('drag-over');
+                if (dragSrc && dragSrc !== card) {
+                    var grid = document.getElementById('page-grid');
+                    var cards = getCards();
+                    var srcIdx  = cards.indexOf(dragSrc);
+                    var destIdx = cards.indexOf(card);
+                    if (srcIdx < destIdx) grid.insertBefore(dragSrc, card.nextSibling);
+                    else                  grid.insertBefore(dragSrc, card);
+                    renumberLabels();
+                }
+            });
+        }
+
+        function renumberLabels() {
+            getCards().forEach(function(c, i) {
+                var lbl = c.querySelector('.absolute.bottom-0');
+                if (lbl) lbl.textContent = 'Page ' + (i + 1);
+            });
+        }
+
+        function saveOrder() {
+            var ids = getCards().map(function(c) { return parseInt(c.dataset.pageId); });
+            fetch(BASE + '/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ids)
+            }).then(function(r) { if (!r.ok) showError('Failed to save order.'); });
+        }
+
+        window.deletePage = function(btn) {
+            if (!confirm('Delete this page?')) return;
+            var pageId = btn.dataset.pageId;
+            fetch(BASE + '/' + pageId + '/delete', { method: 'POST' })
+                .then(function(r) {
+                    if (r.ok) {
+                        btn.closest('.page-card').remove();
+                        renumberLabels();
+                        showFlash('Page deleted.');
+                    } else {
+                        showError('Failed to delete page.');
+                    }
+                });
+        };
+
+        window.handleFileAdd = function(event) {
+            Array.from(event.target.files).forEach(function(file) {
+                var imgPath = URL.createObjectURL(file);
+                fetch(BASE + '/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'imgPath=' + encodeURIComponent(imgPath)
+                }).then(function() { location.reload(); });
+            });
+            event.target.value = '';
+        };
+
+        function showFlash(msg) {
+            var el = document.getElementById('flash-msg');
+            el.textContent = msg; el.classList.remove('hidden');
+            setTimeout(function() { el.classList.add('hidden'); }, 3000);
+        }
+        function showError(msg) {
+            var el = document.getElementById('error-msg');
+            el.textContent = msg; el.classList.remove('hidden');
+            setTimeout(function() { el.classList.add('hidden'); }, 4000);
+        }
+
+        getCards().forEach(bindDrag);
+    })();
+</script>
+
+</body>
+</html>

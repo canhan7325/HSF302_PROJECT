@@ -1,44 +1,80 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head><meta charset="UTF-8"/></head>
 <body>
 
-<!-- Admin Sidebar Fragment -->
-<aside class="admin-sidebar" th:fragment="admin-sidebar">
-    <nav class="sidebar-nav">
-        <div class="sidebar-menu">
-            <!-- Dashboard Section -->
-            <div class="menu-section">
-                <h3 class="menu-title">Dashboard</h3>
-                <ul class="menu-items">
-                    <li>
-                        <a th:href="@{/admin/view-tracking}" class="menu-link">
-                            <i class="fas fa-eye menu-icon"></i>
-                            <span class="menu-label">View Tracking</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a th:href="@{/admin/revenue}" class="menu-link">
-                            <i class="fas fa-dollar-sign menu-icon"></i>
-                            <span class="menu-label">Revenue</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+<!--
+  Usage: th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar(activeSection='dashboard')}"
+  activeSection values: dashboard | manga | users | genres | subscriptions | transactions | revenue | view-tracking
+-->
+<aside th:fragment="admin-sidebar(activeSection)"
+       class="flex flex-col fixed left-0 h-full w-72 bg-stone-100 text-sm z-50">
+  <div class="p-8 pb-4 flex flex-col h-full">
+
+    <!-- Logo -->
+    <div class="flex items-center gap-3 mb-10">
+      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">terminal</span>
+      </div>
+      <div>
+        <h1 class="text-lg font-black text-stone-900 leading-none">Admin Panel</h1>
+        <p class="text-xs uppercase tracking-widest text-stone-500 font-bold mt-1">System Control</p>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="space-y-1 flex-1">
+      <a href="/admin/dashboard"
+         th:classappend="${activeSection == 'dashboard'} ? ' text-blue-600 font-bold border-r-4 border-blue-600 bg-blue-50' : ' text-stone-600 hover:bg-white'"
+         class="flex items-center gap-3 px-4 py-3 transition-all">
+        <span class="material-symbols-outlined">insights</span>Overview
+      </a>
+      <a href="/admin/manga"
+         th:classappend="${activeSection == 'manga'} ? ' text-blue-600 font-bold border-r-4 border-blue-600 bg-blue-50' : ' text-stone-600 hover:bg-white'"
+         class="flex items-center gap-3 px-4 py-3 transition-all">
+        <span class="material-symbols-outlined">menu_book</span>Manga Management
+      </a>
+      <a href="/admin/users"
+         th:classappend="${activeSection == 'users'} ? ' text-blue-600 font-bold border-r-4 border-blue-600 bg-blue-50' : ' text-stone-600 hover:bg-white'"
+         class="flex items-center gap-3 px-4 py-3 transition-all">
+        <span class="material-symbols-outlined">group</span>User Management
+      </a>
+      <a href="/admin/genres"
+         th:classappend="${activeSection == 'genres'} ? ' text-blue-600 font-bold border-r-4 border-blue-600 bg-blue-50' : ' text-stone-600 hover:bg-white'"
+         class="flex items-center gap-3 px-4 py-3 transition-all">
+        <span class="material-symbols-outlined">category</span>Genre Management
+      </a>
+      <a href="/admin/revenue"
+         th:classappend="${activeSection == 'revenue'} ? ' text-blue-600 font-bold border-r-4 border-blue-600 bg-blue-50' : ' text-stone-600 hover:bg-white'"
+         class="flex items-center gap-3 px-4 py-3 transition-all">
+        <span class="material-symbols-outlined">payments</span>Revenue
+      </a>
+      <a href="/admin/view-tracking"
+         th:classappend="${activeSection == 'view-tracking'} ? ' text-blue-600 font-bold border-r-4 border-blue-600 bg-blue-50' : ' text-stone-600 hover:bg-white'"
+         class="flex items-center gap-3 px-4 py-3 transition-all">
+        <span class="material-symbols-outlined">visibility</span>View Tracking
+      </a>
     </nav>
+
+    <!-- Profile + logout -->
+    <div class="mt-auto pt-6 border-t border-stone-200">
+      <div class="flex items-center gap-3 px-4 py-3">
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold"
+             th:text="${username != null ? username.substring(0,1).toUpperCase() : 'A'}">A</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-stone-900 truncate" th:text="${username ?: 'Admin'}">Admin</p>
+          <p class="text-xs text-stone-500 uppercase tracking-widest">Administrator</p>
+        </div>
+        <form th:action="@{/logout}" method="post">
+          <button type="submit" title="Logout" class="text-stone-400 hover:text-red-500 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:18px">logout</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
 </aside>
 
 </body>
 </html>
-
-
-
-
-
-
-

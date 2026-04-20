@@ -12,21 +12,20 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AdminRedirectInterceptor implements HandlerInterceptor {
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
-        if (authentication != null && authentication.isAuthenticated()) {
-            // Check if user is ADMIN
+
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
             boolean isAdmin = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .anyMatch(auth -> auth.equals("ROLE_ADMIN"));
-            
+
             String requestURI = request.getRequestURI();
-            
-            // If ADMIN is trying to access non-admin endpoints (except static files), redirect to /admin
-            if (isAdmin && !requestURI.startsWith("/admin") 
+
+            if (isAdmin && !requestURI.startsWith("/admin")
                     && !requestURI.startsWith("/css")
                     && !requestURI.startsWith("/js")
                     && !requestURI.startsWith("/images")
@@ -35,13 +34,12 @@ public class AdminRedirectInterceptor implements HandlerInterceptor {
                     && !requestURI.startsWith("/error")
                     && !requestURI.startsWith("/logout")
                     && !requestURI.startsWith("/api/auth")) {
-                
-                response.sendRedirect("/admin");
+
+                response.sendRedirect("/admin/dashboard");
                 return false;
             }
         }
-        
+
         return true;
     }
 }
-

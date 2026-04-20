@@ -1,6 +1,11 @@
 package com.group1.mangaflowweb.service;
 
 import com.group1.mangaflowweb.entity.Transactions;
+import com.group1.mangaflowweb.dto.response.TransactionAdminResponse;
+import com.group1.mangaflowweb.dto.response.TransactionSummaryResponse;
+import com.group1.mangaflowweb.enums.ComicEnum;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,4 +27,9 @@ public interface TransactionService {
     
     // Get transaction count
     long getTotalTransactionCount();
+
+    // ===============================
+    Page<TransactionAdminResponse> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter);
+
+    TransactionSummaryResponse getTransactionSummary();
 }

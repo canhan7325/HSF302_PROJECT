@@ -1,33 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head><meta charset="UTF-8"/></head>
 <body>
 
-<!-- Admin Header Fragment -->
-<header class="admin-header" th:fragment="admin-header">
-    <nav class="admin-nav">
-        <div class="admin-nav-logo">
-            <a th:href="@{/admin}" style="text-decoration:none; color:inherit;">MangaCurator</a>
-        </div>
-        <div class="admin-nav-actions">
-            <span style="font-weight: 500; color: white; margin-right: 20px;">
-                Welcome, <b sec:authentication="name" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"></b>
-            </span>
-            <form th:action="@{/logout}" method="post" style="margin: 0;">
-                <button type="submit" class="admin-btn-logout">
-                    <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i>Logout
-                </button>
-            </form>
-        </div>
-    </nav>
-</header>
+<!--
+  admin-header fragment — no visible top bar in the new style.
+  The sidebar handles branding and logout.
+  Kept as an empty fragment for backward compatibility with revenue.html / view-tracking.html.
+-->
+<th:block th:fragment="admin-header"></th:block>
 
 </body>
 </html>
-
-
-

@@ -5,6 +5,12 @@ import com.group1.mangaflowweb.repository.TransactionRepository;
 import com.group1.mangaflowweb.service.TransactionService;
 import org.springframework.stereotype.Service;
 
+import com.group1.mangaflowweb.dto.response.TransactionAdminResponse;
+import com.group1.mangaflowweb.dto.response.TransactionSummaryResponse;
+import com.group1.mangaflowweb.enums.ComicEnum;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,5 +59,39 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public long getTotalTransactionCount() {
         return transactionRepository.count();
+    }
+    // ====================================
+    @Override
+    public Page<TransactionAdminResponse> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter) {
+        boolean hasStatus = statusFilter != null;
+        boolean hasUsername = usernameFilter != null && !usernameFilter.isBlank();
+
+        Page<Transactions> page;
+        if (hasStatus && hasUsername) {
+            page = transactionRepository.findByStatusAndUserUsernameContaining(statusFilter, usernameFilter, pageable);
+        } else if (hasStatus) {
+            page = transactionRepository.findByStatusOrderByCreatedAtDesc(statusFilter, pageable);
+        } else if (hasUsername) {
+            page = transactionRepository.findByUserUsernameContainingOrderByCreatedAtDesc(usernameFilter, pageable);
+        } else {
+            page = transactionRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+
+        return page.map(t -> new TransactionAdminResponse(
+                t.getTransactionId(),
+                t.getUser().getUsername(),
+                t.getSubscription().getName(),
+                t.getPrice(),
+                t.getStatus(),
+                t.getStartedAt(),
+                t.getEndedAt(),
+                t.getCreatedAt()));
+    }
+
+    @Override
+    public TransactionSummaryResponse getTransactionSummary() {
+        long totalCount = transactionRepository.count();
+        BigDecimal totalRevenue = transactionRepository.sumAllPrices();
+        return new TransactionSummaryResponse(totalCount, totalRevenue);
     }
 }
