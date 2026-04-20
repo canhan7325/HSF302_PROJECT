@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "chapters", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"comic_id", "chapter_number"})
+        @UniqueConstraint(columnNames = { "comic_id", "chapter_number" })
 })
 @Getter
 @Setter
@@ -20,15 +20,16 @@ public class Chapters {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chapter_id")
     private Integer chapterId;
 
-    @Column(nullable = false)
+    @Column(name = "chapter_number", nullable = false)
     private Integer chapterNumber;
 
     @Column(length = 255)
     private String title;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -45,5 +46,3 @@ public class Chapters {
     @Builder.Default
     private List<ReadingHistories> readingHistories = new ArrayList<>();
 }
-
-

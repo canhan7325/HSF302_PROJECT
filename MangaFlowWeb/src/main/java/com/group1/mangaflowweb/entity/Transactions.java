@@ -1,9 +1,9 @@
 package com.group1.mangaflowweb.entity;
 
-import com.group1.mangaflowweb.enums.TransactionEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.group1.mangaflowweb.enums.TransactionEnum;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -15,32 +15,33 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class Transactions {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "transaction_id")
     private Integer transactionId;
-    
-    @Column(nullable = false, precision = 10, scale = 2)
+
+    @Column(nullable = false, precision = 10, scale = 2, name = "price")
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     private TransactionEnum status;
-    
-    @Column(nullable = false)
+
+    @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt;
-    
-    @Column
+
+    @Column(name = "ended_at")
     private LocalDateTime endedAt;
-    
-    @Column(nullable = false, updatable = false)
+
+    @Column(nullable = false, updatable = false, name = "created_at")
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
-    
+
     // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id", nullable = false)
     private Subscriptions subscription;

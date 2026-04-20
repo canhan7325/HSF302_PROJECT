@@ -10,23 +10,32 @@
     <nav class="nav">
         <div class="nav-logo"><a th:href="@{/}" style="text-decoration:none; color:inherit;">MangaCurator</a></div>
         <div class="nav-links" th:unless="${hideNav == true}">
-            <a th:href="@{/}">Library</a>
-            <a href="#">Trending</a>
-            <a href="#">Community</a>
-            <a href="#" class="active">Pricing</a>
+            <a th:href="@{/}">Thư viện</a>
+            <a href="#">Xu hướng</a>
+            <a href="#">Cộng đồng</a>
+            <a th:href="@{/pricing}" class="active">Gói Hội Viên</a>
         </div>
         <div class="nav-actions" th:unless="${hideNav == true}">
             <!-- Unauthenticated -->
             <div sec:authorize="!isAuthenticated()">
-                <a th:href="@{/login}" class="btn-login" style="text-decoration:none; display:inline-block; padding:8px 16px;">Log In</a>
-                <a th:href="@{/register}" class="btn-signup editorial-gradient" style="text-decoration:none; display:inline-block; padding:8px 16px;">Sign Up</a>
+                <a th:href="@{/login}" class="btn-login" style="text-decoration:none; display:inline-block; padding:8px 16px;">Đăng nhập</a>
+                <a th:href="@{/register}" class="btn-signup editorial-gradient" style="text-decoration:none; display:inline-block; padding:8px 16px;">Đăng ký</a>
             </div>
 
             <!-- Authenticated -->
             <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
-                <span style="font-weight: 500;">
-                    Xin chào, <b sec:authentication="name"></b>
-                </span>
+                <div>
+                    <span style="font-weight: 500;">
+                        Xin chào, <b sec:authentication="name"></b>
+                    </span>
+                    <br>
+                    <span th:if="${userMembership}" style="font-size: 0.85rem; color: #914700; font-weight: 600;" th:text="${userMembership}">
+                        Hội Viên Bạc
+                    </span>
+                    <span th:unless="${userMembership}" style="font-size: 0.85rem; color: #666;">
+                        Người dùng thường
+                    </span>
+                </div>
                 <form th:action="@{/logout}" method="post" style="margin: 0;">
                     <button type="submit" class="btn-login" style="border: none; background: transparent; cursor: pointer;">Đăng xuất</button>
                 </form>

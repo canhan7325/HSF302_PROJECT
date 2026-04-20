@@ -24,4 +24,3 @@ public class GenreComics {
     @JoinColumn(name = "comic_id", nullable = false)
     private Comics comic;
 }
-

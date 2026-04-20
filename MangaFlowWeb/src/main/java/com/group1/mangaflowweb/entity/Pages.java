@@ -5,7 +5,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "pages", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"chapter_id", "page_number"})
+        @UniqueConstraint(columnNames = { "chapter_id", "page_number" })
 })
 @Getter
 @Setter
@@ -16,12 +16,13 @@ public class Pages {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "pageId")
     private Integer pageId;
 
-    @Column(nullable = false)
+    @Column(name = "page_number", nullable = false)
     private Integer pageNumber;
 
-    @Column(nullable = false, length = 500)
+    @Column(name = "img_path", nullable = false, length = 500)
     private String imgPath;
 
     // Relationships
@@ -29,6 +30,3 @@ public class Pages {
     @JoinColumn(name = "chapter_id", nullable = false)
     private Chapters chapter;
 }
-
-
-
