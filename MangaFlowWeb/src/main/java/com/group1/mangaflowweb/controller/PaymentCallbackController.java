@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -16,6 +18,8 @@ import java.time.format.DateTimeFormatter;
 @Controller
 @RequestMapping("/payment")
 public class PaymentCallbackController {
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentCallbackController.class);
 
     @Autowired
     private TransactionsService transactionsService;
@@ -33,20 +37,30 @@ public class PaymentCallbackController {
             @RequestParam(value = "amount", required = false, defaultValue = "0") String amount,
             Model model) {
 
+        logger.info("ZaloPay callback - status: {}, appTransId: {}, amount: {}", status, appTransId, amount);
+
         if ("1".equals(status)) {
             try {
                 Integer subscriptionId = parseSubscriptionId(appTransId);
+                logger.info("Parsed subscriptionId: {}", subscriptionId);
+
                 // userId = 1 tạm thời, sẽ thay bằng user đã đăng nhập
                 TransactionsDTO dto = transactionsService.createTransaction(1, subscriptionId, new BigDecimal(amount));
+                logger.info("Created transaction: {}", dto.getTransactionId());
+
                 TransactionsDTO completed = transactionsService.completeTransaction(dto.getTransactionId());
+                logger.info("Completed transaction: {}", completed.getTransactionId());
 
                 if (completed != null) {
                     populateSuccessModel(model, completed, amount);
                     return "clients/payment-success";
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error processing ZaloPay callback", e);
+                model.addAttribute("errorMessage", "Lỗi xử lý thanh toán: " + e.getMessage());
             }
+        } else {
+            logger.warn("ZaloPay payment failed with status: {}", status);
         }
 
         model.addAttribute("errorMessage", "Giao dịch ZaloPay bị hủy hoặc không thành công.");
@@ -63,19 +77,29 @@ public class PaymentCallbackController {
             @RequestParam(value = "amount", required = false, defaultValue = "0") String amount,
             Model model) {
 
+        logger.info("MoMo callback - resultCode: {}, orderId: {}, amount: {}", resultCode, orderId, amount);
+
         if ("0".equals(resultCode)) {
             try {
                 Integer subscriptionId = parseSubscriptionId(orderId);
+                logger.info("Parsed subscriptionId: {}", subscriptionId);
+
                 TransactionsDTO dto = transactionsService.createTransaction(1, subscriptionId, new BigDecimal(amount));
+                logger.info("Created transaction: {}", dto.getTransactionId());
+
                 TransactionsDTO completed = transactionsService.completeTransaction(dto.getTransactionId());
+                logger.info("Completed transaction: {}", completed.getTransactionId());
 
                 if (completed != null) {
                     populateSuccessModel(model, completed, amount);
                     return "clients/payment-success";
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error processing MoMo callback", e);
+                model.addAttribute("errorMessage", "Lỗi xử lý thanh toán: " + e.getMessage());
             }
+        } else {
+            logger.warn("MoMo payment failed with resultCode: {}", resultCode);
         }
 
         model.addAttribute("errorMessage", "Giao dịch MoMo bị hủy hoặc không thành công. Mã lỗi: " + resultCode);
@@ -95,20 +119,35 @@ public class PaymentCallbackController {
     }
 
     /**
-     * Parse subscriptionId from orderId (format: subscriptionId_xxx)
+     * Parse subscriptionId from apptransid/orderId
+     * Format from ZaloPay: yyMMdd_subscriptionId_uuid
+     * Format from MoMo: subscriptionId_uuid
      */
-    private Integer parseSubscriptionId(String orderId) {
+    private Integer parseSubscriptionId(String transId) {
+        logger.info("Attempting to parse subscriptionId from transId: {}", transId);
         try {
-            String[] parts = orderId.split("_");
-            for (String part : parts) {
+            String[] parts = transId.split("_");
+            // ZaloPay format: yyMMdd_subscriptionId_uuid (skip first part which is date)
+            // MoMo format: subscriptionId_uuid
+            for (int i = 0; i < parts.length; i++) {
                 try {
-                    return Integer.parseInt(part);
+                    Integer id = Integer.parseInt(parts[i]);
+                    // For ZaloPay, first part is date (6 digits), skip it
+                    // Second part should be subscriptionId
+                    if (i == 0 && parts.length > 1 && parts[i].length() == 6) {
+                        // This looks like a date (yyMMdd), skip to next
+                        continue;
+                    }
+                    logger.info("Found subscriptionId: {} at index {}", id, i);
+                    return id;
                 } catch (NumberFormatException ignored) {
+                    logger.debug("Part {} is not a number: {}", i, parts[i]);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error parsing subscriptionId from transId: {}", transId, e);
         }
+        logger.warn("Could not parse subscriptionId, defaulting to 1");
         return 1;
     }
 }

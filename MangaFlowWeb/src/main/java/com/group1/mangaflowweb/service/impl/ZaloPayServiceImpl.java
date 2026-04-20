@@ -32,19 +32,15 @@ public class ZaloPayServiceImpl implements ZaloPayService {
     public ZaloPayPaymentResponse createPayment(String orderId, String amount, String orderInfo) {
         try {
             String embedDataString = "{\"redirecturl\":\"" + zaloPayConfig.getReturnUrl() + "\"}";
-            
+
             String safeOrderInfo = orderInfo.replace("\"", "\\\"");
             String itemString = "[{\"itemid\":\"" + orderId + "\",\"itemname\":\"" + safeOrderInfo + "\",\"itemprice\":" + amount + ",\"itemquantity\":1}]";
 
-            
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT+7"));
-            // Shorten orderId to avoid trans id length issues
-            String shortOrderId = orderId;
-            if (orderId.length() > 20) {
-                shortOrderId = UUID.randomUUID().toString().substring(0, 8);
-            }
-            String transId = sdf.format(new java.util.Date()) + "_" + shortOrderId;
+            // Keep the orderId format for callback parsing (subscriptionId_xxxxx)
+            String transId = sdf.format(new java.util.Date()) + "_" + orderId;
 
             long appTime = System.currentTimeMillis();
             String appUser = "MangaFlowWeb";

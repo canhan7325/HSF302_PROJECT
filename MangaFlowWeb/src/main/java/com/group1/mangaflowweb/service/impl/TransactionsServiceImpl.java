@@ -4,6 +4,7 @@ import com.group1.mangaflowweb.dto.TransactionsDTO;
 import com.group1.mangaflowweb.entity.Subscriptions;
 import com.group1.mangaflowweb.entity.Transactions;
 import com.group1.mangaflowweb.entity.Users;
+import com.group1.mangaflowweb.enums.TransactionEnum;
 import com.group1.mangaflowweb.repository.SubscriptionsRepository;
 import com.group1.mangaflowweb.repository.TransactionsRepository;
 import com.group1.mangaflowweb.repository.UsersRepository;
@@ -13,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ public class TransactionsServiceImpl implements TransactionsService {
 
     @Override
     public TransactionsDTO createTransaction(Integer userId, Integer subscriptionId, BigDecimal price) {
-        Users user = getOrCreateUser(userId);
+        Users user = getUserById(userId);
 
         Subscriptions subscription = subscriptionsRepository.findById(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
@@ -35,7 +34,7 @@ public class TransactionsServiceImpl implements TransactionsService {
                 .user(user)
                 .subscription(subscription)
                 .price(price)
-                .status("PENDING")
+                .status(TransactionEnum.PENDING)
                 .startedAt(LocalDateTime.now())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -46,23 +45,25 @@ public class TransactionsServiceImpl implements TransactionsService {
 
     @Override
     public TransactionsDTO completeTransaction(Integer transactionId) {
-        Optional<Transactions> optionalTransaction = transactionsRepository.findById(transactionId);
-        if (optionalTransaction.isPresent()) {
-            Transactions transaction = optionalTransaction.get();
-            transaction.setStatus("SUCCESS");
-            LocalDateTime now = LocalDateTime.now();
+        Transactions transaction = transactionsRepository.findById(transactionId)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        transaction.setStatus(TransactionEnum.SUCCESS);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Set startedAt only if it's not already set
+        if (transaction.getStartedAt() == null) {
             transaction.setStartedAt(now);
-
-            int durationDays = 30;
-            if (transaction.getSubscription() != null && transaction.getSubscription().getDurationDays() != null) {
-                durationDays = transaction.getSubscription().getDurationDays();
-            }
-            transaction.setEndedAt(now.plusDays(durationDays));
-
-            Transactions saved = transactionsRepository.save(transaction);
-            return toDTO(saved);
         }
-        return null;
+
+        int durationDays = 30;
+        if (transaction.getSubscription() != null && transaction.getSubscription().getDurationDays() != null) {
+            durationDays = transaction.getSubscription().getDurationDays();
+        }
+        transaction.setEndedAt(transaction.getStartedAt().plusDays(durationDays));
+
+        Transactions saved = transactionsRepository.save(transaction);
+        return toDTO(saved);
     }
 
     /**
@@ -72,7 +73,7 @@ public class TransactionsServiceImpl implements TransactionsService {
         return TransactionsDTO.builder()
                 .transactionId(entity.getTransactionId())
                 .price(entity.getPrice())
-                .status(entity.getStatus())
+                .status(entity.getStatus() != null ? entity.getStatus().name() : null)
                 .startedAt(entity.getStartedAt())
                 .endedAt(entity.getEndedAt())
                 .createdAt(entity.getCreatedAt())
@@ -83,25 +84,10 @@ public class TransactionsServiceImpl implements TransactionsService {
     }
 
     /**
-     * Get user by ID, or find any existing user, or create a test user
+     * Get user by ID from database
      */
-    private Users getOrCreateUser(Integer userId) {
-        return usersRepository.findById(userId).orElseGet(() ->
-            usersRepository.findByUsername("testuser").orElseGet(() -> {
-                List<Users> allUsers = usersRepository.findAll();
-                if (!allUsers.isEmpty()) {
-                    return allUsers.get(0);
-                }
-                Users newUser = Users.builder()
-                        .username("testuser")
-                        .password("password")
-                        .email("test@test.com")
-                        .role("user")
-                        .enabled(true)
-                        .createdAt(LocalDateTime.now())
-                        .build();
-                return usersRepository.save(newUser);
-            })
-        );
+    private Users getUserById(Integer userId) {
+        return usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

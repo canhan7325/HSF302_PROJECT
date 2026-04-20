@@ -17,6 +17,7 @@ public class Genres {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "genre_id")
     private Integer genreId;
 
     @Column(nullable = false, length = 100)
@@ -26,9 +27,7 @@ public class Genres {
     private String slug;
 
     // Relationships
-    @ManyToMany(mappedBy = "genres", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Comics> comics = new ArrayList<>();
+    private List<GenreComics> genreComics = new ArrayList<>();
 }
-
-

@@ -19,6 +19,7 @@ public class Comics {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comic_id")
     private Integer comicId;
 
     @Column(nullable = false, length = 255)
@@ -30,21 +31,21 @@ public class Comics {
     @Column(columnDefinition = "VARCHAR(MAX)")
     private String description;
 
-    @Column(length = 500)
+    @Column(name = "cover_img", length = 500)
     private String coverImg;
 
     @Enumerated(EnumType.STRING)
     private ComicEnum status = ComicEnum.ONGOING;
 
-    @Column(nullable = false)
+    @Column(name = "view_count", nullable = false)
     @Builder.Default
     private Integer viewCount = 0;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -61,14 +62,7 @@ public class Comics {
     @Builder.Default
     private List<Bookmarks> bookmarks = new ArrayList<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "genre_comics",
-            joinColumns = @JoinColumn(name = "comic_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
+    @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Genres> genres = new ArrayList<>();
+    private List<GenreComics> genreComics = new ArrayList<>();
 }
-
-
