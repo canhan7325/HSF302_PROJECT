@@ -1,4 +1,9 @@
 package com.group1.mangaflowweb.repository;
 
-public interface ChapterRepository {
+import com.group1.mangaflowweb.entity.Chapters;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ChapterRepository extends JpaRepository<Chapters, Integer> {
 }

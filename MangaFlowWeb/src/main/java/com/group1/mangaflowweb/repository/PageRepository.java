@@ -1,4 +1,9 @@
 package com.group1.mangaflowweb.repository;
 
-public interface PageRepository {
+import com.group1.mangaflowweb.entity.Pages;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface PageRepository extends JpaRepository<Pages, Integer> {
 }
