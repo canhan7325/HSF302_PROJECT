@@ -6,21 +6,30 @@
 <body>
 
 <!-- Header Fragment -->
-<header class="header" th:fragment="header" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <nav class="nav">
-        <div class="nav-logo"><a th:href="@{/}" style="text-decoration:none; color:inherit;">MangaCurator</a></div>
-        <div class="nav-links" th:unless="${hideNav == true}">
-            <a th:href="@{/}">Thư viện</a>
-            <a href="#">Xu hướng</a>
-            <a href="#">Cộng đồng</a>
-            <a th:href="@{/pricing}" class="active">Gói Hội Viên</a>
-        </div>
-        <div class="nav-actions" th:unless="${hideNav == true}">
-            <!-- Unauthenticated -->
-            <div sec:authorize="!isAuthenticated()">
-                <a th:href="@{/login}" class="btn-login" style="text-decoration:none; display:inline-block; padding:8px 16px;">Đăng nhập</a>
-                <a th:href="@{/register}" class="btn-signup editorial-gradient" style="text-decoration:none; display:inline-block; padding:8px 16px;">Đăng ký</a>
-            </div>
+<header th:fragment="header" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" class="mf-header fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid container-xxl px-3 px-md-4">
+            <a th:href="@{/}" class="navbar-brand mb-0 h1 mf-brand text-decoration-none">MangaCurator</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                    aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" th:unless="${hideNav == true}">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar" th:unless="${hideNav == true}">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a th:href="@{/}" class="nav-link active">Library</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link">Trending</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link">Community</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link">Pricing</a></li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Unauthenticated -->
+                    <div sec:authorize="!isAuthenticated()" class="d-flex align-items-center gap-2">
+                        <a th:href="@{/login}" class="btn btn-link text-decoration-none mf-btn-link">Log In</a>
+                        <a th:href="@{/register}" class="btn mf-btn-gradient">Sign Up</a>
+                    </div>
 
             <!-- Authenticated -->
             <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
