@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -33,7 +34,8 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index", "/login", "/register", "/css/**", "/js/**", "/error", "/api/auth/**", "/*.css", "/*.js", "/images/**", "/fonts/**", "/uploads/**").permitAll()
+                .requestMatchers("/", "/index", "/login", "/register", "/favicon.ico", "/css/**", "/js/**", "/error", "/api/auth/**", "/*.css", "/*.js", "/images/**", "/fonts/**", "/uploads/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/comic/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/reader/**").hasRole("READER")
                 .anyRequest().authenticated()

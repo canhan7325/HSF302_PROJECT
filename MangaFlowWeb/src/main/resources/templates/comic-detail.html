@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${comic.title} + ' - MangaFlow'">Comic Detail - MangaFlow</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Manrope:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/style.css(v=20260420_3)}">
+</head>
+<body class="mf-body">
+<div th:replace="~{fragments/headers :: header}"></div>
+
+<main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
+    <div class="mf-detail-hero rounded-4 p-3 p-md-4 mb-4 mb-md-5">
+        <div class="row g-4 align-items-end">
+            <div class="col-12 col-md-4 col-lg-3">
+                <div class="mf-detail-cover-wrap">
+                    <img th:src="@{'/uploads/' + ${comic.coverImg}}"
+                         th:alt="${comic.title}"
+                         class="img-fluid w-100 h-100 object-fit-cover rounded-3 shadow">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-8 col-lg-9">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge rounded-pill text-bg-light mf-detail-badge"
+                          th:each="genre : ${comic.genres}"
+                          th:text="${genre}">Action</span>
+                    <span class="badge rounded-pill text-bg-light mf-detail-badge" th:if="${#lists.isEmpty(comic.genres)}">No genre</span>
+                </div>
+
+                <h1 class="mf-heading mb-3" th:text="${comic.title}">Comic Title</h1>
+                <p class="mb-3 text-light-emphasis">Author: <b th:text="${comic.authorName}">author</b></p>
+
+                <div class="d-flex flex-wrap gap-3 gap-md-4 mb-4">
+                    <div class="mf-metric-item">
+                        <span class="material-symbols-outlined">visibility</span>
+                        <span class="fw-semibold" th:text="${#numbers.formatInteger(comic.viewCount, 1, 'COMMA')}">0</span>
+                        <small>views</small>
+                    </div>
+                    <div class="mf-metric-item">
+                        <span class="material-symbols-outlined">favorite</span>
+                        <span class="fw-semibold" th:text="${#numbers.formatInteger(comic.followerCount, 1, 'COMMA')}">0</span>
+                        <small>followers</small>
+                    </div>
+                    <div class="mf-metric-item">
+                        <span class="material-symbols-outlined">menu_book</span>
+                        <span class="fw-semibold" th:text="${#lists.size(comic.chapters)}">0</span>
+                        <small>chapters</small>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 gap-md-3">
+                    <a class="btn mf-btn-gradient rounded-pill px-4 py-2"
+                       th:classappend="${!hasChapters} ? 'disabled'"
+                       th:href="${hasChapters} ? '#chapter-' + ${comic.chapters[0].chapterNumber} : '#'">
+                        <span class="material-symbols-outlined me-1">menu_book</span>
+                        Read Now
+                    </a>
+
+                    <form th:action="@{/comic/{slug}/bookmark(slug=${comic.slug})}" method="post" sec:authorize="isAuthenticated()">
+                        <button type="submit" class="btn btn-outline-light rounded-pill px-4 py-2">
+                            <span class="material-symbols-outlined me-1" th:text="${comic.bookmarked} ? 'bookmark_added' : 'bookmark'"></span>
+                            <span th:text="${comic.bookmarked} ? 'Bookmarked' : 'Bookmark'">Bookmark</span>
+                        </button>
+                    </form>
+
+                    <a th:href="@{/login}" sec:authorize="!isAuthenticated()" class="btn btn-outline-light rounded-pill px-4 py-2">
+                        <span class="material-symbols-outlined me-1">bookmark</span>
+                        Login to Bookmark
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-success mb-4" role="alert" th:if="${bookmarkMessage != null}" th:text="${bookmarkMessage}">
+        Bookmark updated.
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <section class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="mf-section-title mb-3">
+                        <span class="material-symbols-outlined me-1">description</span>
+                        Synopsis
+                    </h2>
+                    <p class="mb-0 text-secondary lh-lg" th:text="${comic.description}">Comic description...</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <section class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="mf-section-title fs-4 mb-3">
+                        <span class="material-symbols-outlined me-1">tag</span>
+                        Genres
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge rounded-pill text-bg-secondary" th:each="genre : ${comic.genres}" th:text="${genre}">Action</span>
+                        <span class="text-muted small" th:if="${#lists.isEmpty(comic.genres)}">No genre data.</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="card border-0 shadow-sm rounded-4 mt-4 mt-md-5">
+        <div class="card-header bg-white border-0 p-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="mf-section-title mb-0">
+                <span class="material-symbols-outlined me-1">list_alt</span>
+                Chapter List
+            </h2>
+            <button id="chapterSortBtn" type="button" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <span class="material-symbols-outlined align-middle">swap_vert</span>
+                Sort
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle mb-0" id="chapterTable">
+                <thead>
+                <tr>
+                    <th class="px-4 py-3">Chapter</th>
+                    <th class="px-4 py-3">Title</th>
+                    <th class="px-4 py-3">Release Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="chapter : ${comic.chapters}" th:id="'chapter-' + ${chapter.chapterNumber}">
+                    <td class="px-4 py-3 fw-semibold" th:text="'Chapter ' + ${chapter.chapterNumber}">Chapter 1</td>
+                    <td class="px-4 py-3" th:text="${chapter.title != null and !#strings.isEmpty(chapter.title) ? chapter.title : 'Untitled'}">Title</td>
+                    <td class="px-4 py-3 text-muted" th:text="${chapter.createdAt}">01/01/2026</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(comic.chapters)}">
+                    <td colspan="3" class="px-4 py-4 text-center text-muted">No chapters yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footers :: footer}"></div>
+
+<script th:src="@{/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/comic-detail.js}"></script>
+</body>
+</html>
+
