@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -52,6 +53,13 @@ public class ComicServiceImpl implements ComicService {
     @Transactional(readOnly = true)
     public ComicResponse getById(Integer comicId) {
         return toResponse(findComicOrThrow(comicId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ComicResponse getBySlug(String slug) {
+        return toResponse(comicRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found")));
     }
 
     @Override
@@ -109,9 +117,21 @@ public class ComicServiceImpl implements ComicService {
                 .coverImg(comic.getCoverImg())
                 .status(comic.getStatus())
                 .viewCount(comic.getViewCount())
+                .followerCount(comic.getBookmarks() != null ? comic.getBookmarks().size() : 0)
+                .bookmarked(false)  // Default to false - will be set by controller
                 .userId(comic.getUser() != null ? comic.getUser().getUserId() : null)
+                .authorName(comic.getUser() != null ? comic.getUser().getUsername() : null)
                 .createdAt(comic.getCreatedAt())
                 .updatedAt(comic.getUpdatedAt())
+                .chapters(comic.getChapters() != null ? comic.getChapters().stream()
+                        .map(chapter -> ComicResponse.ChapterSummary.builder()
+                                .chapterId(chapter.getChapterId())
+                                .chapterNumber(chapter.getChapterNumber())
+                                .title(chapter.getTitle())
+                                .createdAt(chapter.getCreatedAt())
+                                .build())
+                        .toList() : new ArrayList<>())
+                .genres(new ArrayList<>())  // Empty list for now - genres relationship may not be loaded
                 .build();
     }
 }

@@ -1,5 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
+import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
+import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
 import com.group1.mangaflowweb.entity.Bookmarks;
 import com.group1.mangaflowweb.entity.Comics;
 import com.group1.mangaflowweb.entity.Users;

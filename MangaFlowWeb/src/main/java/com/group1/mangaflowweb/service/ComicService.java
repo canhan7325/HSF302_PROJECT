@@ -10,6 +10,8 @@ public interface ComicService {
 
     ComicResponse getById(Integer comicId);
 
+    ComicResponse getBySlug(String slug);
+
     List<ComicResponse> getAll();
 
     List<ComicResponse> getByUserId(Integer userId);
