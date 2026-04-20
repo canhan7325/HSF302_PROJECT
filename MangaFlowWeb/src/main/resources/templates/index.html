@@ -2,79 +2,119 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MangaFlow</title>
-    <!-- Add Bootstrap CSS and custom CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" th:href="@{/style.css(v=20260420_2)}">
 </head>
-<body>
+<body class="mf-body">
 
     <!-- Include Header -->
     <div th:replace="~{fragments/headers :: header}"></div>
 
     <!-- Main Content -->
-    <main class="container-fluid px-4 mt-4 mb-4" style="min-height: 500px; background-color: #f0f2f5;">
-        <h2 class="mb-4 pt-3 text-dark fw-bold">Latest Updates</h2>
-        <!-- 6 items per row on desktop; max 12 comics comes from backend page size -->
-        <div class="row g-4">
-
-            <!-- Loop through comics -->
-            <div class="col-6 col-sm-4 col-md-3 col-lg-2" th:each="comic : ${comicPage.content}">
-                <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
-                    <div class="card h-100 border-0 bg-transparent">
-                        <div class="position-relative shadow-sm" style="border-radius: 12px; overflow: hidden;">
-                            <img th:src="@{'/uploads/' + ${comic.coverImg}}" class="w-100" style="object-fit: cover; aspect-ratio: 5/7;" th:alt="${comic.title}">
-
-                            <!-- Top Left Badge (Time) -->
-                            <div class="position-absolute top-0 start-0 m-2 px-2 py-1 bg-info text-white rounded-pill" style="font-size: 0.75rem; background-color: #5bc0de !important;">
-                                1 Giờ Trước
-                            </div>
-
-                            <!-- Top Right Bookmark Icon -->
-                            <div class="position-absolute top-0 end-0 m-2 bg-white text-dark d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; border-radius: 6px; opacity: 0.9;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16">
-                                  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>
-                                </svg>
-                            </div>
-                        </div>
-
-                        <!-- Text Content Below Image -->
-                        <div class="card-body px-1 py-2 text-center">
-                            <h6 class="card-title text-dark text-truncate fw-bold mb-1" th:text="${comic.title}">Manga Title</h6>
-                            <small class="text-secondary"
-                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chapter 1' : 'Chapter ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}">
-                            </small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Show placeholder message if no comics found -->
-            <div th:if="${comicPage.content.isEmpty()}" class="col-12 text-center text-dark py-5">
-                <p>No comics available at the moment.</p>
-            </div>
+    <main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
+        <div class="mf-hero-banner mb-4 mb-md-5 p-4 p-md-5">
+            <h2 class="mb-0 mf-heading">MangaFlow</h2>
+            <p class="mb-0 mt-2 mf-hero-subtitle">Khám phá truyện hot và cập nhật mới nhất mỗi ngày.</p>
         </div>
 
-        <!-- Pagination Controls -->
-        <nav th:if="${comicPage.totalPages > 1}" aria-label="Page navigation" class="mt-4 pb-4">
-            <ul class="pagination justify-content-center">
-                <!-- Previous Page -->
-                <li class="page-item" th:classappend="${comicPage.first} ? 'disabled'">
-                    <a class="page-link shadow-none" th:href="@{/index(page=${comicPage.number - 1},size=12)}" tabindex="-1" aria-disabled="true">Previous</a>
-                </li>
+        <section class="mb-5">
+            <div class="d-flex align-items-center justify-content-between mb-3 mb-md-4">
+                <h3 class="mb-0 mf-section-title">
+                    <span class="material-symbols-outlined me-1">local_fire_department</span>
+                    Truyện Hay
+                </h3>
+            </div>
 
-                <!-- Page Numbers -->
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, comicPage.totalPages - 1)}"
-                    th:classappend="${comicPage.number == i} ? 'active'">
-                    <a class="page-link shadow-none" th:href="@{/index(page=${i},size=12)}" th:text="${i + 1}">1</a>
-                </li>
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-3 g-md-4 mf-six-cols-grid">
+                <div class="col" th:each="comic : ${topComics}">
+                    <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
+                        <article class="mf-comic-card h-100">
+                            <div class="position-relative mf-cover-wrap mb-2 mb-md-3">
+                                <img th:src="@{'/uploads/' + ${comic.coverImg}}" class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
+                                <div class="mf-cover-overlay"></div>
+                                <div class="position-absolute top-0 start-0 m-2 badge rounded-pill text-uppercase mf-badge-hot">Nổi bật</div>
+                                <div class="position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center mf-bookmark-icon">
+                                    <span class="material-symbols-outlined">bookmark</span>
+                                </div>
+                            </div>
 
-                <!-- Next Page -->
-                <li class="page-item" th:classappend="${comicPage.last} ? 'disabled'">
-                    <a class="page-link shadow-none" th:href="@{/index(page=${comicPage.number + 1},size=12)}">Next</a>
-                </li>
-            </ul>
-        </nav>
+                            <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>
+                            <small class="mf-comic-chapter"
+                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chapter 1' : 'Chapter ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
+                        </article>
+                    </a>
+                </div>
+
+                <div th:if="${#lists.isEmpty(topComics)}" class="col-12">
+                    <div class="mf-empty-state text-center py-5">
+                        <p class="mb-0">Chưa có truyện nổi bật.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="d-flex align-items-center justify-content-between mb-3 mb-md-4">
+                <h3 class="mb-0 mf-section-title">
+                    <span class="material-symbols-outlined me-1">update</span>
+                    Mới Cập Nhật
+                </h3>
+            </div>
+
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-3 g-md-4 mf-six-cols-grid">
+                <div class="col" th:each="comic : ${latestComicPage.content}">
+                    <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
+                        <article class="mf-comic-card h-100">
+                            <div class="position-relative mf-cover-wrap mb-2 mb-md-3">
+                                <img th:src="@{'/uploads/' + ${comic.coverImg}}" class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
+                                <div class="mf-cover-overlay"></div>
+                                <div class="position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center mf-bookmark-icon">
+                                    <span class="material-symbols-outlined">bookmark</span>
+                                </div>
+                            </div>
+
+                            <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>
+                            <small class="d-block mf-comic-chapter"
+                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chapter 1' : 'Chapter ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
+                            <small class="mf-comic-time"
+                                   th:text="${comic.updatedAt != null ? #temporals.format(comic.updatedAt, 'dd/MM/yyyy HH:mm') : 'Không có thời gian cập nhật'}"></small>
+                        </article>
+                    </a>
+                </div>
+
+                <div th:if="${latestComicPage.content.isEmpty()}" class="col-12">
+                    <div class="mf-empty-state text-center py-5">
+                        <p class="mb-0">Chưa có truyện mới cập nhật.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination Controls -->
+            <nav th:if="${latestComicPage.totalPages > 1}" aria-label="Latest comic navigation" class="mt-4 mt-md-5">
+                <ul class="pagination justify-content-center flex-wrap gap-2 mf-pagination">
+                    <li class="page-item" th:classappend="${latestComicPage.first} ? 'disabled'">
+                        <a class="page-link rounded-pill px-3 px-md-4"
+                           th:href="@{/index(latestPage=${latestComicPage.number - 1})}">Previous</a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, latestComicPage.totalPages - 1)}"
+                        th:classappend="${latestComicPage.number == i} ? 'active'">
+                        <a class="page-link rounded-circle d-flex align-items-center justify-content-center mf-page-number"
+                           th:href="@{/index(latestPage=${i})}" th:text="${i + 1}">1</a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${latestComicPage.last} ? 'disabled'">
+                        <a class="page-link rounded-pill px-3 px-md-4"
+                           th:href="@{/index(latestPage=${latestComicPage.number + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
     </main>
 
     <!-- Include Footer -->

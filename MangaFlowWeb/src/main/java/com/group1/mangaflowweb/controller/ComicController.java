@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 public class ComicController {
 
@@ -19,14 +21,15 @@ public class ComicController {
 
     @GetMapping({"/", "/index"})
     public String index(Model model,
-                        @RequestParam(defaultValue = "0") int page,
-                        @RequestParam(defaultValue = "12") int size) {
+                        @RequestParam(defaultValue = "0") int latestPage) {
 
-        // Cấu hình phân trang, mỗi trang 12 truyện
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Comics> comicPage = comicRepository.findAll(pageable);
+        int safeLatestPage = Math.max(latestPage, 0);
+        Pageable latestPageable = PageRequest.of(safeLatestPage, 12);
+        List<Comics> topComics = comicRepository.findTop6ByOrderByViewCountDesc();
+        Page<Comics> latestComicPage = comicRepository.findAllByOrderByUpdatedAtDesc(latestPageable);
 
-        model.addAttribute("comicPage", comicPage);
+        model.addAttribute("topComics", topComics);
+        model.addAttribute("latestComicPage", latestComicPage);
         return "index";
     }
 }

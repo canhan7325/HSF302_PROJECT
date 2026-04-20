@@ -47,3 +47,23 @@
 - **Bug Fixes & Stability**:
   - Sửa lỗi Thymeleaf parse expression ở phần hiển thị chapter trên `index.html`.
   - Khắc phục lỗi startup `EOFException` của Tomcat session persistence bằng cấu hình `server.servlet.session.persistent=false`.
+
+- **Home Page Structure Update (Bootstrap/CSS only)**:
+  - Refactor lại `index.html` theo bố cục 2 section: **Truyện Hay** và **Mới Cập Nhật**.
+  - Chuẩn hóa giao diện chỉ dùng **Bootstrap + CSS + JavaScript**.
+  - Tối ưu layout desktop hiển thị ổn định **6 truyện / hàng** (tối đa 2 hàng cho 1 trang = 12 truyện).
+
+- **Data Display Logic Update**:
+  - Hiển thị mục **Truyện Hay** theo danh sách **Top 6 `viewCount` giảm dần**.
+  - Hiển thị mục **Mới Cập Nhật** theo thời gian cập nhật mới nhất trước (`updatedAt DESC`).
+  - Giữ phân trang riêng cho danh sách mới cập nhật qua tham số `latestPage`.
+
+- **UI Details & Visual Fixes**:
+  - Thêm badge **"Nổi bật"** cho từng card trong mục Truyện Hay.
+  - Thêm icon **bookmark** ở góc phải phía trên của mỗi card truyện.
+  - Tinh chỉnh hiệu ứng bookmark dạng nền mờ/trong suốt, khi hover nền đậm hơn nhẹ.
+  - Sửa CSS specificity và cache-busting để tránh lỗi style không nhận do trình duyệt cache.
+
+- **Fragment & Consistency Improvements**:
+  - Đồng bộ lại `headers.html` và `footers.html` theo hệ style mới của trang chủ.
+  - Bổ sung class CSS `mf-*` để giữ thống nhất toàn bộ giao diện.
