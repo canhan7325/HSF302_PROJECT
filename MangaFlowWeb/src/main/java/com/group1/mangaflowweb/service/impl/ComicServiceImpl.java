@@ -76,4 +76,22 @@ public class ComicServiceImpl implements ComicService {
 				.createdAt(chapter.getCreatedAt() != null ? chapter.getCreatedAt().format(CHAPTER_DATE_FORMAT) : "-")
 				.build();
 	}
+    @Override
+    public void addComic(ComicRequest comicRequest) {
+        Comics comic = Comics.builder()
+                .title(comicRequest.getTitle())
+                .slug(comicRequest.getSlug())
+                .description(comicRequest.getDescription())
+                .coverImg(comicRequest.getCoverImg())
+                .user(comicRequest.getUser())
+                .build();
+
+        comic = comicRepository.save(comic);
+
+        if (comicRequest.getChapterRequests() != null) {
+            for (ChapterRequest chapterRequest : comicRequest.getChapterRequests()) {
+                chapterService.addChapter(chapterRequest, comic);
+            }
+        }
+    }
 }
