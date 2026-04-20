@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Chapter</title>
+</head>
+<body>
+
+<h1>Create Chapter</h1>
+
+<div th:if="${error}" style="color:red" th:text="${error}"></div>
+
+<form th:action="@{/chapters/create}" method="post" th:object="${chapter}">
+
+    <label>Title:</label><br>
+    <input type="text" th:field="*{title}" /><br><br>
+
+    <label>Chapter Number:</label><br>
+    <input type="number" th:field="*{chapterNumber}" /><br><br>
+
+    <label>Comic ID:</label><br>
+    <input type="number" th:field="*{comicId}" /><br><br>
+
+    <button type="submit">Create</button>
+</form>
+
+<a href="/chapters">Back</a>
+
+</body>
+</html>

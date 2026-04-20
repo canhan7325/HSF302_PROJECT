@@ -1,37 +1,121 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.ChapterRequest;
-import com.group1.mangaflowweb.dto.request.PageRequest;
+import com.group1.mangaflowweb.dto.chapter.ChapterRequest;
+import com.group1.mangaflowweb.dto.chapter.ChapterResponse;
+import com.group1.mangaflowweb.dto.page.PageResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Comics;
 import com.group1.mangaflowweb.repository.ChapterRepository;
+import com.group1.mangaflowweb.repository.ComicRepository;
+import com.group1.mangaflowweb.repository.PageRepository;
 import com.group1.mangaflowweb.service.ChapterService;
-import com.group1.mangaflowweb.service.PageService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class ChapterServiceImpl implements ChapterService {
-    @Autowired
-    private ChapterRepository chapterRepository;
-
-    @Autowired
-    private PageService pageService;
+    private final ChapterRepository chapterRepository;
+    private final ComicRepository comicRepository;
+    private final PageRepository pageRepository;
 
     @Override
-    public void addChapter(ChapterRequest chapterRequest, Comics comic) {
+    public ChapterResponse create(ChapterRequest request) {
+        Comics comic = comicRepository.findById(request.getComicId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found"));
+
+        chapterRepository.findByComic_ComicIdAndChapterNumber(request.getComicId(), request.getChapterNumber())
+                .ifPresent(chapter -> {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Chapter number already exists for this comic");
+                });
+
         Chapters chapter = Chapters.builder()
-                .chapterNumber(chapterRequest.getChapterNumber())
-                .title(chapterRequest.getTitle())
                 .comic(comic)
+                .chapterNumber(request.getChapterNumber())
+                .title(request.getTitle())
                 .build();
 
-        chapter = chapterRepository.save(chapter);
+        return toResponse(chapterRepository.save(chapter));
+    }
 
-        if (chapterRequest.getPageRequests() != null) {
-            for (PageRequest pageRequest : chapterRequest.getPageRequests()) {
-                pageService.addPage(pageRequest, chapter);
-            }
-        }
+    @Override
+    @Transactional(readOnly = true)
+    public ChapterResponse getById(Integer chapterId) {
+        return toResponse(findChapterOrThrow(chapterId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChapterResponse> getAll() {
+        return chapterRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChapterResponse> getByComicId(Integer comicId) {
+        return chapterRepository.findByComic_ComicId(comicId).stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public ChapterResponse update(Integer chapterId, ChapterRequest request) {
+        Chapters chapter = findChapterOrThrow(chapterId);
+
+        Comics comic = comicRepository.findById(request.getComicId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found"));
+
+        chapterRepository.findByComic_ComicIdAndChapterNumber(request.getComicId(), request.getChapterNumber())
+                .filter(existing -> !existing.getChapterId().equals(chapterId))
+                .ifPresent(existing -> {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Chapter number already exists for this comic");
+                });
+
+        chapter.setComic(comic);
+        chapter.setChapterNumber(request.getChapterNumber());
+        chapter.setTitle(request.getTitle());
+        return toResponse(chapterRepository.save(chapter));
+    }
+
+    @Override
+    public void delete(Integer chapterId) {
+        Chapters chapter = findChapterOrThrow(chapterId);
+        chapterRepository.delete(chapter);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PageResponse> getAllPageByChapterId(Integer chapterId) {
+        // ensure chapter exists to return 404 instead of empty list
+        findChapterOrThrow(chapterId);
+        return pageRepository.findByChapter_ChapterId(chapterId)
+                .stream()
+                .map(p -> PageResponse.builder()
+                        .pageId(p.getPageId())
+                        .chapterId(p.getChapter() != null ? p.getChapter().getChapterId() : null)
+                        .pageNumber(p.getPageNumber())
+                        .imgPath(p.getImgPath())
+                        .build())
+                .toList();
+    }
+
+    private Chapters findChapterOrThrow(Integer chapterId) {
+        return chapterRepository.findById(chapterId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
+    }
+
+    private ChapterResponse toResponse(Chapters chapter) {
+        return ChapterResponse.builder()
+                .chapterId(chapter.getChapterId())
+                .comicId(chapter.getComic() != null ? chapter.getComic().getComicId() : null)
+                .chapterNumber(chapter.getChapterNumber())
+                .title(chapter.getTitle())
+                .createdAt(chapter.getCreatedAt())
+                .pages(null)
+                .build();
     }
 }

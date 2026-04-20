@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Chapter</title>
+</head>
+<body>
+
+<h1>Edit Chapter</h1>
+
+<form th:action="@{/chapters/edit/{chapterId}(chapterId=${chapter.chapterId})}" method="post" th:object="${chapter}">
+
+    <p>ID: <span th:text="${chapter.chapterId}"></span></p>
+
+    <label>Title:</label><br>
+    <input type="text" th:field="*{title}" /><br><br>
+
+    <label>Chapter Number:</label><br>
+    <input type="number" th:field="*{chapterNumber}" /><br><br>
+
+    <label>Comic ID:</label><br>
+    <input type="number" th:field="*{comicId}" /><br><br>
+
+    <button type="submit">Update</button>
+</form>
+
+<a href="/chapters">Back</a>
+
+</body>
+</html>
