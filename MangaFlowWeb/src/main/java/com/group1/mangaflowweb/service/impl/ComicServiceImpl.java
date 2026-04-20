@@ -1,5 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
+import com.group1.mangaflowweb.dto.request.ComicRequest;
+import com.group1.mangaflowweb.dto.request.ChapterRequest;
 import com.group1.mangaflowweb.dto.response.ComicDetailResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Comics;
@@ -8,6 +10,7 @@ import com.group1.mangaflowweb.repository.ChapterRepository;
 import com.group1.mangaflowweb.repository.ComicRepository;
 import com.group1.mangaflowweb.repository.UserRepository;
 import com.group1.mangaflowweb.service.BookmarkService;
+import com.group1.mangaflowweb.service.ChapterService;
 import com.group1.mangaflowweb.service.ComicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class ComicServiceImpl implements ComicService {
 	private final ChapterRepository chapterRepository;
 	private final UserRepository userRepository;
 	private final BookmarkService bookmarkService;
+	private final ChapterService chapterService;
 
 	@Override
 	@Transactional

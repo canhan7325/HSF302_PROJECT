@@ -14,6 +14,6 @@ public interface ComicRepository extends JpaRepository<Comics, Integer> {
 
 	Page<Comics> findAllByOrderByUpdatedAtDesc(Pageable pageable);
 
-	@EntityGraph(attributePaths = {"user", "genres"})
+	@EntityGraph(attributePaths = {"user"})
 	Optional<Comics> findBySlug(String slug);
 }

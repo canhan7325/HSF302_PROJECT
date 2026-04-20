@@ -18,7 +18,7 @@ public class Bookmarks {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bookmarkId")
+    @Column(name = "bookmark_id")
     private Integer bookmarkId;
 
     @Column(name = "created_at", nullable = false, updatable = false)

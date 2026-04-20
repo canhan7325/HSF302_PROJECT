@@ -12,15 +12,14 @@ import lombok.*;
 @Builder
 public class GenreComics {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @EmbeddedId
+    private GenreComicsId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "genre_id", nullable = false)
+    @JoinColumn(name = "genre_id", nullable = false, insertable = false, updatable = false)
     private Genres genre;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comic_id", nullable = false)
+    @JoinColumn(name = "comic_id", nullable = false, insertable = false, updatable = false)
     private Comics comic;
 }
