@@ -16,7 +16,7 @@ public class Pages {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pageId")
+    @Column(name = "page_id")
     private Integer pageId;
 
     @Column(name = "page_number", nullable = false)

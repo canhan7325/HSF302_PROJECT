@@ -19,7 +19,7 @@ public class ReadingHistories {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "readingHistoryId")
+    @Column(name = "reading_history_id")
     private Integer readingHistoryId;
 
     @Column(name = "read_at", nullable = false, updatable = false)
