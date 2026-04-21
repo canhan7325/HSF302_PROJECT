@@ -3,10 +3,18 @@
 
 <head>
     <title>Read Chapter</title>
+    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/style.css}">
     <link rel="stylesheet" th:href="@{/css/chapter-read.css}" />
     <script th:src="@{/js/chapter-read.js}" defer></script>
 </head>
 <body>
+
+<!-- Header -->
+<div th:replace="~{fragments/headers :: header}"></div>
+
+<main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content" style="padding-bottom: 220px;">
+
 <div class="chapter-start-nav">
 
     <!-- Breadcrumb -->
@@ -45,7 +53,7 @@
         <div th:each="p, iter : ${pages}"
              class="slider-item"
              th:attr="data-index=${iter.index}"
-             onclick="scrollToPage([[${iter.index}]])">
+             th:onclick="|scrollToPage(${iter.index})|">
         </div>
     </div>
 </div>
@@ -94,9 +102,14 @@
 <input id="chapterMenuToggle" type="checkbox" hidden />
 
 <div class="bottom-bar">
-    <a th:href="${prevChapterId != null} ? @{/chapters/{id}/read(id=${prevChapterId})} : '#'"
-       th:classappend="${prevChapterId == null} ? ' disabled' : ''"
+    <a th:if="${prevChapterId != null}"
+       th:href="@{/chapters/{id}/read(id=${prevChapterId})}"
        class="nav-btn">
+        &lt; Previous
+    </a>
+    <a th:unless="${prevChapterId != null}"
+       class="nav-btn disabled"
+       href="#">
         &lt; Previous
     </a>
 
@@ -104,9 +117,14 @@
         <span th:text="'Chapter ' + ${chapter.chapterNumber} + ' – ' + ${chapter.title}">Current Chapter</span>
     </label>
 
-    <a th:href="${nextChapterId != null} ? @{/chapters/{id}/read(id=${nextChapterId})} : '#'"
-       th:classappend="${nextChapterId == null} ? ' disabled' : ''"
+    <a th:if="${nextChapterId != null}"
+       th:href="@{/chapters/{id}/read(id=${nextChapterId})}"
        class="nav-btn">
+        Next &gt;
+    </a>
+    <a th:unless="${nextChapterId != null}"
+       class="nav-btn disabled"
+       href="#">
         Next &gt;
     </a>
 </div>
@@ -131,6 +149,13 @@
         <path fill="white" d="M7 14l5-5 5 5H7z"/>
     </svg>
 </button>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footers :: footer}"></div>
+
+</main>
+
+<script th:src="@{/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
 

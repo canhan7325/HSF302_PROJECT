@@ -18,9 +18,9 @@
 
             <div class="collapse navbar-collapse" id="mainNavbar" th:unless="${hideNav == true}">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a th:href="@{/}" class="nav-link active">Thư Viện</a></li>
+                    <li class="nav-item"><a th:href="@{/}" class="nav-link active">Trang chủ</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">Xu Hướng</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Cộng Đồng</a></li>
+                    <li class="nav-item"><a th:href="@{/bookmarks}" class="nav-link">Thư viện</a></li>
                     <li class="nav-item"><a th:href="@{/pricing}" class="nav-link">Gói Hội Viên</a></li>
                 </ul>
 
