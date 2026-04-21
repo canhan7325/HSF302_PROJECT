@@ -65,8 +65,8 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     @Override
     public List<GenreComicCountResponse> getComicsPerGenre() {
         return genreRepository.findAll().stream()
-                .map(g -> new GenreComicCountResponse(g.getGenreId(), g.getName(), g.getComics().size()))
-                .sorted(Comparator.comparingLong(GenreComicCountResponse::comicCount).reversed())
+                .map(g -> new GenreComicCountResponse(g.getGenreId(), g.getName(), g.getGenreComics().size()))
+                .sorted(Comparator.comparingLong(GenreComicCountResponse::getComicCount).reversed())
                 .toList();
     }
 

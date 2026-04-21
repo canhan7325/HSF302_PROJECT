@@ -35,16 +35,16 @@ public class GenreServiceImpl implements GenreService {
                         g.getGenreId(),
                         g.getName(),
                         g.getSlug(),
-                        g.getComics().size()))
-                .sorted(Comparator.comparingLong(GenreAdminResponse::comicCount).reversed())
+                        g.getGenreComics().size()))
+                .sorted(Comparator.comparingLong(GenreAdminResponse::getComicCount).reversed())
                 .toList();
     }
 
     @Override
     public List<GenreAdminResponse> searchGenres(String name) {
         return genreRepository.findByNameContainingIgnoreCase(name).stream()
-                .map(g -> new GenreAdminResponse(g.getGenreId(), g.getName(), g.getSlug(), g.getComics().size()))
-                .sorted(Comparator.comparingLong(GenreAdminResponse::comicCount).reversed())
+                .map(g -> new GenreAdminResponse(g.getGenreId(), g.getName(), g.getSlug(), g.getGenreComics().size()))
+                .sorted(Comparator.comparingLong(GenreAdminResponse::getComicCount).reversed())
                 .toList();
     }
 
@@ -75,7 +75,7 @@ public class GenreServiceImpl implements GenreService {
     public void deleteGenre(Integer id) {
         Genres genre = genreRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Genre not found with id: " + id));
-        if (!genre.getComics().isEmpty()) {
+        if (!genre.getGenreComics().isEmpty()) {
             throw new IllegalStateException("Cannot delete genre with assigned comics: " + genre.getName());
         }
         genreRepository.deleteById(id);

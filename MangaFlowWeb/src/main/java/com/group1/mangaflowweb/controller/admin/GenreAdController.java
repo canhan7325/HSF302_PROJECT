@@ -71,7 +71,7 @@ public class GenreAdController {
     @GetMapping("/genres/{id}/edit")
     public String genreEditForm(@PathVariable Integer id, Model model) {
         GenreAdminResponse existing = genreService.getAllGenresWithCount().stream()
-                .filter(g -> g.genreId().equals(id))
+                .filter(g -> g.getGenreId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Genre not found with id: " + id));
         model.addAttribute("genreInfo", existing);

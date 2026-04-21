@@ -2,17 +2,20 @@ package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.dto.request.admin.UserAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
+import com.group1.mangaflowweb.dto.user.UserResponse;
 import com.group1.mangaflowweb.entity.Users;
 import com.group1.mangaflowweb.repository.UserRepository;
 import com.group1.mangaflowweb.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserServiceImpl implements UserService {

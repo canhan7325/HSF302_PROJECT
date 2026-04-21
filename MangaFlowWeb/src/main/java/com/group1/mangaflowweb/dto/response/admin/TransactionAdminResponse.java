@@ -1,17 +1,25 @@
 package com.group1.mangaflowweb.dto.response.admin;
 
-import com.group1.mangaflowweb.enums.ComicEnum;
+import com.group1.mangaflowweb.enums.TransactionEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record TransactionAdminResponse(
-        Integer transactionId,
-        String username,
-        String subscriptionName,
-        BigDecimal price,
-        ComicEnum status,
-        LocalDateTime startedAt,
-        LocalDateTime endedAt,
-        LocalDateTime createdAt
-) {}
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TransactionAdminResponse {
+    private Integer transactionId;
+    private String username;
+    private String subscriptionName;
+    private BigDecimal price;
+    private TransactionEnum status;
+    private LocalDateTime startedAt;
+    private LocalDateTime endedAt;
+    private LocalDateTime createdAt;
+}

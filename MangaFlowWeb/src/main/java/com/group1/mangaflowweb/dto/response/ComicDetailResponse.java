@@ -3,12 +3,14 @@ package com.group1.mangaflowweb.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ComicDetailResponse {
     private Integer comicId;
     private String title;
@@ -25,6 +27,7 @@ public class ComicDetailResponse {
     @Getter
     @Builder
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class ChapterItem {
         private Integer chapterId;
         private Integer chapterNumber;

@@ -3,18 +3,23 @@ package com.group1.mangaflowweb.service.impl;
 import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
+import com.group1.mangaflowweb.dto.comic.ComicRequest;
+import com.group1.mangaflowweb.dto.comic.ComicResponse;
 import com.group1.mangaflowweb.entity.Comics;
-import com.group1.mangaflowweb.entity.Genres;
+import com.group1.mangaflowweb.entity.Users;
 import com.group1.mangaflowweb.enums.ComicEnum;
 import com.group1.mangaflowweb.repository.ComicRepository;
 import com.group1.mangaflowweb.repository.GenreRepository;
+import com.group1.mangaflowweb.repository.UserRepository;
 import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.util.SlugUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,10 +32,12 @@ public class ComicServiceImpl implements ComicService {
 
     private final ComicRepository comicRepository;
     private final GenreRepository genreRepository;
+    private final UserRepository userRepository;
 
-    public ComicServiceImpl(ComicRepository comicRepository, GenreRepository genreRepository) {
+    public ComicServiceImpl(ComicRepository comicRepository, GenreRepository genreRepository, UserRepository userRepository) {
         this.comicRepository = comicRepository;
         this.genreRepository = genreRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -62,7 +69,6 @@ public class ComicServiceImpl implements ComicService {
         comic.setViewCount(0);
         comic.setCreatedAt(now);
         comic.setUpdatedAt(now);
-        comic.setGenres(resolveGenres(form.getGenreIds()));
         comicRepository.save(comic);
     }
 
@@ -78,7 +84,6 @@ public class ComicServiceImpl implements ComicService {
         if (form.getStatus() != null) {
             comic.setStatus(form.getStatus());
         }
-        comic.setGenres(resolveGenres(form.getGenreIds()));
         comic.setUpdatedAt(LocalDateTime.now());
         comicRepository.save(comic);
     }
@@ -99,8 +104,8 @@ public class ComicServiceImpl implements ComicService {
                         g.getGenreId(),
                         g.getName(),
                         g.getSlug(),
-                        g.getComics().size()))
-                .sorted(Comparator.comparingLong(GenreAdminResponse::comicCount).reversed())
+                        g.getGenreComics().size()))
+                .sorted(Comparator.comparingLong(GenreAdminResponse::getComicCount).reversed())
                 .toList();
     }
 
@@ -151,11 +156,11 @@ public class ComicServiceImpl implements ComicService {
         if (filterBy != null) {
             if ("most-viewed".equalsIgnoreCase(filterBy)) {
                 comics = comics.stream()
-                        .sorted((a, b) -> b.getViewCount().compareTo(a.getViewCount()))
+                        .sorted(Comparator.comparing(Comics::getViewCount).reversed())
                         .collect(Collectors.toList());
             } else if ("least-viewed".equalsIgnoreCase(filterBy)) {
                 comics = comics.stream()
-                        .sorted((a, b) -> a.getViewCount().compareTo(b.getViewCount()))
+                        .sorted(Comparator.comparing(Comics::getViewCount))
                         .collect(Collectors.toList());
             }
         }
@@ -179,13 +184,6 @@ public class ComicServiceImpl implements ComicService {
                 comic.getCreatedAt(),
                 comic.getUpdatedAt()
         );
-    }
-
-    private List<Genres> resolveGenres(List<Integer> genreIds) {
-        if (genreIds == null || genreIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return genreRepository.findAllById(genreIds);
     }
     @Override
     public ComicResponse create(ComicRequest request) {
@@ -240,7 +238,7 @@ public class ComicServiceImpl implements ComicService {
     @Override
     public ComicResponse update(Integer comicId, ComicRequest request) {
         Comics comic = findComicOrThrow(comicId);
-        Users user = userRepository.findById(request.getUserId())
+        com.group1.mangaflowweb.entity.Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         comicRepository.findBySlug(request.getSlug())

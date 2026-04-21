@@ -17,6 +17,8 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transactions, Integer> {
     boolean existsByUser_UserIdAndStatusAndEndedAtAfter(Integer userId,
+                                                        TransactionEnum status,
+                                                        LocalDateTime endedAt);
 
                                                         Page<Transactions> findAllByOrderByCreatedAtDesc(Pageable pageable);
 

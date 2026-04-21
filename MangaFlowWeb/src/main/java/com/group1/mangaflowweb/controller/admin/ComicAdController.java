@@ -64,10 +64,10 @@ public class ComicAdController {
     public String mangaEditForm(@PathVariable Integer id, Model model) {
         var existing = comicService.getComicById(id);
         ComicAdRequest form = new ComicAdRequest();
-        form.setTitle(existing.title());
+        form.setTitle(existing.getTitle());
         form.setDescription(null);
         form.setCoverImg(null);
-        form.setStatus(existing.status());
+        form.setStatus(existing.getStatus());
         model.addAttribute("comic", form);
         model.addAttribute("comicInfo", existing);
         model.addAttribute("genres", comicService.getAllGenresWithCount());
