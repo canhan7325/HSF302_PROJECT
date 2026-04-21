@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "chapters", uniqueConstraints = {
@@ -40,9 +40,9 @@ public class Chapters {
 
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Pages> pages = new ArrayList<>();
+    private Set<Pages> pages = new HashSet<>();
 
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ReadingHistories> readingHistories = new ArrayList<>();
+    private Set<ReadingHistories> readingHistories = new HashSet<>();
 }

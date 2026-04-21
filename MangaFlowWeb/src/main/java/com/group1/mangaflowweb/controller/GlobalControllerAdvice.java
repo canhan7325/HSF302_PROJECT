@@ -40,8 +40,16 @@ public class GlobalControllerAdvice {
 
             logger.info("User: {}, UserId: {}", username, user.getUserId());
 
-            // Get user's latest transaction through service
-            // For now, return null if service doesn't have dedicated method
+            // Get user's current membership price
+            Long membershipPrice = transactionsService.getCurrentMembershipPrice(user.getUserId());
+
+            // Get membership label from price
+            if (membershipPrice > 0) {
+                String membership = transactionsService.getMembershipFromPrice(new java.math.BigDecimal(membershipPrice));
+                logger.info("User membership: {}", membership);
+                return membership;
+            }
+
             return null;
         } catch (Exception e) {
             logger.error("Error getting user membership", e);

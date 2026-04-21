@@ -78,6 +78,15 @@ public class MomoServiceImpl implements MomoService {
 
     private String generateHmacSHA256(String data, String key) {
         try {
+            if (data == null || data.isEmpty()) {
+                log.error("Data for HMAC generation is null or empty");
+                throw new IllegalArgumentException("Data cannot be null or empty");
+            }
+            if (key == null || key.isEmpty()) {
+                log.error("Secret key is null or empty. MomoConfig: {}", momoConfig);
+                throw new IllegalArgumentException("Secret key cannot be null or empty");
+            }
+
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             sha256_HMAC.init(secret_key);
@@ -90,6 +99,7 @@ public class MomoServiceImpl implements MomoService {
             }
             return hexString.toString();
         } catch (Exception e) {
+            log.error("Failed to calculate HMAC-SHA256: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to calculate HMAC-SHA256", e);
         }
     }

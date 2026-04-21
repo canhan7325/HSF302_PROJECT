@@ -272,6 +272,7 @@ main {
     font-family: var(--font-headline);
     font-size: 2.25rem;
     font-weight: 800;
+    line-height: 1;
 }
 .card-free .price-amount { color: var(--on-surface); }
 .card-silver .price-amount { color: var(--primary); }
@@ -281,7 +282,7 @@ main {
     font-size: 0.9rem;
     color: var(--on-surface-variant);
     font-weight: 500;
-    margin-left: 0.25rem;
+    white-space: nowrap;
 }
 .card-gold .price-period { color: #a8a29e; }
 
@@ -290,7 +291,7 @@ main {
     font-weight: 700;
     color: var(--primary-fixed);
     letter-spacing: 0.05em;
-    margin-top: 0.35rem;
+    white-space: nowrap;
 }
 
 .features {
@@ -639,6 +640,7 @@ footer {
     inset: 0;
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
+    z-index: 0;
 }
 
 .modal-main {
@@ -940,3 +942,120 @@ footer {
     .nav-links { display: none; }
     .btn-login { display: none; }
 }
+
+/* ── Bootstrap Headers Override for buysubscriptions ── */
+.mf-header {
+    background: rgba(249, 246, 245, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 1px 4px rgba(47, 47, 46, 0.08);
+}
+
+.mf-header .navbar {
+    padding: 1rem 1.5rem;
+}
+
+.mf-header .mf-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1c1917;
+    font-family: var(--font-headline);
+}
+
+.mf-header .navbar-nav .nav-link {
+    font-weight: 500;
+    color: #57534e;
+    transition: color 0.2s;
+    font-size: 0.95rem;
+}
+
+.mf-header .navbar-nav .nav-link:hover {
+    color: #ea580c;
+}
+
+.mf-header .navbar-nav .nav-link.active {
+    color: #b45309;
+    font-weight: 600;
+}
+
+.mf-header .mf-btn-link {
+    font-weight: 500;
+    color: #57534e;
+    padding: 0.5rem 1rem;
+    transition: color 0.2s;
+    font-size: 0.9rem;
+}
+
+.mf-header .mf-btn-link:hover {
+    color: #1c1917;
+}
+
+.mf-header .mf-btn-gradient {
+    padding: 0.6rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--on-primary);
+    background: linear-gradient(135deg, #914700 0%, #f97f06 100%);
+    transition: transform 0.15s;
+    border: none;
+}
+
+.mf-header .mf-btn-gradient:hover {
+    transform: scale(1.03);
+    color: var(--on-primary);
+    text-decoration: none;
+}
+
+.mf-header .mf-btn-gradient:active {
+    transform: scale(0.96);
+}
+
+/* ── 3 Pricing Cards Styling ── */
+.pricing-grid .card {
+    border: none;
+    position: relative;
+    min-height: 600px;
+}
+
+.pricing-grid .card .card-price {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 2rem;
+}
+
+.pricing-grid .card .price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.pricing-grid .card .features {
+    list-style: none;
+    padding: 0;
+}
+
+.pricing-grid .card .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+}
+
+.pricing-grid .card .feature-item .material-symbols-outlined {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.pricing-grid .card .feature-item .feature-text {
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.pricing-grid .card .btn-card {
+    margin-top: auto;
+}
+

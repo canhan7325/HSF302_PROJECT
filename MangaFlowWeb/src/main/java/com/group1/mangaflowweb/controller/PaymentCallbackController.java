@@ -177,6 +177,10 @@ public class PaymentCallbackController {
         session.setAttribute("transaction_" + transId + "_amount", amount);
         session.setAttribute("transaction_" + transId + "_started", dto.getStartedAt() != null ? dto.getStartedAt().format(fmt) : "");
         session.setAttribute("transaction_" + transId + "_ended", dto.getEndedAt() != null ? dto.getEndedAt().format(fmt) : "");
+        
+        // Save membership for header display
+        String membership = transactionsService.getMembershipFromPrice(dto.getPrice());
+        session.setAttribute("transaction_" + transId + "_membership", membership);
     }
 
     /**
@@ -191,6 +195,13 @@ public class PaymentCallbackController {
             model.addAttribute("amount", session.getAttribute("transaction_" + transId + "_amount"));
             model.addAttribute("startedAt", session.getAttribute("transaction_" + transId + "_started"));
             model.addAttribute("endedAt", session.getAttribute("transaction_" + transId + "_ended"));
+
+            // Add membership for header display
+            String membership = (String) session.getAttribute("transaction_" + transId + "_membership");
+            if (membership != null) {
+                model.addAttribute("userMembership", membership);
+            }
+
             return "clients/payment-success";
         }
         model.addAttribute("errorMessage", "Không tìm thấy thông tin giao dịch.");
