@@ -121,4 +121,22 @@ public class UserServiceImpl implements UserService {
     public long getTotalUsers() {
         return userRepository.count();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(this::toResponse)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    private UserResponse toResponse(Users user) {
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .enabled(user.getEnabled())
+                .createdAt(user.getCreatedAt())
+                .build();
+    }
 }

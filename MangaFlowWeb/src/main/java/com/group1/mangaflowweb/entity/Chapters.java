@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "chapters", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"comic_id", "chapter_number"})
+        @UniqueConstraint(columnNames = { "comic_id", "chapter_number" })
 })
 @Getter
 @Setter
@@ -20,15 +20,16 @@ public class Chapters {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chapter_id")
     private Integer chapterId;
 
-    @Column(nullable = false)
+    @Column(name = "chapter_number", nullable = false)
     private Integer chapterNumber;
 
     @Column(length = 255)
     private String title;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -39,11 +40,9 @@ public class Chapters {
 
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Pages> pages = new ArrayList<>();
+    private Set<Pages> pages = new HashSet<>();
 
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ReadingHistories> readingHistories = new ArrayList<>();
+    private Set<ReadingHistories> readingHistories = new HashSet<>();
 }
-
-

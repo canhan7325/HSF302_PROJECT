@@ -5,8 +5,8 @@ import lombok.*;
 import com.group1.mangaflowweb.enums.ComicEnum;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "comics")
@@ -19,6 +19,7 @@ public class Comics {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comic_id")
     private Integer comicId;
 
     @Column(nullable = false, length = 255)
@@ -30,21 +31,22 @@ public class Comics {
     @Column(columnDefinition = "VARCHAR(MAX)")
     private String description;
 
-    @Column(length = 500)
+    @Column(name = "cover_img", length = 500)
     private String coverImg;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private ComicEnum status = ComicEnum.ONGOING;
 
-    @Column(nullable = false)
+    @Column(name = "view_count", nullable = false)
     @Builder.Default
     private Integer viewCount = 0;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -55,20 +57,13 @@ public class Comics {
 
     @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Chapters> chapters = new ArrayList<>();
+    private Set<Chapters> chapters = new HashSet<>();
 
     @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Bookmarks> bookmarks = new ArrayList<>();
+    private Set<Bookmarks> bookmarks = new HashSet<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "genre_comics",
-            joinColumns = @JoinColumn(name = "comic_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
+    @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Genres> genres = new ArrayList<>();
+    private Set<GenreComics> genreComics = new HashSet<>();
 }
-
-

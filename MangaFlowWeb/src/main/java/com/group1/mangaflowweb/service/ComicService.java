@@ -6,7 +6,8 @@ import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 import com.group1.mangaflowweb.entity.Comics;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import com.group1.mangaflowweb.dto.comic.ComicRequest;
+import com.group1.mangaflowweb.dto.comic.ComicResponse;
 import java.util.List;
 
 public interface ComicService {
@@ -34,4 +35,17 @@ public interface ComicService {
     List<Comics> getComicsWithSort(String sortBy, String sortOrder);
 
     List<Comics> getComicsWithFilter(String sortBy, String sortOrder, String filterBy);
+    ComicResponse create(ComicRequest request);
+
+    ComicResponse getById(Integer comicId);
+
+    ComicResponse getBySlug(String slug);
+
+    List<ComicResponse> getAll();
+
+    List<ComicResponse> getByUserId(Integer userId);
+
+    ComicResponse update(Integer comicId, ComicRequest request);
+
+    void delete(Integer comicId);
 }

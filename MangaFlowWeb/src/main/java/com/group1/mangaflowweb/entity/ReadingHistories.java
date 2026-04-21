@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -18,9 +19,11 @@ public class ReadingHistories {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "reading_history_id")
     private Integer readingHistoryId;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "read_at", nullable = false, updatable = false)
+    @ColumnDefault("GETDATE()")
     @Builder.Default
     private LocalDateTime readAt = LocalDateTime.now();
 

@@ -3,8 +3,8 @@ package com.group1.mangaflowweb.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "genres")
@@ -17,6 +17,7 @@ public class Genres {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "genre_id")
     private Integer genreId;
 
     @Column(nullable = false, length = 100)
@@ -26,9 +27,7 @@ public class Genres {
     private String slug;
 
     // Relationships
-    @ManyToMany(mappedBy = "genres", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Comics> comics = new ArrayList<>();
+    private Set<GenreComics> genreComics = new HashSet<>();
 }
-
-

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chapter Detail</title>
+</head>
+<body>
+
+<h1>Chapter Detail</h1>
+
+<p><b>ID:</b> <span th:text="${chapter.chapterId}"></span></p>
+<p><b>Title:</b> <span th:text="${chapter.title}"></span></p>
+<p><b>Chapter Number:</b> <span th:text="${chapter.chapterNumber}"></span></p>
+<p><b>Comic ID:</b> <span th:text="${chapter.comicId}"></span></p>
+
+<p>
+    <a th:href="@{/chapters/{chapterId}/read(chapterId=${chapter.chapterId})}">Read</a>
+</p>
+
+<a href="/chapters">Back</a>
+
+</body>
+</html>

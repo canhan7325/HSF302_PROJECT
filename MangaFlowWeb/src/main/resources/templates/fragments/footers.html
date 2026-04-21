@@ -6,16 +6,21 @@
 <body>
 
 <!-- Footer Fragment -->
-<footer th:fragment="footer">
-    <div class="footer-inner">
-        <div>
-            <div class="footer-brand">MangaCurator</div>
-            <p class="footer-copy">&copy; 2025 MangaCurator. All rights reserved.</p>
-        </div>
-        <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Contact Us</a>
+<footer th:fragment="footer" class="mf-footer mt-5">
+    <div class="container-fluid container-xxl px-3 px-md-4 py-4 py-md-5">
+        <div class="row g-4 align-items-start">
+            <div class="col-12 col-md-6">
+                <div class="mf-footer-brand mb-2">MangaCurator</div>
+                <p class="mb-0 mf-footer-copy">&copy; 2025 MangaCurator. All rights reserved.</p>
+            </div>
+
+            <div class="col-12 col-md-6 text-md-end">
+                <div class="d-flex flex-column gap-2">
+                    <a href="#" class="mf-footer-link">Privacy Policy</a>
+                    <a href="#" class="mf-footer-link">Terms of Service</a>
+                    <a href="#" class="mf-footer-link">Contact Us</a>
+                </div>
+            </div>
         </div>
     </div>
 </footer>

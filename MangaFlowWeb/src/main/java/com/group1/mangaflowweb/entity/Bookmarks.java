@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookmarks", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "comic_id"})
+        @UniqueConstraint(columnNames = { "user_id", "comic_id" })
 })
 @Getter
 @Setter
@@ -18,9 +18,10 @@ public class Bookmarks {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "bookmark_id")
     private Integer bookmarkId;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -33,5 +34,3 @@ public class Bookmarks {
     @JoinColumn(name = "comic_id", nullable = false)
     private Comics comic;
 }
-
-

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Page Detail</title>
+</head>
+<body>
+
+<h1>Page Detail</h1>
+
+<p><b>ID:</b> <span th:text="${page.pageId}"></span></p>
+<p><b>Image Path:</b> <span th:text="${page.imgPath}"></span></p>
+<p><b>Page Number:</b> <span th:text="${page.pageNumber}"></span></p>
+<p><b>Chapter ID:</b> <span th:text="${page.chapterId}"></span></p>
+
+<p>
+    <img th:src="@{${page.imgPath}}" alt="Page Image" width="300"/>
+</p>
+
+<a href="/pages">Back to list</a>
+
+</body>
+</html>

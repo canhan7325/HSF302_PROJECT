@@ -4,5 +4,6 @@ public enum TransactionEnum {
     PENDING,     // đang chờ xử lý
     SUCCESS,     // thành công
     FAILED,      // thất bại
-    CANCELED
+    CANCELED,    // hủy
+    BLOCK        // nâng cấp từ gói thấp (chưa hoạt động)
 }

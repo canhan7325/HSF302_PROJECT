@@ -9,7 +9,8 @@ import com.group1.mangaflowweb.util.SlugUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.group1.mangaflowweb.dto.request.GenreRequest;
+import com.group1.mangaflowweb.entity.Comics;
 import java.util.Comparator;
 import java.util.List;
 
@@ -21,7 +22,12 @@ public class GenreServiceImpl implements GenreService {
     public GenreServiceImpl(GenreRepository genreRepository) {
         this.genreRepository = genreRepository;
     }
-
+    @Override
+    public void addGenre(GenreRequest genreRequest, Comics comic) {
+        Genres genre = Genres.builder()
+                .name(genreRequest.getName())
+                .build();
+    }
     @Override
     public List<GenreAdminResponse> getAllGenresWithCount() {
         return genreRepository.findAll().stream()

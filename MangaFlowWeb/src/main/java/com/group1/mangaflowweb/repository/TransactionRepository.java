@@ -3,6 +3,7 @@ package com.group1.mangaflowweb.repository;
 import com.group1.mangaflowweb.entity.Transactions;
 import com.group1.mangaflowweb.enums.ComicEnum;
 import org.springframework.data.domain.Page;
+import com.group1.mangaflowweb.enums.TransactionEnum;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +16,9 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transactions, Integer> {
+    boolean existsByUser_UserIdAndStatusAndEndedAtAfter(Integer userId,
 
-    Page<Transactions> findAllByOrderByCreatedAtDesc(Pageable pageable);
+                                                        Page<Transactions> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     Page<Transactions> findByStatusAndUserUsernameContaining(ComicEnum status, String username, Pageable pageable);
 
@@ -60,18 +62,18 @@ public interface TransactionRepository extends JpaRepository<Transactions, Integ
 
     // Get all transactions by status
     List<Transactions> findByStatus(String status);
-    
+
     // Get transactions by subscription
     List<Transactions> findBySubscriptionSubscriptionId(Integer subscriptionId);
-    
+
     // Get total revenue
     @Query("SELECT COALESCE(SUM(t.price), 0) FROM Transactions t")
     BigDecimal getTotalRevenue();
-    
+
     // Get revenue by subscription
     @Query("SELECT t.subscription.name, COALESCE(SUM(t.price), 0) FROM Transactions t GROUP BY t.subscription.name")
     List<Object[]> getRevenueBySubscription();
-    
+
     // Get active transactions (ongoing)
     @Query("SELECT t FROM Transactions t WHERE t.endedAt IS NULL OR t.endedAt > CURRENT_TIMESTAMP ORDER BY t.createdAt DESC")
     List<Transactions> getActiveTransactions();
