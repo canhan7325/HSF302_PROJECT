@@ -1,4 +1,4 @@
 package com.group1.mangaflowweb.controller.admin;
 
-public class BookmarkController {
+public class ReadingHistoryAdController {
 }

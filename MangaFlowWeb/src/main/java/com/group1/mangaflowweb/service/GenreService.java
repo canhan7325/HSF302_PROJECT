@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.request.admin.GenreRequest;
+import com.group1.mangaflowweb.dto.request.admin.GenreAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 
 import java.util.List;
@@ -11,9 +11,9 @@ public interface GenreService {
 
     List<GenreAdminResponse> searchGenres(String name);
 
-    void createGenre(GenreRequest form);
+    void createGenre(GenreAdRequest form);
 
-    void updateGenre(Integer id, GenreRequest form);
+    void updateGenre(Integer id, GenreAdRequest form);
 
     void deleteGenre(Integer id);
 }

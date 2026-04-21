@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.ChapterRequest;
+import com.group1.mangaflowweb.dto.request.admin.ChapterAdRequest;
 import com.group1.mangaflowweb.service.ChapterService;
 import com.group1.mangaflowweb.service.ComicService;
 import jakarta.validation.Valid;
@@ -16,12 +16,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
-public class ChapterController {
+public class ChapterAdController {
 
     private final ChapterService chapterService;
     private final ComicService comicService;
 
-    public ChapterController(ChapterService chapterService, ComicService comicService) {
+    public ChapterAdController(ChapterService chapterService, ComicService comicService) {
         this.chapterService = chapterService;
         this.comicService = comicService;
     }
@@ -30,7 +30,7 @@ public class ChapterController {
     public String chapterList(@PathVariable Integer id, Model model) {
         model.addAttribute("comic",    comicService.getComicById(id));
         model.addAttribute("chapters", chapterService.getChaptersByComic(id));
-        model.addAttribute("chapter",  new ChapterRequest());
+        model.addAttribute("chapter",  new ChapterAdRequest());
         model.addAttribute("comicId",  id);
         model.addAttribute("view",     "chapters");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
@@ -39,7 +39,7 @@ public class ChapterController {
 
     @PostMapping("/manga/{id}/chapters/new")
     public String chapterCreate(@PathVariable Integer id,
-                                @Valid ChapterRequest chapter, BindingResult result,
+                                @Valid ChapterAdRequest chapter, BindingResult result,
                                 Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("comic",    comicService.getComicById(id));
@@ -56,7 +56,7 @@ public class ChapterController {
 
     @PostMapping("/manga/{id}/chapters/{chId}/edit")
     public String chapterUpdate(@PathVariable Integer id, @PathVariable Integer chId,
-                                @Valid ChapterRequest chapter, BindingResult result,
+                                @Valid ChapterAdRequest chapter, BindingResult result,
                                 RedirectAttributes redirectAttributes) {
         if (!result.hasErrors()) {
             chapterService.updateChapter(chId, chapter);

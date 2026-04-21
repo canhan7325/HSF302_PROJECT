@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.admin.GenreRequest;
+import com.group1.mangaflowweb.dto.request.admin.GenreAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 import com.group1.mangaflowweb.entity.Genres;
 import com.group1.mangaflowweb.repository.GenreRepository;
@@ -44,7 +44,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     @Transactional
-    public void createGenre(GenreRequest form) {
+    public void createGenre(GenreAdRequest form) {
         genreRepository.findByName(form.getName()).ifPresent(g -> {
             throw new IllegalArgumentException("Genre name already exists: " + form.getName());
         });
@@ -56,7 +56,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     @Transactional
-    public void updateGenre(Integer id, GenreRequest form) {
+    public void updateGenre(Integer id, GenreAdRequest form) {
         Genres genre = genreRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Genre not found with id: " + id));
         genre.setName(form.getName());

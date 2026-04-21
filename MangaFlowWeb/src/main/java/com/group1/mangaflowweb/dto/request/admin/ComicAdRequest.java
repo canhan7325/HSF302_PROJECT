@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
-public class ComicRequest {
+public class ComicAdRequest {
 
     @NotBlank
     private String title;

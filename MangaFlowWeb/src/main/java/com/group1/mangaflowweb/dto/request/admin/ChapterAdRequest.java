@@ -3,7 +3,7 @@ package com.group1.mangaflowweb.dto.request.admin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class ChapterRequest {
+public class ChapterAdRequest {
 
     @NotNull
     private Integer chapterNumber;

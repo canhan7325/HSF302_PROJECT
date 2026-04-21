@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.admin.SubscriptionRequest;
+import com.group1.mangaflowweb.dto.request.admin.SubscriptionAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.SubscriptionAdminResponse;
 import com.group1.mangaflowweb.entity.Subscriptions;
 import com.group1.mangaflowweb.repository.SubscriptionRepository;
@@ -36,7 +36,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public void createSubscription(SubscriptionRequest form) {
+    public void createSubscription(SubscriptionAdRequest form) {
         Subscriptions subscription = new Subscriptions();
         subscription.setName(form.getName());
         subscription.setDescription(form.getDescription());
@@ -48,7 +48,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public void updateSubscription(Integer id, SubscriptionRequest form) {
+    public void updateSubscription(Integer id, SubscriptionAdRequest form) {
         Subscriptions subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Subscription not found with id: " + id));
         subscription.setName(form.getName());

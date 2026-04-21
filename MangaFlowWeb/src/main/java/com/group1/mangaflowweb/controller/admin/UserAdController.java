@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.UserRequest;
+import com.group1.mangaflowweb.dto.request.admin.UserAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
 import com.group1.mangaflowweb.service.UserService;
 import jakarta.validation.Valid;
@@ -20,11 +20,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
-public class UserController {
+public class UserAdController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserAdController(UserService userService) {
         this.userService = userService;
     }
 
@@ -45,14 +45,14 @@ public class UserController {
 
     @GetMapping("/users/new")
     public String userNewForm(Model model) {
-        model.addAttribute("user", new UserRequest());
+        model.addAttribute("user", new UserAdRequest());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/users";
     }
 
     @PostMapping("/users/new")
-    public String userCreate(@Valid UserRequest user, BindingResult result,
+    public String userCreate(@Valid UserAdRequest user, BindingResult result,
                              Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
@@ -90,7 +90,7 @@ public class UserController {
 
     @PostMapping("/users/{id}/edit")
     public String userUpdate(@PathVariable Integer id,
-                             @Valid UserRequest user, BindingResult result,
+                             @Valid UserAdRequest user, BindingResult result,
                              Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {

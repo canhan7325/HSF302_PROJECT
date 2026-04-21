@@ -21,13 +21,13 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
-public class PageController {
+public class PageAdController {
 
     private final PageService pageService;
     private final ComicService comicService;
     private final ChapterService chapterService;
 
-    public PageController(PageService pageService, ComicService comicService, ChapterService chapterService) {
+    public PageAdController(PageService pageService, ComicService comicService, ChapterService chapterService) {
         this.pageService = pageService;
         this.comicService = comicService;
         this.chapterService = chapterService;

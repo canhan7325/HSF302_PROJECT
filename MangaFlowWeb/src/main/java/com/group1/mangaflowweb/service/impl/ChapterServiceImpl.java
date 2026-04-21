@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.admin.ChapterRequest;
+import com.group1.mangaflowweb.dto.request.admin.ChapterAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.ChapterAdminResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Comics;
@@ -49,7 +49,7 @@ public class ChapterServiceImpl implements ChapterService {
 
     @Override
     @Transactional
-    public void createChapter(Integer comicId, ChapterRequest form) {
+    public void createChapter(Integer comicId, ChapterAdRequest form) {
         Comics comic = comicRepository.findById(comicId)
                 .orElseThrow(() -> new EntityNotFoundException("Comic not found with id: " + comicId));
         Chapters chapter = new Chapters();
@@ -61,7 +61,7 @@ public class ChapterServiceImpl implements ChapterService {
 
     @Override
     @Transactional
-    public void updateChapter(Integer chapterId, ChapterRequest form) {
+    public void updateChapter(Integer chapterId, ChapterAdRequest form) {
         Chapters chapter = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new EntityNotFoundException("Chapter not found with id: " + chapterId));
         chapter.setTitle(form.getTitle());

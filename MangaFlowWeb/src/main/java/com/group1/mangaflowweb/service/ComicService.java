@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.request.admin.ComicRequest;
+import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 import com.group1.mangaflowweb.entity.Comics;
@@ -16,9 +16,9 @@ public interface ComicService {
 
     ComicAdminResponse getComicById(Integer id);
 
-    void createComic(ComicRequest form);
+    void createComic(ComicAdRequest form);
 
-    void updateComic(Integer id, ComicRequest form);
+    void updateComic(Integer id, ComicAdRequest form);
 
     void softDeleteComic(Integer id);
 

@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.GenreRequest;
+import com.group1.mangaflowweb.dto.request.admin.GenreAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 import com.group1.mangaflowweb.service.GenreService;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,11 +18,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
-public class GenreController {
+public class GenreAdController {
 
     private final GenreService genreService;
 
-    public GenreController(GenreService genreService) {
+    public GenreAdController(GenreService genreService) {
         this.genreService = genreService;
     }
 
@@ -41,14 +41,14 @@ public class GenreController {
 
     @GetMapping("/genres/new")
     public String genreNewForm(Model model) {
-        model.addAttribute("genre", new GenreRequest());
+        model.addAttribute("genre", new GenreAdRequest());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/genres";
     }
 
     @PostMapping("/genres/new")
-    public String genreCreate(@Valid GenreRequest genre, BindingResult result,
+    public String genreCreate(@Valid GenreAdRequest genre, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
@@ -84,7 +84,7 @@ public class GenreController {
 
     @PostMapping("/genres/{id}/edit")
     public String genreUpdate(@PathVariable Integer id,
-                              @Valid GenreRequest genre, BindingResult result,
+                              @Valid GenreAdRequest genre, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {

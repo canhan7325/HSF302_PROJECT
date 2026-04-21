@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.admin.ComicRequest;
+import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 import com.group1.mangaflowweb.entity.Comics;
@@ -51,7 +51,7 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     @Transactional
-    public void createComic(ComicRequest form) {
+    public void createComic(ComicAdRequest form) {
         LocalDateTime now = LocalDateTime.now();
         Comics comic = new Comics();
         comic.setTitle(form.getTitle());
@@ -68,7 +68,7 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     @Transactional
-    public void updateComic(Integer id, ComicRequest form) {
+    public void updateComic(Integer id, ComicAdRequest form) {
         Comics comic = comicRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Comic not found with id: " + id));
         comic.setTitle(form.getTitle());

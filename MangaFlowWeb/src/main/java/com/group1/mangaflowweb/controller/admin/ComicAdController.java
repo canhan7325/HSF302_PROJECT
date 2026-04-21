@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.ComicRequest;
+import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
 import com.group1.mangaflowweb.service.ComicService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
@@ -18,11 +18,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
-public class ComicController {
+public class ComicAdController {
 
     private final ComicService comicService;
 
-    public ComicController(ComicService comicService) {
+    public ComicAdController(ComicService comicService) {
         this.comicService = comicService;
     }
 
@@ -39,7 +39,7 @@ public class ComicController {
 
     @GetMapping("/manga/new")
     public String mangaNewForm(Model model) {
-        model.addAttribute("comic", new ComicRequest());
+        model.addAttribute("comic", new ComicAdRequest());
         model.addAttribute("genres", comicService.getAllGenresWithCount());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
@@ -47,7 +47,7 @@ public class ComicController {
     }
 
     @PostMapping("/manga/new")
-    public String mangaCreate(@Valid ComicRequest comic, BindingResult result,
+    public String mangaCreate(@Valid ComicAdRequest comic, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("genres", comicService.getAllGenresWithCount());
@@ -63,7 +63,7 @@ public class ComicController {
     @GetMapping("/manga/{id}/edit")
     public String mangaEditForm(@PathVariable Integer id, Model model) {
         var existing = comicService.getComicById(id);
-        ComicRequest form = new ComicRequest();
+        ComicAdRequest form = new ComicAdRequest();
         form.setTitle(existing.title());
         form.setDescription(null);
         form.setCoverImg(null);
@@ -80,7 +80,7 @@ public class ComicController {
 
     @PostMapping("/manga/{id}/edit")
     public String mangaUpdate(@PathVariable Integer id,
-                              @Valid ComicRequest comic, BindingResult result,
+                              @Valid ComicAdRequest comic, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("genres", comicService.getAllGenresWithCount());

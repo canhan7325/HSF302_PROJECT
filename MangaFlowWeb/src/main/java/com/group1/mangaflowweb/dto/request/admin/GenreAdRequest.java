@@ -2,7 +2,7 @@ package com.group1.mangaflowweb.dto.request.admin;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class GenreRequest {
+public class GenreAdRequest {
 
     @NotBlank
     private String name;
