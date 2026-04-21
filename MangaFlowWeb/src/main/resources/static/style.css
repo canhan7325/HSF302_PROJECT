@@ -765,3 +765,127 @@ body {
     }
 }
 
+/* =========================
+   Author dashboard sidebar
+   ========================= */
+.mf-author-sidebar {
+    position: sticky;
+    top: 96px;
+    height: calc(100vh - 96px);
+    padding: 0.75rem;
+}
+
+.mf-author-sidebar__inner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 16px 32px rgba(47, 47, 46, 0.08);
+    padding: 1rem;
+}
+
+.mf-author-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.25rem 0.25rem 0.5rem;
+}
+
+.mf-author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.08);
+    color: #292524;
+}
+
+.mf-author-avatar .material-symbols-outlined {
+    font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+}
+
+.mf-author-profile__title {
+    font-family: "Plus Jakarta Sans", Arial, sans-serif;
+    font-weight: 900;
+    color: #1c1917;
+    line-height: 1.1;
+}
+
+.mf-author-profile__subtitle {
+    font-size: 0.8rem;
+    color: #78716c;
+    font-weight: 600;
+}
+
+.mf-author-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.mf-author-nav__item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 0.8rem;
+    text-decoration: none;
+    color: #57534e;
+    font-weight: 700;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.mf-author-nav__item .material-symbols-outlined {
+    font-size: 1.15rem;
+    color: #78716c;
+}
+
+.mf-author-nav__item:hover {
+    background: rgba(234, 88, 12, 0.07);
+    color: #9a3412;
+}
+
+.mf-author-nav__item.active {
+    background: rgba(234, 88, 12, 0.14);
+    color: #9a3412;
+}
+
+.mf-author-nav__item.active .material-symbols-outlined {
+    color: #c2410c;
+    font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24;
+}
+
+.mf-author-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border-radius: 9999px;
+    padding: 0.85rem 1rem;
+    background: linear-gradient(135deg, #a04300, #ea580c);
+    color: #fff;
+    font-weight: 900;
+    text-decoration: none;
+    box-shadow: 0 16px 26px rgba(234, 88, 12, 0.22);
+}
+
+.mf-author-cta:hover {
+    color: #fff;
+    filter: brightness(1.03);
+}
+
+@media (max-width: 991.98px) {
+    .mf-author-sidebar {
+        position: relative;
+        top: auto;
+        height: auto;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+}
+
+

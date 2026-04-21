@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Author Dashboard Fragment</title>
+</head>
+<body>
+
+<!-- Author Dashboard Sidebar Fragment -->
+<aside th:fragment="authorSidebar(active)" class="mf-author-sidebar">
+    <div class="mf-author-sidebar__inner">
+        <div class="mf-author-profile">
+            <div class="mf-author-avatar">
+                <span class="material-symbols-outlined">person</span>
+            </div>
+            <div class="mf-author-profile__meta">
+                <div class="mf-author-profile__title">Author Studio</div>
+                <div class="mf-author-profile__subtitle">Creator Workspace</div>
+            </div>
+        </div>
+
+        <nav class="mf-author-nav">
+            <a th:href="@{/author/dashboard}"
+               class="mf-author-nav__item"
+               th:classappend="${active} == 'dashboard' ? ' active' : ''">
+                <span class="material-symbols-outlined">grid_view</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a th:href="@{/upload-comic}"
+               class="mf-author-nav__item"
+               th:classappend="${active} == 'upload-comic' ? ' active' : ''">
+                <span class="material-symbols-outlined">library_add</span>
+                <span>Upload Comic</span>
+            </a>
+
+            <a th:href="@{/author/upload-chapter}"
+               class="mf-author-nav__item"
+               th:classappend="${active} == 'upload-chapter' ? ' active' : ''">
+                <span class="material-symbols-outlined">upload</span>
+                <span>Upload Chapter</span>
+            </a>
+
+            <a th:href="@{/author/analytics}"
+               class="mf-author-nav__item"
+               th:classappend="${active} == 'analytics' ? ' active' : ''">
+                <span class="material-symbols-outlined">bar_chart</span>
+                <span>Analytics</span>
+            </a>
+
+            <a th:href="@{/author/settings}"
+               class="mf-author-nav__item"
+               th:classappend="${active} == 'settings' ? ' active' : ''">
+                <span class="material-symbols-outlined">settings</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="mt-auto">
+            <a th:href="@{/comic-create}" class="mf-author-cta">
+                New Series
+            </a>
+        </div>
+    </div>
+</aside>
+
+</body>
+</html>
