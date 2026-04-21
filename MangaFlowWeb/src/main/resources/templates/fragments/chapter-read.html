@@ -6,47 +6,62 @@
 
 <th:block th:fragment="prevNextButtons(prevChapterId, nextChapterId)">
     <div class="chapter-nav">
-        <a th:href="${prevChapterId != null} ? @{/chapters/{id}/read(id=${prevChapterId})} : '#'"
-           th:classappend="${prevChapterId == null} ? ' disabled' : ''"
+        <a th:if="${prevChapterId != null}"
+           th:href="@{/chapters/{id}/read(id=${prevChapterId})}"
            class="chap-btn prev">
             ‹ Chap trước
         </a>
+        <a th:unless="${prevChapterId != null}"
+           href="#"
+           class="chap-btn prev disabled">
+            ‹ Chap trước
+        </a>
 
-        <a th:href="${nextChapterId != null} ? @{/chapters/{id}/read(id=${nextChapterId})} : '#'"
-           th:classappend="${nextChapterId == null} ? ' disabled' : ''"
+        <a th:if="${nextChapterId != null}"
+           th:href="@{/chapters/{id}/read(id=${nextChapterId})}"
            class="chap-btn next">
+            Chap sau ›
+        </a>
+        <a th:unless="${nextChapterId != null}"
+           href="#"
+           class="chap-btn next disabled">
             Chap sau ›
         </a>
     </div>
 </th:block>
 
-<th:block th:fragment="breadcrumbToChapter(comicId, comicTitle, chapter)">
+<!--
+  breadcrumb wants:
+  - comic link: /comic/{slug}
+  - chapter link: /chapters/{id}/read
+-->
+<th:block th:fragment="breadcrumbToChapter(comicSlug, comicTitle, chapter)">
     <div class="breadcrumb">
         <a href="/">Trang chủ</a>
-        <span class="separator">»</span>
+        <span class="separator"> &raquo; </span>
 
-        <a th:href="@{/comics/{id}(id=${comicId})}"
+        <a th:href="@{/comic/{slug}(slug=${comicSlug})}"
            th:text="${comicTitle}">Tên truyện</a>
-        <span class="separator">»</span>
+        <span class="separator"> &raquo; </span>
 
         <a class="current"
-           th:href="@{/chapters/{id}(id=${chapter.chapterId})}"
+           th:href="@{/chapters/{id}/read(id=${chapter.chapterId})}"
            th:text="'Chapter ' + ${chapter.chapterNumber}">
         </a>
     </div>
 </th:block>
 
-<th:block th:fragment="breadcrumbEnd(comicId, comicTitle, chapter)">
+<th:block th:fragment="breadcrumbEnd(comicSlug, comicTitle, chapter)">
     <div class="breadcrumb">
         <a href="/">Trang chủ</a>
-        <span class="separator">»</span>
+        <span class="separator"> &raquo; </span>
 
-        <a th:href="@{/comics/{id}(id=${comicId})}"
+        <a th:href="@{/comic/{slug}(slug=${comicSlug})}"
            th:text="${comicTitle}">Tên truyện</a>
-        <span class="separator">»</span>
+        <span class="separator"> &raquo; </span>
 
         <a class="current"
-           th:href="@{/chapters/{id}(id=${chapter.chapterId})}"
+           th:href="@{/chapters/{id}/read(id=${chapter.chapterId})}"
            th:text="'Chapter ' + ${chapter.chapterNumber}">
         </a>
     </div>

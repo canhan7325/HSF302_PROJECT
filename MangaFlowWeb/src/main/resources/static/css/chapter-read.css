@@ -265,6 +265,13 @@ body {
     text-decoration: none;
 }
 
+/* Thêm đoạn này vào bên dưới CSS của bạn */
+.breadcrumb .separator {
+    display: inline-block;
+    margin: 0 10px; /* Đây là khoảng cách: 0 trên dưới, 10px trái phải */
+    color: #666;    /* Màu sắc của dấu » */
+}
+
 #scrollTopBtn {
     position: fixed;
     bottom: 90px;
@@ -372,4 +379,15 @@ body {
 .horizontal-mode .slider-item.active {
     background: #e67e22;
     transform: translateY(-1px);
+}
+
+/* Bookmark button states (shared class name with bookmark list) */
+.right-actions .bookmark-btn.is-bookmarked {
+    background: #f5c542;
+    color: #111827;
+}
+
+.right-actions .bookmark-btn.is-loading {
+    opacity: 0.6;
+    pointer-events: none;
 }

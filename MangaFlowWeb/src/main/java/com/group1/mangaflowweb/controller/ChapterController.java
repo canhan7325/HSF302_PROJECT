@@ -27,6 +27,8 @@ public class ChapterController {
     private final UserContextService userContextService;
     private final AccessService accessService;
     private final ComicService comicService;
+    private final com.group1.mangaflowweb.service.BookmarkService bookmarkService;
+    private final com.group1.mangaflowweb.service.ReadingHistoryService readingHistoryService;
 
     // ================== GET ALL ==================
     @GetMapping
@@ -125,8 +127,13 @@ public class ChapterController {
 
         Integer comicId = chapter.getComicId();
         model.addAttribute("comicId", comicId);
-        String comicTitle = comicService.getById(comicId).getTitle();
-        model.addAttribute("comicTitle", comicTitle);
+
+        var comic = comicService.getById(comicId);
+        model.addAttribute("comicTitle", comic.getTitle());
+        model.addAttribute("comicSlug", comic.getSlug());
+
+        // Increase view count when entering read page
+        readingHistoryService.incrementComicViewCount(comicId);
 
         // Chapters dropdown + prev/next navigation (by chapterNumber)
         List<ChapterResponse> chaptersInComic = (comicId != null)
@@ -158,9 +165,16 @@ public class ChapterController {
         model.addAttribute("canReadFull", canReadFull);
         model.addAttribute("previewCount", 2);
 
+        Integer currentUserId = userContextService.getCurrentUser().map(com.group1.mangaflowweb.entity.Users::getUserId).orElse(null);
+        model.addAttribute("currentUserId", currentUserId);
 
-        // for bookmark (if logged in)
-        model.addAttribute("currentUserId", userContextService.getCurrentUser().map(u -> u.getUserId()).orElse(null));
+        // Upsert reading history (1 record per comic per user)
+        if (currentUserId != null) {
+            readingHistoryService.upsertForUserReadChapter(currentUserId, chapterId);
+        }
+
+        boolean isBookmarked = (currentUserId != null && comicId != null) && bookmarkService.isBookmarked(currentUserId, comicId);
+        model.addAttribute("isBookmarked", isBookmarked);
 
         return "chapter/read";
     }

@@ -38,6 +38,8 @@ public class BookmarkController {
             Model model) {
 
         Integer currentUserId = userContextService.getCurrentUser().map(u -> u.getUserId()).orElse(null);
+        boolean isLoggedIn = currentUserId != null;
+
         final Integer effectiveUserId = (userId != null) ? userId : currentUserId;
 
         final List<BookmarkResponse> bookmarkResponses;
@@ -82,6 +84,8 @@ public class BookmarkController {
                             .thumbnailUrl(comic != null ? comic.getCoverImg() : "")
                             .continueChapterId(continueChapterId)
                             .continueChapterNumber(continueChapterNumber)
+                            .comicSlug(comic != null ? comic.getSlug() : null)
+                            .bookmarked(true)
                             .build();
                 })
                 .sorted(Comparator.comparing(BookmarkListItemView::getBookmarkId, Comparator.nullsLast(Integer::compareTo)))
@@ -89,6 +93,7 @@ public class BookmarkController {
 
         model.addAttribute("bookmarks", bookmarks);
         model.addAttribute("currentUserId", currentUserId);
+        model.addAttribute("isLoggedIn", isLoggedIn);
         return "bookmark/list";
     }
 
@@ -113,6 +118,28 @@ public class BookmarkController {
         return "redirect:/bookmarks";
     }
 
+    // ================== CREATE (AJAX by comicId for current user) ==================
+    @PostMapping("/create-by-comic")
+    @ResponseBody
+    public Map<String, Object> createByComic(@RequestParam Integer comicId) {
+        Integer currentUserId = userContextService.getCurrentUser().map(u -> u.getUserId()).orElse(null);
+        if (currentUserId == null) {
+            return Map.of("ok", false, "error", "UNAUTHORIZED");
+        }
+
+        // Avoid duplicates: if already bookmarked return ok
+        boolean exists = bookmarkService.getByUserId(currentUserId).stream()
+                .anyMatch(b -> b.getComicId() != null && b.getComicId().equals(comicId));
+        if (!exists) {
+            bookmarkService.create(BookmarkRequest.builder()
+                    .userId(currentUserId)
+                    .comicId(comicId)
+                    .build());
+        }
+
+        return Map.of("ok", true, "bookmarked", true);
+    }
+
     // ================== FORM UPDATE ==================
     @GetMapping("/edit/{bookmarkId}")
     public String showUpdateForm(@PathVariable Integer bookmarkId, Model model) {
@@ -133,5 +160,39 @@ public class BookmarkController {
     public String delete(@PathVariable Integer bookmarkId) {
         bookmarkService.delete(bookmarkId);
         return "redirect:/bookmarks";
+    }
+
+    @PostMapping("/toggle")
+    @ResponseBody
+    public Map<String, Object> toggle(@RequestParam Integer comicId) {
+        Integer currentUserId = userContextService.getCurrentUser().map(com.group1.mangaflowweb.entity.Users::getUserId).orElse(null);
+        if (currentUserId == null) {
+            return Map.of("ok", false, "error", "UNAUTHORIZED");
+        }
+
+        // Find existing bookmark (if any)
+        BookmarkResponse existing = bookmarkService.getByUserId(currentUserId).stream()
+                .filter(b -> b.getComicId() != null && b.getComicId().equals(comicId))
+                .findFirst()
+                .orElse(null);
+
+        if (existing == null) {
+            BookmarkResponse created = bookmarkService.create(BookmarkRequest.builder()
+                    .userId(currentUserId)
+                    .comicId(comicId)
+                    .build());
+            return Map.of(
+                    "ok", true,
+                    "bookmarked", true,
+                    "bookmarkId", created.getBookmarkId()
+            );
+        }
+
+        bookmarkService.delete(existing.getBookmarkId());
+        return Map.of(
+                "ok", true,
+                "bookmarked", false,
+                "bookmarkId", existing.getBookmarkId()
+        );
     }
 }

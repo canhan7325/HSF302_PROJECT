@@ -5,4 +5,7 @@ import com.group1.mangaflowweb.dto.readinghistory.ReadingHistoryResponse;
 
 public interface ReadingHistoryService {
     ReadingHistoryResponse readingHistory(ReadingHistoryRequest readingHistoryRequest);
+    void upsertForUserReadChapter(Integer userId, Integer chapterId);
+
+    void incrementComicViewCount(Integer comicId);
 }

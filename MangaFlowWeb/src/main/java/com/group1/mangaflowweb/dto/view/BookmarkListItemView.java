@@ -16,4 +16,8 @@ public class BookmarkListItemView {
     private String thumbnailUrl;
     private Integer continueChapterId;
     private Integer continueChapterNumber;
+
+    // for UI actions
+    private String comicSlug;
+    private Boolean bookmarked;
 }

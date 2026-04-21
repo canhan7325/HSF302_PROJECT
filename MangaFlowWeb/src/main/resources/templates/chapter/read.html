@@ -18,7 +18,7 @@
 <div class="chapter-start-nav">
 
     <!-- Breadcrumb -->
-    <th:block th:replace="~{fragments/chapter-read :: breadcrumbToChapter(${comicId}, ${comicTitle}, ${chapter})}"></th:block>
+    <th:block th:replace="~{fragments/chapter-read :: breadcrumbToChapter(${comicSlug}, ${comicTitle}, ${chapter})}"></th:block>
 
     <th:block th:replace="~{fragments/chapter-read :: chapterTitle(${comicTitle}, ${chapter})}"></th:block>
 
@@ -33,14 +33,15 @@
          th:with="locked=${!canReadFull and iter.index >= previewCount}"
          th:classappend="${locked} ? ' page-wrap locked' : ' page-wrap'">
 
-        <img th:src="${@imageUrlResolver.resolve(p.imgPath)}" class="comic-img" />
+        <img th:src="${@imageUrlResolver.resolve(p.imgPath)}" class="comic-img" th:alt="|Page ${p.pageNumber}|" />
+
         <div class="lock-overlay" th:if="${locked}">
             <div>
                 <div th:if="${!isLoggedIn}">
                     Bạn cần đăng nhập để xem tiếp.
                 </div>
                 <div th:if="${isLoggedIn}">
-                    Bạn cần gói subscription còn hạn (transaction SUCCESS và endedAt &gt; hôm nay) để xem full chapter.
+                    Bạn cần gói subscription còn hạn để xem full chapter.
                 </div>
             </div>
         </div>
@@ -63,7 +64,7 @@
     <th:block th:replace="~{fragments/chapter-read :: prevNextButtons(${prevChapterId}, ${nextChapterId})}"></th:block>
 
     <!-- Breadcrumb nằm dưới, căn trái, không có Thể loại -->
-    <th:block th:replace="~{fragments/chapter-read :: breadcrumbEnd(${comicId}, ${comicTitle}, ${chapter})}"></th:block>
+    <th:block th:replace="~{fragments/chapter-read :: breadcrumbEnd(${comicSlug}, ${comicTitle}, ${chapter})}"></th:block>
 
 </div>
 
@@ -77,21 +78,22 @@
         </svg>
     </button>
 
-    <!-- Nút Danh sách chương (Back to comic chapters) -->
-    <a th:href="@{/chapters(comicId=${comicId})}" class="action-item" data-tooltip="Danh sách chương">
-        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+    <!-- Nút Danh sách chương (Back to comic detail) -->
+    <a th:href="@{/comic/{slug}(slug=${comicSlug})}" class="action-item" data-tooltip="Danh sách chương">
+        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v-2zM7 7v2h14V7H7z"/></svg>
     </a>
 
-    <!-- Nút Bookmark -->
+    <!-- Nút Bookmark (same logic as bookmark list: AJAX toggle, stay on page) -->
     <th:block th:if="${isLoggedIn}">
-        <form th:action="@{/bookmarks/create}" method="post" style="margin:0;">
-            <input type="hidden" name="userId" th:value="${currentUserId}" />
-            <input type="hidden" name="comicId" th:value="${comicId}" />
-            <button type="submit" class="action-item" data-tooltip="Lưu Bookmark">
-                <svg viewBox="0 0 24 24"><path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"/></svg>
-            </button>
-        </form>
+        <button type="button"
+                class="action-item bookmark-btn"
+                th:classappend="${isBookmarked} ? ' is-bookmarked' : ''"
+                th:attr="data-comic-id=${comicId}"
+                data-tooltip="Lưu Bookmark">
+            <svg viewBox="0 0 24 24"><path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"/></svg>
+        </button>
     </th:block>
+
     <a th:if="${!isLoggedIn}" href="/login" class="action-item" data-tooltip="Đăng nhập để Bookmark">
         <svg viewBox="0 0 24 24"><path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3M17,18L12,15.82L7,18V5H17V18Z"/></svg>
     </a>
@@ -155,6 +157,64 @@
 </main>
 
 <script th:src="@{/bootstrap.bundle.min.js}"></script>
+
+<!-- Bookmark toggle logic (copied from bookmark list, so behavior is identical) -->
+<script th:inline="javascript">
+(function () {
+    const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
+    if (!isLoggedIn) return;
+
+    function setBookmarked(btn, bookmarked) {
+        btn.classList.toggle('is-bookmarked', !!bookmarked);
+    }
+
+    async function toggleBookmark(comicId) {
+        const body = new URLSearchParams();
+        body.set('comicId', comicId);
+
+        const res = await fetch('/bookmarks/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            },
+            body
+        });
+
+        let data = null;
+        try { data = await res.json(); } catch (e) { /* ignore */ }
+
+        if (!res.ok || !data || data.ok !== true) {
+            const err = data && data.error ? data.error : 'UNKNOWN';
+            if (err === 'UNAUTHORIZED') {
+                window.location.href = '/login';
+                return null;
+            }
+            throw new Error(err);
+        }
+
+        return data;
+    }
+
+    document.addEventListener('click', async (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('button.bookmark-btn[data-comic-id]') : null;
+        if (!btn) return;
+
+        const comicId = btn.getAttribute('data-comic-id');
+        if (!comicId) return;
+
+        try {
+            btn.classList.add('is-loading');
+            const data = await toggleBookmark(comicId);
+            if (!data) return;
+            setBookmarked(btn, !!data.bookmarked);
+        } catch (err) {
+            console.error('Toggle bookmark failed:', err);
+        } finally {
+            btn.classList.remove('is-loading');
+        }
+    });
+})();
+</script>
 </body>
 </html>
 

@@ -12,27 +12,6 @@
             margin: 0;
         }
 
-        /* HEADER */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px 40px;
-            background: white;
-            align-items: center;
-        }
-
-        .logo {
-            font-weight: bold;
-            font-size: 20px;
-            color: #ff6b00;
-        }
-
-        .nav a {
-            margin: 0 10px;
-            text-decoration: none;
-            color: #555;
-        }
-
         /* CONTENT */
         .container {
             padding: 30px 40px;
@@ -95,8 +74,23 @@
         /* GRID */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px;
+            /* default: 2 columns on very small screens */
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        /* responsive columns -> up to 6 per row */
+        @media (min-width: 576px) {
+            .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (min-width: 768px) {
+            .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        @media (min-width: 992px) {
+            .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1200px) {
+            .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
         }
 
         /* CARD */
@@ -106,6 +100,7 @@
             overflow: hidden;
             transition: 0.2s;
             box-sizing: border-box;
+            position: relative;
         }
 
         .card:hover {
@@ -116,6 +111,50 @@
             width: 100%;
             height: 240px;
             object-fit: cover;
+            display: block;
+        }
+
+        /* top-right actions */
+        .card-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 2;
+        }
+
+        .card-actions a,
+        .card-actions button {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+            text-decoration: none;
+            color: #111827;
+        }
+
+        .card-actions svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .bookmark-btn.is-bookmarked {
+            background: #fbbf24; /* yellow */
+            color: #111827;
+        }
+
+        .bookmark-btn.is-loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
 
         .card-body {
@@ -211,6 +250,11 @@
         .mf-main-content {
             min-height: calc(100vh - 56px);
         }
+
+        /* Pagination toggle: default hide cards beyond 2 rows (12 items) */
+        .card.is-collapsed {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -242,8 +286,36 @@
     <div class="grid" id="bookmarkGrid">
         <div class="card"
              th:each="b : ${bookmarks}"
-             th:attr="data-status=${b.continueChapterId != null ? 'reading' : 'unread'}">
-            <img th:src="${b.thumbnailUrl}" alt="cover">
+             th:attr="data-status=${b.continueChapterId != null ? 'reading' : 'unread'},
+                      data-comic-id=${b.comicId},
+                      data-bookmarked=${b.bookmarked != null ? b.bookmarked : true}">
+
+            <div class="card-actions">
+                <!-- Mục lục -> /comic/{slug} -->
+                <a class="toc-btn"
+                   th:if="${b.comicSlug != null}"
+                   th:href="@{/comic/{slug}(slug=${b.comicSlug})}"
+                   title="Mục lục">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+                </a>
+
+                <!-- Bookmark button -->
+                <button type="button"
+                        class="bookmark-btn"
+                        th:classappend="${b.bookmarked} ? ' is-bookmarked' : ''"
+                        th:if="${isLoggedIn}"
+                        title="Bookmark"
+                        th:attr="data-comic-id=${b.comicId}">
+                    <svg viewBox="0 0 24 24"><path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"/></svg>
+                </button>
+
+                <a th:if="${!isLoggedIn}" href="/login" title="Đăng nhập để Bookmark">
+                    <svg viewBox="0 0 24 24"><path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3M17,18L12,15.82L7,18V5H17V18Z"/></svg>
+                </a>
+            </div>
+
+            <!-- Cover -->
+            <img th:src="${@imageUrlResolver.resolve(b.thumbnailUrl)}" th:alt="${b.comicName}" alt="cover">
 
             <div class="card-body">
                 <div class="title" th:text="${b.comicName}">Comic Name</div>
@@ -274,7 +346,7 @@
 
     <!-- LOAD MORE -->
     <div class="load-more">
-        <button>Load More Bookmarks</button>
+        <button>Xem thêm</button>
     </div>
 
 </div>
@@ -289,22 +361,71 @@
 <script>
 (function () {
     const STORAGE_KEY = 'bookmarkFilter';
+    const DEFAULT_VISIBLE = 12; // 2 rows * 6 per row (on large screens)
 
     const filterRoot = document.getElementById('bookmarkFilter');
     const grid = document.getElementById('bookmarkGrid');
+    const loadMoreBtn = document.querySelector('.load-more button');
     if (!filterRoot || !grid) return;
 
     const buttons = Array.from(filterRoot.querySelectorAll('button[data-filter]'));
-    const cards = () => Array.from(grid.querySelectorAll('.card[data-status]'));
+
+    function allCards() {
+        return Array.from(grid.querySelectorAll('.card[data-status]'));
+    }
+
+    function visibleCardsWithFilter(filterValue) {
+        const v = (filterValue || 'all').toLowerCase();
+        return allCards().filter(card => {
+            const status = (card.getAttribute('data-status') || '').toLowerCase();
+            const matches = (v === 'all') || (status === v);
+            return matches && !card.classList.contains('is-hidden');
+        });
+    }
 
     function setActiveByValue(value) {
         const v = (value || 'all').toLowerCase();
         buttons.forEach(b => b.classList.toggle('active', (b.getAttribute('data-filter') || '').toLowerCase() === v));
     }
 
+    function showLoadMore(show) {
+        if (!loadMoreBtn) return;
+        loadMoreBtn.style.display = show ? '' : 'none';
+    }
+
+    function isExpanded() {
+        return grid.getAttribute('data-expanded') === 'true';
+    }
+
+    function setExpanded(expanded) {
+        grid.setAttribute('data-expanded', expanded ? 'true' : 'false');
+    }
+
+    function applyCollapse(filterValue) {
+        const expanded = isExpanded();
+
+        // Reset collapsed state first
+        allCards().forEach(c => c.classList.remove('is-collapsed'));
+
+        if (expanded) {
+            showLoadMore(false);
+            return;
+        }
+
+        // Collapse to first DEFAULT_VISIBLE cards (within current filter)
+        const list = visibleCardsWithFilter(filterValue);
+        list.forEach((card, idx) => {
+            if (idx >= DEFAULT_VISIBLE) card.classList.add('is-collapsed');
+        });
+
+        showLoadMore(list.length > DEFAULT_VISIBLE);
+    }
+
     function applyFilter(value) {
         const v = (value || 'all').toLowerCase();
-        cards().forEach(card => {
+
+        // Apply filter show/hide
+        allCards().forEach(card => {
             const status = (card.getAttribute('data-status') || '').toLowerCase();
             const show = (v === 'all') || (status === v);
             card.classList.toggle('is-hidden', !show);
@@ -312,19 +433,35 @@
 
         setActiveByValue(v);
 
+        // Re-apply collapse for the current filter
+        applyCollapse(v);
+
         try {
             localStorage.setItem(STORAGE_KEY, v);
         } catch (e) {
-            // ignore storage errors (private mode/quota)
+            // ignore storage errors
         }
     }
 
     filterRoot.addEventListener('click', function (e) {
         const btn = e.target && e.target.closest ? e.target.closest('button[data-filter]') : null;
         if (!btn) return;
+
+        // When changing filter, go back to collapsed mode
+        setExpanded(false);
+
         const value = btn.getAttribute('data-filter');
         applyFilter(value);
     });
+
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function () {
+            setExpanded(true);
+            // keep current filter
+            const current = (filterRoot.querySelector('button.active')?.getAttribute('data-filter')) || 'all';
+            applyCollapse(current);
+        });
+    }
 
     // restore last selected filter
     let initial = 'all';
@@ -337,7 +474,73 @@
         // ignore
     }
 
+    // default collapsed
+    setExpanded(false);
     applyFilter(initial);
+})();
+</script>
+
+<script th:inline="javascript">
+(function () {
+    const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
+    if (!isLoggedIn) return;
+
+    const grid = document.getElementById('bookmarkGrid');
+    if (!grid) return;
+
+    function setBookmarked(btn, bookmarked) {
+        btn.classList.toggle('is-bookmarked', !!bookmarked);
+        const card = btn.closest('.card');
+        if (card) {
+            card.setAttribute('data-bookmarked', bookmarked ? 'true' : 'false');
+        }
+    }
+
+    async function toggleBookmark(comicId) {
+        const body = new URLSearchParams();
+        body.set('comicId', comicId);
+
+        const res = await fetch('/bookmarks/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            },
+            body
+        });
+
+        let data = null;
+        try { data = await res.json(); } catch (e) { /* ignore */ }
+
+        if (!res.ok || !data || data.ok !== true) {
+            const err = data && data.error ? data.error : 'UNKNOWN';
+            if (err === 'UNAUTHORIZED') {
+                window.location.href = '/login';
+                return null;
+            }
+            throw new Error(err);
+        }
+
+        return data;
+    }
+
+    grid.addEventListener('click', async (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('button.bookmark-btn[data-comic-id]') : null;
+        if (!btn) return;
+
+        const comicId = btn.getAttribute('data-comic-id');
+        if (!comicId) return;
+
+        try {
+            btn.classList.add('is-loading');
+            const data = await toggleBookmark(comicId);
+            if (!data) return;
+            setBookmarked(btn, !!data.bookmarked);
+        } catch (err) {
+            console.error('Toggle bookmark failed:', err);
+        } finally {
+            btn.classList.remove('is-loading');
+        }
+    });
 })();
 </script>
 
