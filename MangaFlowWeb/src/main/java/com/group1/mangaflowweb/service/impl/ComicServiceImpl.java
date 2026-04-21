@@ -1,8 +1,8 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.ComicRequest;
-import com.group1.mangaflowweb.dto.response.ComicAdminResponse;
-import com.group1.mangaflowweb.dto.response.GenreAdminResponse;
+import com.group1.mangaflowweb.dto.request.admin.ComicRequest;
+import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
+import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 import com.group1.mangaflowweb.entity.Comics;
 import com.group1.mangaflowweb.entity.Genres;
 import com.group1.mangaflowweb.enums.ComicEnum;

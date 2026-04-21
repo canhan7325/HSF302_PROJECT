@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.UserRequest;
-import com.group1.mangaflowweb.dto.response.UserAdminResponse;
+import com.group1.mangaflowweb.dto.request.admin.UserRequest;
+import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
 import com.group1.mangaflowweb.entity.Users;
 import com.group1.mangaflowweb.repository.UserRepository;
 import com.group1.mangaflowweb.service.UserService;

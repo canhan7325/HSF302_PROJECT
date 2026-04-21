@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.response.PageAdminResponse;
+import com.group1.mangaflowweb.dto.response.admin.PageAdminResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Pages;
 import com.group1.mangaflowweb.repository.ChapterRepository;

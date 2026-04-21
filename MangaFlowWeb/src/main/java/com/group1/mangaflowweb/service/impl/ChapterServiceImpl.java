@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.ChapterRequest;
-import com.group1.mangaflowweb.dto.response.ChapterAdminResponse;
+import com.group1.mangaflowweb.dto.request.admin.ChapterRequest;
+import com.group1.mangaflowweb.dto.response.admin.ChapterAdminResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Comics;
 import com.group1.mangaflowweb.repository.ChapterRepository;

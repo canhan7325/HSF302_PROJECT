@@ -1,9 +1,9 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.response.ComicSummaryResponse;
-import com.group1.mangaflowweb.dto.response.DashboardStatsResponse;
-import com.group1.mangaflowweb.dto.response.GenreComicCountResponse;
-import com.group1.mangaflowweb.dto.response.RevenueDataPointResponse;
+import com.group1.mangaflowweb.dto.response.admin.ComicSummaryResponse;
+import com.group1.mangaflowweb.dto.response.admin.DashboardStatsResponse;
+import com.group1.mangaflowweb.dto.response.admin.GenreComicCountResponse;
+import com.group1.mangaflowweb.dto.response.admin.RevenueDataPointResponse;
 
 import java.util.List;
 

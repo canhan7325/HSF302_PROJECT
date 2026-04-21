@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.response.PageAdminResponse;
+import com.group1.mangaflowweb.dto.response.admin.PageAdminResponse;
 
 import java.util.List;
 

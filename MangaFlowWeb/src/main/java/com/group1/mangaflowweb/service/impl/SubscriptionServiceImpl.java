@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.SubscriptionRequest;
-import com.group1.mangaflowweb.dto.response.SubscriptionAdminResponse;
+import com.group1.mangaflowweb.dto.request.admin.SubscriptionRequest;
+import com.group1.mangaflowweb.dto.response.admin.SubscriptionAdminResponse;
 import com.group1.mangaflowweb.entity.Subscriptions;
 import com.group1.mangaflowweb.repository.SubscriptionRepository;
 import com.group1.mangaflowweb.service.SubscriptionService;

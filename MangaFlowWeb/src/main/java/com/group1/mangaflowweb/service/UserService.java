@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.request.UserRequest;
-import com.group1.mangaflowweb.dto.response.UserAdminResponse;
+import com.group1.mangaflowweb.dto.request.admin.UserRequest;
+import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

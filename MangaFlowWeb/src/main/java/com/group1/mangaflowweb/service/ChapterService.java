@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.request.ChapterRequest;
-import com.group1.mangaflowweb.dto.response.ChapterAdminResponse;
+import com.group1.mangaflowweb.dto.request.admin.ChapterRequest;
+import com.group1.mangaflowweb.dto.response.admin.ChapterAdminResponse;
 
 import java.util.List;
 
