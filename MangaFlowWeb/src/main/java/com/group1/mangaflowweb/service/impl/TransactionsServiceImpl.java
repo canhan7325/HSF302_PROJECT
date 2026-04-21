@@ -117,6 +117,7 @@ public class TransactionsServiceImpl implements TransactionsService {
     public SubscriptionCheckDTO checkSubscription(Integer userId, Long newSubscriptionPrice, BigDecimal newSubscriptionPriceBigDecimal) {
         Long currentPrice = getCurrentMembershipPrice(userId);
         boolean isUpgrade = newSubscriptionPrice > currentPrice;
+        boolean isDowngrade = newSubscriptionPrice < currentPrice;
         long discountAmount = 0;
 
         // Nếu chưa có membership, có thể đăng kí
@@ -146,6 +147,20 @@ public class TransactionsServiceImpl implements TransactionsService {
                         .isUpgrade(false)
                         .build();
             }
+        }
+
+        // Downgrade: từ gói cao xuống gói thấp → BLOCK
+        if (isDowngrade) {
+            String currentMembership = getMembershipFromPrice(BigDecimal.valueOf(currentPrice));
+            String newMembership = getMembershipFromPrice(newSubscriptionPriceBigDecimal);
+            String message = "Bạn không thể hạ từ " + currentMembership + " xuống " + newMembership + ". Vui lòng đợi hết hạn gói hiện tại.";
+            return SubscriptionCheckDTO.builder()
+                    .canSubscribe(false)
+                    .message(message)
+                    .currentPrice(currentPrice)
+                    .discountAmount(0L)
+                    .isUpgrade(false)
+                    .build();
         }
 
         // Upgrade từ Bạc (90k-100k) → Vàng (200k): discount cứng 60k
