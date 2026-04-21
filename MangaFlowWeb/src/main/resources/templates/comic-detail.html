@@ -29,7 +29,7 @@
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     <span class="badge rounded-pill text-bg-light mf-detail-badge"
                           th:each="genre : ${comic.genres}"
-                          th:text="${genre}">Action</span>
+                          th:text="${genre.name}">Action</span>
                     <span class="badge rounded-pill text-bg-light mf-detail-badge" th:if="${#lists.isEmpty(comic.genres)}">No genre</span>
                 </div>
 
@@ -103,7 +103,7 @@
                         Genres
                     </h3>
                     <div class="d-flex flex-wrap gap-2">
-                        <span class="badge rounded-pill text-bg-secondary" th:each="genre : ${comic.genres}" th:text="${genre}">Action</span>
+                        <span class="badge rounded-pill text-bg-secondary" th:each="genre : ${comic.genres}" th:text="${genre.name}">Action</span>
                         <span class="text-muted small" th:if="${#lists.isEmpty(comic.genres)}">No genre data.</span>
                     </div>
                 </div>

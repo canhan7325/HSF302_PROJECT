@@ -15,7 +15,7 @@ public class GenreComics {
     @EmbeddedId
     private GenreComicsId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "genre_id", nullable = false, insertable = false, updatable = false)
     private Genres genre;
 

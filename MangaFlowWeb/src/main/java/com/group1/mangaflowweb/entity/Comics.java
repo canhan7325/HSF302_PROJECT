@@ -5,8 +5,8 @@ import lombok.*;
 import com.group1.mangaflowweb.enums.ComicEnum;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "comics")
@@ -57,13 +57,13 @@ public class Comics {
 
     @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Chapters> chapters = new ArrayList<>();
+    private Set<Chapters> chapters = new HashSet<>();
 
     @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Bookmarks> bookmarks = new ArrayList<>();
+    private Set<Bookmarks> bookmarks = new HashSet<>();
 
     @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<GenreComics> genreComics = new ArrayList<>();
+    private Set<GenreComics> genreComics = new HashSet<>();
 }

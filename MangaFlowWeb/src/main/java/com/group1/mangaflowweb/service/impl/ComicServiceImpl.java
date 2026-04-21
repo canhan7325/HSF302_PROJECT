@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -124,6 +125,7 @@ public class ComicServiceImpl implements ComicService {
                 .createdAt(comic.getCreatedAt())
                 .updatedAt(comic.getUpdatedAt())
                 .chapters(comic.getChapters() != null ? comic.getChapters().stream()
+                        .sorted(Comparator.comparing(chapter -> chapter.getChapterNumber() == null ? 0 : chapter.getChapterNumber()))
                         .map(chapter -> ComicResponse.ChapterSummary.builder()
                                 .chapterId(chapter.getChapterId())
                                 .chapterNumber(chapter.getChapterNumber())
@@ -131,7 +133,13 @@ public class ComicServiceImpl implements ComicService {
                                 .createdAt(chapter.getCreatedAt())
                                 .build())
                         .toList() : new ArrayList<>())
-                .genres(new ArrayList<>())  // Empty list for now - genres relationship may not be loaded
+                .genres(comic.getGenreComics() != null ? comic.getGenreComics().stream()
+                        .filter(gc -> gc.getGenre() != null)
+                        .map(gc -> ComicResponse.GenreSummary.builder()
+                                .genreId(gc.getGenre().getGenreId())
+                                .name(gc.getGenre().getName())
+                                .build())
+                        .toList() : new ArrayList<>())
                 .build();
     }
 }
