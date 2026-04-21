@@ -1,5 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
+import com.group1.mangaflowweb.dto.comic.ComicSearchResponse;
 import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
@@ -20,7 +21,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import org.springframework.data.domain.PageRequest;
+import com.group1.mangaflowweb.util.ImageUrlResolver;
+import com.group1.mangaflowweb.dto.comic.ComicSearchResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,11 +36,13 @@ public class ComicServiceImpl implements ComicService {
     private final ComicRepository comicRepository;
     private final GenreRepository genreRepository;
     private final UserRepository userRepository;
+    private final ImageUrlResolver imageUrlResolver;
 
-    public ComicServiceImpl(ComicRepository comicRepository, GenreRepository genreRepository, UserRepository userRepository) {
+    public ComicServiceImpl(ComicRepository comicRepository, GenreRepository genreRepository, UserRepository userRepository, ImageUrlResolver imageUrlResolver) {
         this.comicRepository = comicRepository;
         this.genreRepository = genreRepository;
         this.userRepository = userRepository;
+        this.imageUrlResolver = imageUrlResolver;
     }
 
     @Override
@@ -199,7 +204,7 @@ public class ComicServiceImpl implements ComicService {
                 .title(request.getTitle())
                 .slug(request.getSlug())
                 .description(request.getDescription())
-                .coverImg(request.getCoverImg())
+                .coverImg(imageUrlResolver.normalizeForStorage(request.getCoverImg()))
                 .status(request.getStatus())
                 .user(user)
                 .viewCount(0)
@@ -250,7 +255,7 @@ public class ComicServiceImpl implements ComicService {
         comic.setTitle(request.getTitle());
         comic.setSlug(request.getSlug());
         comic.setDescription(request.getDescription());
-        comic.setCoverImg(request.getCoverImg());
+        comic.setCoverImg(imageUrlResolver.normalizeForStorage(request.getCoverImg()));
         comic.setStatus(request.getStatus());
         comic.setUser(user);
         comic.setUpdatedAt(LocalDateTime.now());
@@ -262,6 +267,26 @@ public class ComicServiceImpl implements ComicService {
     public void delete(Integer comicId) {
         Comics comic = findComicOrThrow(comicId);
         comicRepository.delete(comic);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ComicSearchResponse> searchByTitle(String keyword, int limit) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        if (normalizedKeyword.isEmpty()) {
+            return List.of();
+        }
+
+        int safeLimit = Math.max(1, Math.min(limit, 20));
+        return comicRepository.searchByTitle(normalizedKeyword, PageRequest.of(0, safeLimit))
+                .stream()
+                .map(comic -> ComicSearchResponse.builder()
+                        .comicId(comic.getComicId())
+                        .title(comic.getTitle())
+                        .slug(comic.getSlug())
+                        .coverImg(comic.getCoverImg())
+                        .build())
+                .toList();
     }
 
     private Comics findComicOrThrow(Integer comicId) {

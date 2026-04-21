@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.service.UserService;
 import com.group1.mangaflowweb.service.TransactionsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,7 +57,32 @@ public class GlobalControllerAdvice {
             return null;
         }
     }
+
+
+    @ModelAttribute("hideSearch")
+    public boolean shouldHideSearch(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        if (path == null) {
+            return false;
+        }
+
+        if (path.startsWith("/login") || path.startsWith("/register")
+                || path.startsWith("/admin") || path.startsWith("/author")) {
+            return true;
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            return false;
+        }
+
+        return authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .anyMatch(role -> "ROLE_ADMIN".equals(role) || "ROLE_AUTHOR".equals(role));
+    }
 }
+
 
 
 

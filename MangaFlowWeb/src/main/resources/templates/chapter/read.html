@@ -33,8 +33,7 @@
          th:with="locked=${!canReadFull and iter.index >= previewCount}"
          th:classappend="${locked} ? ' page-wrap locked' : ' page-wrap'">
 
-        <img th:src="@{${p.imgPath}}" class="comic-img" />
-
+        <img th:src="${@imageUrlResolver.resolve(p.imgPath)}" class="comic-img" />
         <div class="lock-overlay" th:if="${locked}">
             <div>
                 <div th:if="${!isLoggedIn}">

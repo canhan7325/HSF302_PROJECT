@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
+import com.group1.mangaflowweb.util.ImageUrlResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
@@ -24,13 +25,14 @@ import com.group1.mangaflowweb.dto.page.PageRequest;
 import com.group1.mangaflowweb.dto.page.PageResponse;
 @Service
 public class PageServiceImpl implements PageService {
-
+    private final ImageUrlResolver imageUrlResolver;
     private final PageRepository pageRepository;
     private final ChapterRepository chapterRepository;
 
-    public PageServiceImpl(PageRepository pageRepository, ChapterRepository chapterRepository) {
+    public PageServiceImpl(PageRepository pageRepository, ChapterRepository chapterRepository, ImageUrlResolver imageUrlResolver) {
         this.pageRepository = pageRepository;
         this.chapterRepository = chapterRepository;
+        this.imageUrlResolver = imageUrlResolver;
     }
 
     @Override
@@ -125,7 +127,7 @@ public class PageServiceImpl implements PageService {
         Pages page = Pages.builder()
                 .chapter(chapter)
                 .pageNumber(request.getPageNumber())
-                .imgPath(request.getImgPath())
+                .imgPath(imageUrlResolver.normalizeForStorage(request.getImgPath()))
                 .build();
 
         return toResponse(pageRepository.save(page));
@@ -163,7 +165,7 @@ public class PageServiceImpl implements PageService {
 
         page.setChapter(chapter);
         page.setPageNumber(request.getPageNumber());
-        page.setImgPath(request.getImgPath());
+        page.setImgPath(imageUrlResolver.normalizeForStorage(request.getImgPath()));
         return toResponse(pageRepository.save(page));
     }
 

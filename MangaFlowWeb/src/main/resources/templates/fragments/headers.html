@@ -25,36 +25,46 @@
                     <li class="nav-item"><a th:href="@{/pricing}" class="nav-link">Gói Hội Viên</a></li>
                 </ul>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <!-- Unauthenticated -->
-                        <div sec:authorize="!isAuthenticated()" class="d-flex align-items-center gap-2">
-                            <a th:href="@{/login}" class="btn btn-link text-decoration-none mf-btn-link">Log In</a>
-                            <a th:href="@{/register}" class="btn mf-btn-gradient">Sign Up</a>
-                        </div>
+                <div class="mf-header-search mx-lg-3"
+                     th:if="${hideSearch != true}"
+                     sec:authorize="!hasRole('ADMIN') and !hasRole('AUTHOR')"
+                     data-search-endpoint="/api/comics/search">
+                    <label for="comicSearchInput" class="visually-hidden">Tim truyen theo ten</label>
+                    <input type="text"
+                           class="form-control mf-header-search-input"
+                           id="comicSearchInput"
+                           autocomplete="off"
+                           placeholder="Tìm truyện theo tên...">
+                    <div class="mf-search-suggestions d-none" id="comicSearchSuggestions"></div>
+                </div>
 
-                        <!-- Authenticated -->
-                        <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
-                            <div>
-                                <span style="font-weight: 500;">
-                                    Xin chào, <b sec:authentication="name"></b>
-                                </span>
-                                <br>
-                                <span th:if="${userMembership}" style="font-size: 0.85rem; color: #914700; font-weight: 600;" th:text="${userMembership}">
-                                    Hội Viên Bạc
-                                </span>
-                                <span th:unless="${userMembership}" style="font-size: 0.85rem; color: #666;">
-                                    Người dùng thường
-                                </span>
-                            </div>
-                            <form th:action="@{/logout}" method="post" style="margin: 0;">
-                                <button type="submit" class="btn-login" style="border: none; background: transparent; cursor: pointer;">Đăng xuất</button>
-                            </form>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Unauthenticated -->
+                    <div sec:authorize="!isAuthenticated()" class="d-flex align-items-center gap-2">
+                        <a th:href="@{/login}" class="btn btn-link text-decoration-none mf-btn-link">Đăng nhập</a>
+                        <a th:href="@{/register}" class="btn mf-btn-gradient">Đăng ký</a>
+                    </div>
+
+                    <!-- Authenticated -->
+                    <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
+                        <div>
+                            <span style="font-weight: 500;">
+                                Xin chào, <b sec:authentication="name"></b>
+                            </span>
+                            <br>
+                            <span th:if="${userMembership}" style="font-size: 0.85rem; color: #914700; font-weight: 600;" th:text="${userMembership}">
+                                Hội Viên Bạc
+                            </span>
+                            <span th:unless="${userMembership}" style="font-size: 0.85rem; color: #666;">
+                                Người dùng thường
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
-        </nav>
-    </header>
-
+        </div>
+    </nav>
+</header>
+<script th:src="@{/js/header-search.js}"></script>
 </body>
 </html>

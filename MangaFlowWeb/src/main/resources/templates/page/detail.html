@@ -13,7 +13,7 @@
 <p><b>Chapter ID:</b> <span th:text="${page.chapterId}"></span></p>
 
 <p>
-    <img th:src="@{${page.imgPath}}" alt="Page Image" width="300"/>
+    <img th:src="${@imageUrlResolver.resolve(page.imgPath)}" alt="Page Image" width="300"/>
 </p>
 
 <a href="/pages">Back to list</a>

@@ -308,6 +308,79 @@ body.mf-body {
 .mf-footer-link:hover {
 	color: #1c1917;
 }
+.mf-header-search {
+	position: relative;
+	width: min(360px, 100%);
+	min-width: 220px;
+}
+
+.mf-header-search-input {
+	border-radius: 999px;
+	border: 1px solid #d6d3d1;
+	font-size: 0.92rem;
+	padding-inline: 0.9rem;
+}
+
+.mf-header-search-input:focus {
+	border-color: #f97316;
+	box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.2);
+}
+
+.mf-search-suggestions {
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 0;
+	right: 0;
+	max-height: 320px;
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid #e7e5e4;
+	border-radius: 0.8rem;
+	box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+	z-index: 2600;
+}
+
+.mf-search-item {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	padding: 0.55rem 0.7rem;
+	text-decoration: none;
+	color: #292524;
+}
+
+.mf-search-item + .mf-search-item {
+	border-top: 1px solid #f5f5f4;
+}
+
+.mf-search-item:hover {
+	background: #fff7ed;
+}
+
+.mf-search-item-cover {
+	width: 34px;
+	height: 46px;
+	border-radius: 0.35rem;
+	object-fit: cover;
+	flex-shrink: 0;
+}
+
+.mf-search-item-cover-placeholder {
+	background: #e7e5e4;
+}
+
+.mf-search-item-title {
+	font-size: 0.9rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.mf-search-empty {
+	padding: 0.7rem;
+	font-size: 0.88rem;
+	color: #78716c;
+}
+
 
 /* Keep comic layout stable at 6 items/row on large screens (12 items = 2 rows). */
 .mf-six-cols-grid > .col {
@@ -348,6 +421,11 @@ body.mf-body {
 
 	.mf-main-content {
 		padding-top: 96px;
+	}
+
+	.mf-header-search {
+		width: 100%;
+		margin: 0.7rem 0;
 	}
 }
 

@@ -49,4 +49,8 @@ public interface ComicRepository extends JpaRepository<Comics, Integer> {
 
 		List<Comics> findByUser_UserId(Integer userId);
 
+
+	@Query("SELECT c FROM Comics c WHERE LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY c.updatedAt DESC")
+	Page<Comics> searchByTitle(String keyword, Pageable pageable);
+
 	}

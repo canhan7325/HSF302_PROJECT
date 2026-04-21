@@ -1,5 +1,6 @@
 package com.group1.mangaflowweb.service;
 
+import com.group1.mangaflowweb.dto.comic.ComicSearchResponse;
 import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
@@ -48,4 +49,5 @@ public interface ComicService {
     ComicResponse update(Integer comicId, ComicRequest request);
 
     void delete(Integer comicId);
+    List<ComicSearchResponse> searchByTitle(String keyword, int limit);
 }
