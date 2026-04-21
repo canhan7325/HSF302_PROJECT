@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MangaFlow</title>
+    <title>MangaCurator</title>
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
     <!-- Main Content -->
     <main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
         <div class="mf-hero-banner mb-4 mb-md-5 p-4 p-md-5">
-            <h2 class="mb-0 mf-heading">MangaFlow</h2>
+            <h2 class="mb-0 mf-heading">MangaCurator</h2>
             <p class="mb-0 mt-2 mf-hero-subtitle">Khám phá truyện hot và cập nhật mới nhất mỗi ngày.</p>
         </div>
 
@@ -36,7 +36,7 @@
                     <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
                         <article class="mf-comic-card h-100">
                             <div class="position-relative mf-cover-wrap mb-2 mb-md-3">
-                                <img th:src="@{'/uploads/' + ${comic.coverImg}}" class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
+                                <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}" class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
                                 <div class="mf-cover-overlay"></div>
                                 <div class="position-absolute top-0 start-0 m-2 badge rounded-pill text-uppercase mf-badge-hot">Nổi bật</div>
                                 <div class="position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center mf-bookmark-icon">
@@ -72,7 +72,7 @@
                     <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
                         <article class="mf-comic-card h-100">
                             <div class="position-relative mf-cover-wrap mb-2 mb-md-3">
-                                <img th:src="@{'/uploads/' + ${comic.coverImg}}" class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
+                                <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}" class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
                                 <div class="mf-cover-overlay"></div>
                                 <div class="position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center mf-bookmark-icon">
                                     <span class="material-symbols-outlined">bookmark</span>

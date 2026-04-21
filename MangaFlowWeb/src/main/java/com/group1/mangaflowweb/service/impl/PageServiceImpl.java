@@ -7,6 +7,7 @@ import com.group1.mangaflowweb.entity.Pages;
 import com.group1.mangaflowweb.repository.ChapterRepository;
 import com.group1.mangaflowweb.repository.PageRepository;
 import com.group1.mangaflowweb.service.PageService;
+import com.group1.mangaflowweb.util.ImageUrlResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.List;
 public class PageServiceImpl implements PageService {
     private final PageRepository pageRepository;
     private final ChapterRepository chapterRepository;
+    private final ImageUrlResolver imageUrlResolver;
 
     @Override
     public PageResponse create(PageRequest request) {
@@ -35,7 +37,7 @@ public class PageServiceImpl implements PageService {
         Pages page = Pages.builder()
                 .chapter(chapter)
                 .pageNumber(request.getPageNumber())
-                .imgPath(request.getImgPath())
+                .imgPath(imageUrlResolver.normalizeForStorage(request.getImgPath()))
                 .build();
 
         return toResponse(pageRepository.save(page));
@@ -73,7 +75,7 @@ public class PageServiceImpl implements PageService {
 
         page.setChapter(chapter);
         page.setPageNumber(request.getPageNumber());
-        page.setImgPath(request.getImgPath());
+        page.setImgPath(imageUrlResolver.normalizeForStorage(request.getImgPath()));
         return toResponse(pageRepository.save(page));
     }
 

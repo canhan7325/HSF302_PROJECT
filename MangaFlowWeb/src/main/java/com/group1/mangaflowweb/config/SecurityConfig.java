@@ -34,8 +34,8 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index", "/login", "/register", "/favicon.ico", "/css/**", "/js/**", "/error", "/api/auth/**", "/*.css", "/*.js", "/images/**", "/fonts/**", "/uploads/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/comic/**").permitAll()
+                .requestMatchers("/", "/index", "/login", "/register", "/favicon.ico", "/css/**", "/js/**", "/error", "/api/auth/**", "/*.css", "/*.js", "/images/**", "/fonts/**", "/pricing/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/comic/**", "/pricing/**", "/api/comics/search").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/reader/**").hasRole("READER")
                 .anyRequest().authenticated()

@@ -2,12 +2,15 @@ package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.dto.comic.ComicRequest;
 import com.group1.mangaflowweb.dto.comic.ComicResponse;
+import com.group1.mangaflowweb.dto.comic.ComicSearchResponse;
 import com.group1.mangaflowweb.entity.Comics;
 import com.group1.mangaflowweb.entity.Users;
 import com.group1.mangaflowweb.repository.ComicRepository;
 import com.group1.mangaflowweb.repository.UserRepository;
 import com.group1.mangaflowweb.service.ComicService;
+import com.group1.mangaflowweb.util.ImageUrlResolver;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,7 @@ import java.util.List;
 public class ComicServiceImpl implements ComicService {
     private final ComicRepository comicRepository;
     private final UserRepository userRepository;
+    private final ImageUrlResolver imageUrlResolver;
 
     @Override
     public ComicResponse create(ComicRequest request) {
@@ -39,7 +43,7 @@ public class ComicServiceImpl implements ComicService {
                 .title(request.getTitle())
                 .slug(request.getSlug())
                 .description(request.getDescription())
-                .coverImg(request.getCoverImg())
+                .coverImg(imageUrlResolver.normalizeForStorage(request.getCoverImg()))
                 .status(request.getStatus())
                 .user(user)
                 .viewCount(0)
@@ -90,7 +94,7 @@ public class ComicServiceImpl implements ComicService {
         comic.setTitle(request.getTitle());
         comic.setSlug(request.getSlug());
         comic.setDescription(request.getDescription());
-        comic.setCoverImg(request.getCoverImg());
+        comic.setCoverImg(imageUrlResolver.normalizeForStorage(request.getCoverImg()));
         comic.setStatus(request.getStatus());
         comic.setUser(user);
         comic.setUpdatedAt(LocalDateTime.now());
@@ -102,6 +106,26 @@ public class ComicServiceImpl implements ComicService {
     public void delete(Integer comicId) {
         Comics comic = findComicOrThrow(comicId);
         comicRepository.delete(comic);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ComicSearchResponse> searchByTitle(String keyword, int limit) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        if (normalizedKeyword.isEmpty()) {
+            return List.of();
+        }
+
+        int safeLimit = Math.max(1, Math.min(limit, 20));
+        return comicRepository.searchByTitle(normalizedKeyword, PageRequest.of(0, safeLimit))
+                .stream()
+                .map(comic -> ComicSearchResponse.builder()
+                        .comicId(comic.getComicId())
+                        .title(comic.getTitle())
+                        .slug(comic.getSlug())
+                        .coverImg(comic.getCoverImg())
+                        .build())
+                .toList();
     }
 
     private Comics findComicOrThrow(Integer comicId) {

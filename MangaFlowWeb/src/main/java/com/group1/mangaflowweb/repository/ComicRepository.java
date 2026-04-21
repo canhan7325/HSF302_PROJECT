@@ -1,7 +1,6 @@
 package com.group1.mangaflowweb.repository;
 
 import com.group1.mangaflowweb.entity.Comics;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.domain.Page;
@@ -36,4 +35,7 @@ public interface ComicRepository extends JpaRepository<Comics, Integer> {
 	Page<Comics> findAllByOrderByUpdatedAtDesc(Pageable pageable);
 
 	List<Comics> findByUser_UserId(Integer userId);
+
+	@Query("SELECT c FROM Comics c WHERE LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY c.updatedAt DESC")
+	Page<Comics> searchByTitle(String keyword, Pageable pageable);
 }

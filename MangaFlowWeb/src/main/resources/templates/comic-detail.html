@@ -19,7 +19,7 @@
         <div class="row g-4 align-items-end">
             <div class="col-12 col-md-4 col-lg-3">
                 <div class="mf-detail-cover-wrap">
-                    <img th:src="@{'/uploads/' + ${comic.coverImg}}"
+                    <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}"
                          th:alt="${comic.title}"
                          class="img-fluid w-100 h-100 object-fit-cover rounded-3 shadow">
                 </div>

@@ -11,8 +11,8 @@
 
 <form th:action="@{/pages/create}" method="post" th:object="${page}">
 
-    <label>Image URL:</label><br>
-    <input type="text" th:field="*{imgPath}" /><br><br>
+    <label>Image URL (Cloudinary):</label><br>
+    <input type="text" th:field="*{imgPath}" placeholder="https://res.cloudinary.com/... hoặc public_id" /><br><br>
 
     <label>Page Number:</label><br>
     <input type="number" th:field="*{pageNumber}" /><br><br>

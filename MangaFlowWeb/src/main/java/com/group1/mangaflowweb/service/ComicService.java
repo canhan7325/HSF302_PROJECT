@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.service;
 
 import com.group1.mangaflowweb.dto.comic.ComicRequest;
 import com.group1.mangaflowweb.dto.comic.ComicResponse;
+import com.group1.mangaflowweb.dto.comic.ComicSearchResponse;
 
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface ComicService {
     ComicResponse update(Integer comicId, ComicRequest request);
 
     void delete(Integer comicId);
+
+    List<ComicSearchResponse> searchByTitle(String keyword, int limit);
 }
