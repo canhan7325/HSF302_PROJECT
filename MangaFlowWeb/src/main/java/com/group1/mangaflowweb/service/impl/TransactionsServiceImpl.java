@@ -162,14 +162,28 @@ public class TransactionsServiceImpl implements TransactionsService {
 
     @Override
     public Long getCurrentMembershipPrice(Integer userId) {
+        // Get all transactions ordered by created date descending
         java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
         if (transactions.isEmpty()) {
             return 0L;
         }
 
-        Transactions latest = transactions.get(0);
-        return latest.getSubscription().getPrice().longValue();
+        // Find the first ACTIVE transaction (SUCCESS status and not expired)
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        for (Transactions transaction : transactions) {
+            // Check if transaction status is SUCCESS (completed and active)
+            if (transaction.getStatus() != null &&
+                transaction.getStatus().equals(TransactionEnum.SUCCESS)) {
+
+                // Check if transaction is not expired
+                if (transaction.getEndedAt() == null || transaction.getEndedAt().isAfter(now)) {
+                    return transaction.getSubscription().getPrice().longValue();
+                }
+            }
+        }
+
+        return 0L;
     }
 
     @Override

@@ -42,5 +42,32 @@
 - Cập nhật giao diện: `buysubscriptions.html` - hiển thị dialog lỗi màu sắc (đỏ cho lỗi downgrade, xanh cho thành công)
 - Tự động phát hiện URL parameters: `?error=cannot_downgrade`, `?success=free_subscription`
 
+## 2026-04-22 (Lần 2) - Automatic Transaction Expiry & User Downgrade
+### Part 1: Scheduler Implementation
+- **MangaFlowWebApplication.java**: Thêm `@EnableScheduling` để kích hoạt Spring scheduling
+- **TransactionService.java**: Thêm interface method `void cancelExpiredTransactionsAndDowngradeUsers()`
+- **TransactionServiceImpl.java**: 
+  - Thêm `@Scheduled(cron = "0 * * * * *")` - Chạy mỗi phút để kiểm tra gói hết hạn
+  - Implement logic hủy tự động:
+    - Lấy tất cả transactions hết hạn: `endedAt < CURRENT_TIMESTAMP AND status != 'CANCELED'`
+    - Mark từng transaction là CANCELED
+    - Track affected users
+    - Check active transactions của mỗi user (status = SUCCESS/UPDATED, endedAt > NOW)
+    - Downgrade user to role = "user" nếu không có gói hoạt động
+
+### Part 2: Repository Query Methods
+- **TransactionRepository.java**: Thêm 2 query methods:
+  - `List<Transactions> getExpiredTransactions()`: Tìm các giao dịch hết hạn chưa bị cancel
+  - `List<Transactions> getActiveTransactionsByUserId(Integer userId)`: Kiểm tra các gói hoạt động của user
+
+### Part 3: Header Display Fix
+- **TransactionsServiceImpl.java**: Fix `getCurrentMembershipPrice()`:
+  - **Trước**: Lấy bất kỳ transaction nào không phải CANCELED (bao gồm PENDING, UPDATED)
+  - **Sau**: Chỉ lấy transaction với status = SUCCESS (đã hoàn thành) và chưa hết hạn
+  - Tính toán chính xác: `endedAt IS NULL OR endedAt > NOW`
+  - Return 0L nếu không có gói hoạt động → Header hiển thị "Người dùng thường"
+
+
+
 
 

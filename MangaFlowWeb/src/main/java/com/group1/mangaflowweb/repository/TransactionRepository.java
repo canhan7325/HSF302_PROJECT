@@ -85,4 +85,12 @@ public interface TransactionRepository extends JpaRepository<Transactions, Integ
     // Get active transactions (ongoing)
     @Query("SELECT t FROM Transactions t WHERE t.endedAt IS NULL OR t.endedAt > CURRENT_TIMESTAMP ORDER BY t.createdAt DESC")
     List<Transactions> getActiveTransactions();
+
+    // Get expired transactions that are not yet canceled
+    @Query("SELECT t FROM Transactions t WHERE t.endedAt IS NOT NULL AND t.endedAt < CURRENT_TIMESTAMP AND t.status != 'CANCELED' ORDER BY t.endedAt DESC")
+    List<Transactions> getExpiredTransactions();
+
+    // Get all active (non-canceled) transactions by user ID
+    @Query("SELECT t FROM Transactions t WHERE t.user.userId = :userId AND t.status != 'CANCELED' AND (t.endedAt IS NULL OR t.endedAt > CURRENT_TIMESTAMP)")
+    List<Transactions> getActiveTransactionsByUserId(@Param("userId") Integer userId);
 }

@@ -32,4 +32,7 @@ public interface TransactionService {
     Page<TransactionAdminResponse> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter);
 
     TransactionSummaryResponse getTransactionSummary();
+
+    // Cancel expired transactions and downgrade users if they have no active subscriptions
+    void cancelExpiredTransactionsAndDowngradeUsers();
 }
