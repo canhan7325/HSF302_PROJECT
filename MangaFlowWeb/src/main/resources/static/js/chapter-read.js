@@ -128,7 +128,60 @@
         scheduleUpdate();
     }
 
+    function initHeaderAutoHide() {
+        const header = document.querySelector(".chapter-read-page .mf-header");
+        if (!header) return;
+
+        let lastScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+        let raf = 0;
+        const minDelta = 12;
+        const showAtTop = 80;
+
+        function setHeaderVisible(visible) {
+            header.classList.toggle("is-hidden-on-scroll", !visible);
+        }
+
+        function isNavbarExpanded() {
+            return !!header.querySelector(".navbar-collapse.show");
+        }
+
+        function updateHeaderState() {
+            raf = 0;
+            const currentY = window.pageYOffset || document.documentElement.scrollTop || 0;
+
+            if (currentY <= showAtTop || isNavbarExpanded()) {
+                setHeaderVisible(true);
+                lastScrollY = currentY;
+                return;
+            }
+
+            const delta = currentY - lastScrollY;
+            if (Math.abs(delta) < minDelta) return;
+
+            setHeaderVisible(delta < 0);
+            lastScrollY = currentY;
+        }
+
+        function onScroll() {
+            if (raf) return;
+            raf = window.requestAnimationFrame(updateHeaderState);
+        }
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+
+        const navbarToggler = header.querySelector(".navbar-toggler");
+        if (navbarToggler) {
+            navbarToggler.addEventListener("click", function () {
+                window.setTimeout(function () {
+                    if (isNavbarExpanded()) setHeaderVisible(true);
+                }, 0);
+            });
+        }
+    }
+
     function init() {
+        initHeaderAutoHide();
+
         // Restore reading mode
         const saved = localStorage.getItem("readingMode");
         if (saved === "horizontal") setMode("horizontal");
