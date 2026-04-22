@@ -62,29 +62,60 @@ public class TransactionsServiceImpl implements TransactionsService {
             transaction.setStartedAt(now);
         }
 
-        // Discount cứng: 60000
-        // (không lưu vào DB vì DB không có column này)
-
+        // Get duration_days from subscription
         int durationDays = 30;
         if (transaction.getSubscription() != null && transaction.getSubscription().getDurationDays() != null) {
             durationDays = transaction.getSubscription().getDurationDays();
         }
 
-        // Nếu upgrade từ Bạc → Vàng: 45 ngày, status UPDATED, discount cứng 60000
-        // Gói bạc cũ sẽ được đặt thành CANCELED
+        LocalDateTime endedAt;
+
+        // Nếu upgrade từ Bạc → Vàng: lấy thời gian còn lại của bạc + cộng vào endedAt của vàng
         if (isUpgrade && discountAmount == 60000) {
             transaction.setStatus(TransactionEnum.UPDATED);
-            durationDays = 45;
+
+            // Get remaining days from old silver subscription
+            long remainingDaysFromOldSubscription = getRemainingDaysFromCurrentSubscription(transaction.getUser().getUserId());
+
+            // endedAt = now + durationDays của vàng + ngày còn lại của bạc
+            endedAt = now.plusDays(durationDays + remainingDaysFromOldSubscription);
+
             // Cancel previous silver package
             cancelPreviousSilverPackage(transaction.getUser().getUserId());
         } else {
             transaction.setStatus(TransactionEnum.SUCCESS);
+            // endedAt = startedAt + durationDays từ subscription
+            endedAt = transaction.getStartedAt().plusDays(durationDays);
         }
 
-        transaction.setEndedAt(transaction.getStartedAt().plusDays(durationDays));
+        transaction.setEndedAt(endedAt);
 
         Transactions saved = transactionsRepository.save(transaction);
         return toDTO(saved);
+    }
+
+    /**
+     * Get remaining days from current active subscription
+     * Trả về số ngày còn lại từ hôm nay đến endedAt của subscription hiện tại
+     */
+    private long getRemainingDaysFromCurrentSubscription(Integer userId) {
+        java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        for (Transactions trans : transactions) {
+            // Find the most recent active (SUCCESS status) subscription
+            if (trans.getStatus() == TransactionEnum.SUCCESS &&
+                trans.getSubscription() != null &&
+                (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
+
+                LocalDateTime now = LocalDateTime.now();
+                if (trans.getEndedAt() != null) {
+                    return java.time.temporal.ChronoUnit.DAYS.between(now, trans.getEndedAt());
+                }
+                break;
+            }
+        }
+
+        return 0L;
     }
 
     /**
@@ -174,9 +205,24 @@ public class TransactionsServiceImpl implements TransactionsService {
         }
 
         // Downgrade: từ gói cao xuống gói thấp → không cho phép
+        // Đặc biệt: Từ Bạc/Vàng xuống FREE (0) → BLOCK
         if (isDowngrade) {
             String currentMembership = getMembershipFromPrice(BigDecimal.valueOf(currentPrice));
             String newMembership = getMembershipFromPrice(newSubscriptionPriceBigDecimal);
+
+            // Nếu downgrade xuống FREE (0) → không cho phép
+            if (newSubscriptionPrice == 0L) {
+                String message = "Bạn không thể hủy gói " + currentMembership + ". Vui lòng đợi hết hạn gói hiện tại.";
+                return SubscriptionCheckDTO.builder()
+                        .canSubscribe(false)
+                        .message(message)
+                        .currentPrice(currentPrice)
+                        .discountAmount(0L)
+                        .isUpgrade(false)
+                        .build();
+            }
+
+            // Downgrade giữa các gói có phí (Vàng → Bạc) → cũng không cho phép
             String message = "Bạn không thể hạ từ " + currentMembership + " xuống " + newMembership + ". Vui lòng đợi hết hạn gói hiện tại.";
             return SubscriptionCheckDTO.builder()
                     .canSubscribe(false)

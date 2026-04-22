@@ -340,7 +340,17 @@
 
         titleEl.textContent = title;
         contentEl.textContent = message;
+
+        // ✅ Set icon color based on type
         iconEl.textContent = icon;
+        if (icon === 'block') {
+            iconEl.style.color = '#ef4444'; // Red for error
+        } else if (icon === 'check_circle') {
+            iconEl.style.color = '#22c55e'; // Green for success
+        } else {
+            iconEl.style.color = '#f97f06'; // Orange for info
+        }
+
         modal.style.display = 'flex';
         console.log('Modal display set to flex');
         document.body.style.overflow = 'hidden';
@@ -433,6 +443,27 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // ✅ Check URL parameters for error messages
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Handle cannot_downgrade error
+        if (urlParams.has('error') && urlParams.get('error') === 'cannot_downgrade') {
+            showMessageModal(
+                '⚠️ Không thể Hạ Cấp',
+                'Bạn không thể hạ cấp gói hội viên. Vui lòng đợi hết hạn gói hiện tại rồi mới có thể đăng ký gói khác.',
+                'block'
+            );
+        }
+
+        // Handle free_subscription success
+        if (urlParams.has('success') && urlParams.get('success') === 'free_subscription') {
+            showMessageModal(
+                '✅ Thành Công',
+                'Bạn đã đăng ký gói miễn phí thành công! Bây giờ bạn có thể bắt đầu đọc.',
+                'check_circle'
+            );
+        }
+
         // Handle modal backdrop click
         const loginBackdrop = document.querySelector('#loginModal .modal-backdrop');
         if (loginBackdrop) {

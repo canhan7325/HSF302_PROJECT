@@ -144,13 +144,18 @@ public class PricingController {
             Optional<Users> userOptional = userRepository.findByUsername(username);
 
             if (userOptional.isPresent()) {
-                // Check subscription status
+                // ✅ CHECK: Kiểm tra xem user có được phép downgrade không
                 Users user = userOptional.get();
                 SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
                     user.getUserId(),
                     subscription.getPrice().longValue(),
                     subscription.getPrice()
                 );
+
+                // Nếu canSubscribe = false (downgrade hoặc rule khác bị vi phạm), từ chối
+                if (!checkResult.isCanSubscribe()) {
+                    return new RedirectView("/pricing?error=cannot_downgrade");
+                }
 
                 // Store discount info vào session (use passed value if available, otherwise use checkResult)
                 if (discountAmount > 0) {
@@ -223,6 +228,18 @@ public class PricingController {
             Users user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             
+            // ✅ CHECK: Không cho phép hạ cấp xuống FREE (subscription.getPrice() = 0)
+            SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
+                user.getUserId(),
+                subscription.getPrice().longValue(),
+                subscription.getPrice()
+            );
+
+            // Nếu canSubscribe = false (downgrade hoặc rule khác bị vi phạm), từ chối
+            if (!checkResult.isCanSubscribe()) {
+                return new RedirectView("/pricing?error=cannot_downgrade");
+            }
+
             // Create and complete transaction for free subscription (no payment required)
             transactionsService.createAndCompleteTransaction(user.getUserId(), subscriptionId, subscription.getPrice());
 
