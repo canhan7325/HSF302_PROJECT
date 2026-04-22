@@ -56,10 +56,13 @@
                                 Xin chào, <b sec:authentication="name"></b>
                             </span>
                             <br>
-                            <span th:if="${userMembership}" style="font-size: 0.85rem; color: #914700; font-weight: 600;" th:text="${userMembership}">
+                            <span sec:authorize="hasRole('AUTHOR')" style="font-size: 0.85rem; color: #914700; font-weight: 600;">
+                                Tác giả
+                            </span>
+                            <span th:if="${userMembership}" style="font-size: 0.85rem; color: #914700; font-weight: 600; margin-left: 0.5rem;" th:text="${userMembership}">
                                 Hội Viên Bạc
                             </span>
-                            <span th:unless="${userMembership}" style="font-size: 0.85rem; color: #666;">
+                            <span th:unless="${userMembership}" sec:authorize="!hasRole('AUTHOR')" style="font-size: 0.85rem; color: #666;">
                                 Người dùng thường
                             </span>
                         </div>
