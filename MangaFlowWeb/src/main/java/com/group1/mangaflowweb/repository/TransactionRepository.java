@@ -13,12 +13,18 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transactions, Integer> {
     boolean existsByUser_UserIdAndStatusAndEndedAtAfter(Integer userId,
                                                         TransactionEnum status,
                                                         LocalDateTime endedAt);
+
+    Optional<Transactions> findFirstByUser_UserIdAndStatusAndEndedAtAfterOrderByEndedAtDesc(
+            Integer userId,
+            TransactionEnum status,
+            LocalDateTime endedAt);
 
                                                         Page<Transactions> findAllByOrderByCreatedAtDesc(Pageable pageable);
 

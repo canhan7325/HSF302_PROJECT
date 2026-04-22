@@ -157,13 +157,17 @@ public class ChapterController {
         model.addAttribute("nextChapterId", nextChapterId);
 
         boolean isLoggedIn = userContextService.getCurrentUser().isPresent();
-        boolean canReadFull = userContextService.getCurrentUser()
-                .map(accessService::canReadFullChapter)
-                .orElse(false);
+
+        AccessService.ChapterAccess access = userContextService.getCurrentUser()
+                .map(accessService::getChapterAccess)
+                .orElse(new AccessService.ChapterAccess(false, 2));
+
+        boolean canReadFull = access.isCanReadFull();
+        int previewCount = access.getPreviewCount();
 
         model.addAttribute("isLoggedIn", isLoggedIn);
         model.addAttribute("canReadFull", canReadFull);
-        model.addAttribute("previewCount", 2);
+        model.addAttribute("previewCount", previewCount);
 
         Integer currentUserId = userContextService.getCurrentUser().map(com.group1.mangaflowweb.entity.Users::getUserId).orElse(null);
         model.addAttribute("currentUserId", currentUserId);
