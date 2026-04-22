@@ -34,11 +34,13 @@ public class ChapterServiceImpl implements ChapterService {
     private final ComicRepository comicRepository;
     @Autowired
     private PageRepository pageRepository;
-    ;
+    private final com.group1.mangaflowweb.util.ImageUrlResolver imageUrlResolver;
 
-    public ChapterServiceImpl(ChapterRepository chapterRepository, ComicRepository comicRepository) {
+    public ChapterServiceImpl(ChapterRepository chapterRepository, ComicRepository comicRepository,
+                              com.group1.mangaflowweb.util.ImageUrlResolver imageUrlResolver) {
         this.chapterRepository = chapterRepository;
         this.comicRepository = comicRepository;
+        this.imageUrlResolver = imageUrlResolver;
     }
 
     @Override
@@ -47,12 +49,22 @@ public class ChapterServiceImpl implements ChapterService {
                 .orElseThrow(() -> new EntityNotFoundException("Comic not found with id: " + comicId));
         return chapterRepository.findByComicOrderByChapterNumberDesc(comic)
                 .stream()
-                .map(ch -> new ChapterAdminResponse(
-                        ch.getChapterId(),
-                        ch.getChapterNumber(),
-                        ch.getTitle(),
-                        ch.getPages() != null ? ch.getPages().size() : 0,
-                        ch.getCreatedAt()))
+                .map(ch -> {
+                    List<com.group1.mangaflowweb.dto.response.admin.PageAdminResponse> pages =
+                        pageRepository.findByChapterChapterIdOrderByPageNumberAsc(ch.getChapterId())
+                            .stream()
+                            .map(p -> new com.group1.mangaflowweb.dto.response.admin.PageAdminResponse(
+                                    p.getPageId(), p.getPageNumber(),
+                                    imageUrlResolver.resolve(p.getImgPath())))
+                            .toList();
+                    return new ChapterAdminResponse(
+                            ch.getChapterId(),
+                            ch.getChapterNumber(),
+                            ch.getTitle(),
+                            pages.size(),
+                            ch.getCreatedAt(),
+                            pages);
+                })
                 .toList();
     }
 
@@ -60,8 +72,15 @@ public class ChapterServiceImpl implements ChapterService {
     public ChapterAdminResponse getChapterById(Integer chapterId) {
         Chapters ch = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new EntityNotFoundException("Chapter not found with id: " + chapterId));
+        List<com.group1.mangaflowweb.dto.response.admin.PageAdminResponse> pages =
+            pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId)
+                .stream()
+                .map(p -> new com.group1.mangaflowweb.dto.response.admin.PageAdminResponse(
+                        p.getPageId(), p.getPageNumber(),
+                        imageUrlResolver.resolve(p.getImgPath())))
+                .toList();
         return new ChapterAdminResponse(ch.getChapterId(), ch.getChapterNumber(), ch.getTitle(),
-                ch.getPages() != null ? ch.getPages().size() : 0, ch.getCreatedAt());
+                pages.size(), ch.getCreatedAt(), pages);
     }
 
     @Override

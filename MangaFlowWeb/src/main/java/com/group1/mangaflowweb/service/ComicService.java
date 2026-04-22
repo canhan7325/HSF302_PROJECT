@@ -25,6 +25,8 @@ public interface ComicService {
 
     void softDeleteComic(Integer id);
 
+    void hardDeleteComic(Integer id);
+
     List<GenreAdminResponse> getAllGenresWithCount();
 
     // Legacy / other uses

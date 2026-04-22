@@ -1,6 +1,7 @@
 package com.group1.mangaflowweb.controller.admin;
 
 import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
+import com.group1.mangaflowweb.service.CloudinaryUploadService;
 import com.group1.mangaflowweb.service.ComicService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -21,9 +23,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ComicAdController {
 
     private final ComicService comicService;
+    private final CloudinaryUploadService cloudinaryUploadService;
 
-    public ComicAdController(ComicService comicService) {
+    public ComicAdController(ComicService comicService, CloudinaryUploadService cloudinaryUploadService) {
         this.comicService = comicService;
+        this.cloudinaryUploadService = cloudinaryUploadService;
     }
 
     @GetMapping("/manga")
@@ -81,6 +85,7 @@ public class ComicAdController {
     @PostMapping("/manga/{id}/edit")
     public String mangaUpdate(@PathVariable Integer id,
                               @Valid ComicAdRequest comic, BindingResult result,
+                              @RequestParam(required = false) MultipartFile coverFile,
                               Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("genres", comicService.getAllGenresWithCount());
@@ -90,6 +95,15 @@ public class ComicAdController {
             model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
             return "admin/manga";
         }
+        // Upload new cover if provided
+        if (coverFile != null && !coverFile.isEmpty()) {
+            try {
+                String storedId = cloudinaryUploadService.uploadImage(coverFile, "comics/" + id + "/cover");
+                comic.setCoverImg(storedId);
+            } catch (Exception e) {
+                // keep existing coverImg from hidden field
+            }
+        }
         comicService.updateComic(id, comic);
         redirectAttributes.addFlashAttribute("successMessage", "Manga updated successfully.");
         return "redirect:/admin/manga";
@@ -98,7 +112,14 @@ public class ComicAdController {
     @PostMapping("/manga/{id}/delete")
     public String mangaDelete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         comicService.softDeleteComic(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Manga deleted.");
+        redirectAttributes.addFlashAttribute("successMessage", "Manga disabled.");
+        return "redirect:/admin/manga";
+    }
+
+    @PostMapping("/manga/{id}/hard-delete")
+    public String mangaHardDelete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        comicService.hardDeleteComic(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Manga permanently deleted.");
         return "redirect:/admin/manga";
     }
 }

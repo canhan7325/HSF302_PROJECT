@@ -36,9 +36,14 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(@RequestParam(defaultValue = "year") String period, Model model) {
         model.addAttribute("stats",     dashboardService.getDashboardStats());
         model.addAttribute("topComics", dashboardService.getComicsSortedByViewCount());
+        model.addAttribute("revenueWeek",  dashboardService.getRevenueByPeriod("week"));
+        model.addAttribute("revenueMonth", dashboardService.getRevenueByPeriod("month"));
+        model.addAttribute("revenueYear",  dashboardService.getRevenueByPeriod("year"));
+        model.addAttribute("revenueAll",   dashboardService.getRevenueByPeriod("all"));
+        model.addAttribute("activePeriod", period);
         model.addAttribute("username",  SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/dashboard";
     }

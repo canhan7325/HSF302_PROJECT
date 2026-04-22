@@ -67,14 +67,18 @@
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold">Revenue Over Time</h3>
             <div class="flex gap-2">
-                <button onclick="loadRevenue('week')" id="btn-week"
-                        class="px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">Week</button>
-                <button onclick="loadRevenue('month')" id="btn-month"
-                        class="px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">Month</button>
-                <button onclick="loadRevenue('year')" id="btn-year"
-                        class="px-3 py-1 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors">Year</button>
-                <button onclick="loadRevenue('all')" id="btn-all"
-                        class="px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">All</button>
+                <a th:href="@{/admin/dashboard(period='week')}"  id="btn-week"
+                   th:classappend="${activePeriod == 'week'}  ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
+                   class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Week</a>
+                <a th:href="@{/admin/dashboard(period='month')}" id="btn-month"
+                   th:classappend="${activePeriod == 'month'} ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
+                   class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Month</a>
+                <a th:href="@{/admin/dashboard(period='year')}"  id="btn-year"
+                   th:classappend="${activePeriod == 'year'}  ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
+                   class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Year</a>
+                <a th:href="@{/admin/dashboard(period='all')}"   id="btn-all"
+                   th:classappend="${activePeriod == 'all'}   ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
+                   class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">All</a>
             </div>
         </div>
         <canvas id="revenueChart" height="120"></canvas>
@@ -124,76 +128,48 @@
 
     renderMangaChart();
 
-    let revenueChart = null;
+    const revenueData = /*[[${activePeriod == 'week'  ? revenueWeek  :
+                              activePeriod == 'month' ? revenueMonth :
+                              activePeriod == 'all'   ? revenueAll   : revenueYear}]]*/ [];
+    const revenueLabels = revenueData.map(d => d.period);
+    const revenueValues = revenueData.map(d => parseFloat(d.revenue));
 
-    function loadRevenue(period) {
-        ['week', 'month', 'year', 'all'].forEach(p => {
-            const btn = document.getElementById('btn-' + p);
-            if (p === period) {
-                btn.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors';
-            } else {
-                btn.className = 'px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors';
-            }
-        });
-        fetch('/admin/dashboard/revenue?period=' + period)
-            .then(r => r.json())
-            .then(data => {
-                const labels = data.map(d => d.period);
-                const values = data.map(d => parseFloat(d.revenue));
-                if (revenueChart) {
-                    revenueChart.destroy();
-                    revenueChart = null;
-                }
-                revenueChart = new Chart(document.getElementById('revenueChart'), {
-                    type: 'line',
-                    data: {
-                        labels,
-                        datasets: [{
-                            label: 'Revenue (₫)',
-                            data: values,
-                            borderColor: '#1a73e8',
-                            backgroundColor: 'transparent',
-                            borderWidth: 2.5,
-                            tension: 0,
-                            fill: false,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#1a73e8',
-                            pointHoverRadius: 6,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        interaction: {
-                            mode: 'nearest',
-                            intersect: true,
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                displayColors: false,
-                                callbacks: {
-                                    title: ctx => ctx[0].label,
-                                    label: ctx => 'Revenue: ' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2} + '₫')
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: 'rgba(0,0,0,0.08)' },
-                                ticks: { callback: v => v + '₫'}
-                            },
-                            x: {
-                                grid: { color: 'rgba(0,0,0,0.08)' },
-                                ticks: { maxRotation: 45 }
-                            }
-                        }
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: revenueLabels,
+            datasets: [{
+                label: 'Revenue (₫)',
+                data: revenueValues,
+                borderColor: '#1a73e8',
+                backgroundColor: 'transparent',
+                borderWidth: 2.5,
+                tension: 0,
+                fill: false,
+                pointRadius: 4,
+                pointBackgroundColor: '#1a73e8',
+                pointHoverRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'nearest', intersect: true },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    displayColors: false,
+                    callbacks: {
+                        title: ctx => ctx[0].label,
+                        label: ctx => 'Revenue: ' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits:2,maximumFractionDigits:2}) + '₫'
                     }
-                });
-            });
-    }
-
-    loadRevenue('year');
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.08)' }, ticks: { callback: v => v + '₫' } },
+                x: { grid: { color: 'rgba(0,0,0,0.08)' }, ticks: { maxRotation: 45 } }
+            }
+        }
+    });
 </script>
 </body>
 </html>
