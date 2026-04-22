@@ -50,6 +50,16 @@ public class HomeController {
 
         return "index";
     }
+
+    @GetMapping("/search-comic")
+    public String searchComic(@RequestParam(name = "q", required = false) String query, Model model) {
+        String keyword = query == null ? "" : query.trim();
+        var results = comicService.searchForPageByTitle(keyword);
+
+        model.addAttribute("query", keyword);
+        model.addAttribute("searchResults", results);
+        return "search-comic";
+    }
 }
 
 

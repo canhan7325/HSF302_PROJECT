@@ -51,4 +51,5 @@ public interface ComicService {
 
     void delete(Integer comicId);
     List<ComicSearchDTO> searchByTitle(String query);
+    List<ComicResponse> searchForPageByTitle(String query);
 }

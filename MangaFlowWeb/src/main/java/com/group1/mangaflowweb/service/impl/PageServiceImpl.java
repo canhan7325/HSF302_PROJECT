@@ -1,7 +1,5 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.page.PageRequest;
-import com.group1.mangaflowweb.dto.page.PageResponse;
 import com.group1.mangaflowweb.dto.response.admin.PageAdminResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Pages;
@@ -15,11 +13,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.RequiredArgsConstructor;
+import com.group1.mangaflowweb.util.ImageUrlResolver;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+import com.group1.mangaflowweb.dto.page.PageRequest;
+import com.group1.mangaflowweb.dto.page.PageResponse;
 @Service
 public class PageServiceImpl implements PageService {
     private final ImageUrlResolver imageUrlResolver;
@@ -142,6 +150,20 @@ public class PageServiceImpl implements PageService {
     @Transactional(readOnly = true)
     public List<PageResponse> getByChapterId(Integer chapterId) {
         return pageRepository.findByChapter_ChapterId(chapterId).stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<String> getFirstPageImagePath(Integer chapterId) {
+        if (chapterId == null) {
+            return Optional.empty();
+        }
+
+        return pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId)
+                .stream()
+                .map(Pages::getImgPath)
+                .filter(path -> path != null && !path.isBlank())
+                .findFirst();
     }
 
     @Override

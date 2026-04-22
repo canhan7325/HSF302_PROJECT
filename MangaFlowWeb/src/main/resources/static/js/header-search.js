@@ -111,6 +111,15 @@
     });
 
     input.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const query = input.value.trim();
+            if (query) {
+                window.location.href = '/search-comic?q=' + encodeURIComponent(query);
+            }
+            return;
+        }
+
         if (event.key === 'Escape') {
             clearAndHideDropdown();
             input.blur();

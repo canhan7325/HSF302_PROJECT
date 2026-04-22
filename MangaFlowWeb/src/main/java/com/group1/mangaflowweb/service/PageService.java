@@ -8,6 +8,7 @@ import com.group1.mangaflowweb.dto.page.PageRequest;
 import com.group1.mangaflowweb.dto.page.PageResponse;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PageService {
 
@@ -27,6 +28,8 @@ public interface PageService {
     List<PageResponse> getAll();
 
     List<PageResponse> getByChapterId(Integer chapterId);
+
+    Optional<String> getFirstPageImagePath(Integer chapterId);
 
     PageResponse update(Integer pageId, PageRequest request);
 
