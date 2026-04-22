@@ -70,10 +70,13 @@ public class TransactionsServiceImpl implements TransactionsService {
             durationDays = transaction.getSubscription().getDurationDays();
         }
 
-        // Nếu upgrade từ Bạc → Vàng: 45 ngày, status BLOCK, discount cứng 60000
+        // Nếu upgrade từ Bạc → Vàng: 45 ngày, status UPDATED, discount cứng 60000
+        // Gói bạc cũ sẽ được đặt thành CANCELED
         if (isUpgrade && discountAmount == 60000) {
-            transaction.setStatus(TransactionEnum.BLOCK);
+            transaction.setStatus(TransactionEnum.UPDATED);
             durationDays = 45;
+            // Cancel previous silver package
+            cancelPreviousSilverPackage(transaction.getUser().getUserId());
         } else {
             transaction.setStatus(TransactionEnum.SUCCESS);
         }
@@ -82,6 +85,27 @@ public class TransactionsServiceImpl implements TransactionsService {
 
         Transactions saved = transactionsRepository.save(transaction);
         return toDTO(saved);
+    }
+
+    /**
+     * Cancel previous silver package when upgrading to gold
+     * Gói bạc cũ (SUCCESS) sẽ được đặt thành CANCELED
+     */
+    private void cancelPreviousSilverPackage(Integer userId) {
+        java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        for (Transactions trans : transactions) {
+            // Find silver package transactions that are still active (SUCCESS status)
+            if (trans.getStatus() == TransactionEnum.SUCCESS &&
+                trans.getSubscription() != null &&
+                trans.getSubscription().getPrice().longValue() < 100000 &&
+                (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
+                // Cancel this transaction
+                trans.setStatus(TransactionEnum.CANCELED);
+                transactionsRepository.save(trans);
+                break; // Only cancel the most recent silver package
+            }
+        }
     }
 
     @Override
@@ -149,7 +173,7 @@ public class TransactionsServiceImpl implements TransactionsService {
             }
         }
 
-        // Downgrade: từ gói cao xuống gói thấp → BLOCK
+        // Downgrade: từ gói cao xuống gói thấp → không cho phép
         if (isDowngrade) {
             String currentMembership = getMembershipFromPrice(BigDecimal.valueOf(currentPrice));
             String newMembership = getMembershipFromPrice(newSubscriptionPriceBigDecimal);

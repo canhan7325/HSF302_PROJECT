@@ -5,5 +5,5 @@ public enum TransactionEnum {
     SUCCESS,     // thành công
     FAILED,      // thất bại
     CANCELED,    // hủy
-    BLOCK        // nâng cấp từ gói thấp (chưa hoạt động)
+    UPDATED        // nâng cấp từ gói thấp (chưa hoạt động)
 }
