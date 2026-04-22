@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller;
 
-import com.group1.mangaflowweb.dto.chapter.ChapterRequest;
+import com.group1.mangaflowweb.dto.chapter.ChapterDTO;
 import com.group1.mangaflowweb.dto.comic.ComicResponse;
 import com.group1.mangaflowweb.service.ChapterService;
 import com.group1.mangaflowweb.service.ComicService;
@@ -80,7 +80,7 @@ public class AuthorDashboardController {
             return "redirect:/author/upload-chapter";
         }
 
-        ChapterRequest req = new ChapterRequest(
+        ChapterDTO req = new ChapterDTO(
                 comicId,
                 chapterNumber,
                 (chapterTitle != null && !chapterTitle.isBlank()) ? chapterTitle.trim() : null

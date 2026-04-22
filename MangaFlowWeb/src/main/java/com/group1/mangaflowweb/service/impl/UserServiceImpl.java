@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.admin.UserAdRequest;
+import com.group1.mangaflowweb.dto.request.admin.UserAdDTO;
 import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
 import com.group1.mangaflowweb.dto.user.UserResponse;
 import com.group1.mangaflowweb.entity.Users;
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void createUser(UserAdRequest form) {
+    public void createUser(UserAdDTO form) {
         if (userRepository.findByUsername(form.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username already exists: " + form.getUsername());
         }
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(Integer id, UserAdRequest form) {
+    public void updateUser(Integer id, UserAdDTO form) {
         Users user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
 
@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void registerUser(com.group1.mangaflowweb.dto.request.RegisterRequest request) {
+    public void registerUser(com.group1.mangaflowweb.dto.request.RegisterDTO request) {
         Users newUser = Users.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())

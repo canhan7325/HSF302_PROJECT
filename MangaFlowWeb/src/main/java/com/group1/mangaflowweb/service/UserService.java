@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.request.admin.UserAdRequest;
+import com.group1.mangaflowweb.dto.request.admin.UserAdDTO;
 import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +16,9 @@ public interface UserService {
 
     UserAdminResponse getUserById(Integer id);
 
-    void createUser(UserAdRequest form);
+    void createUser(UserAdDTO form);
 
-    void updateUser(Integer id, UserAdRequest form);
+    void updateUser(Integer id, UserAdDTO form);
 
     void softDeleteUser(Integer id);
 
@@ -26,5 +26,5 @@ public interface UserService {
     UserResponse findByUsername(String username);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
-    void registerUser(com.group1.mangaflowweb.dto.request.RegisterRequest request);
+    void registerUser(com.group1.mangaflowweb.dto.request.RegisterDTO request);
 }

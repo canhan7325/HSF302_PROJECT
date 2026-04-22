@@ -6,7 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GenreRequest {
+public class GenreDTO {
     private Integer genreId;
 
     private String name;

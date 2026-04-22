@@ -1,8 +1,10 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.entity.Transactions;
+import com.group1.mangaflowweb.dto.SubscriptionCheckDTO;
+import com.group1.mangaflowweb.dto.TransactionsDTO;
 import com.group1.mangaflowweb.dto.response.admin.TransactionAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.TransactionSummaryResponse;
+import com.group1.mangaflowweb.entity.Transactions;
 import com.group1.mangaflowweb.enums.ComicEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,27 +14,26 @@ import java.util.List;
 import java.util.Map;
 
 public interface TransactionService {
-    
-    // Get total revenue
+
+    // ── Payment flow ──────────────────────────────────────────────────────────
+    TransactionsDTO createTransaction(Integer userId, Integer subscriptionId, BigDecimal price);
+    TransactionsDTO completeTransaction(Integer transactionId);
+    TransactionsDTO completeTransaction(Integer transactionId, Long discountAmount, boolean isUpgrade);
+    TransactionsDTO createAndCompleteTransaction(Integer userId, Integer subscriptionId, BigDecimal price);
+
+    // ── Subscription checks ───────────────────────────────────────────────────
+    SubscriptionCheckDTO checkSubscription(Integer userId, Long newSubscriptionPrice, BigDecimal newSubscriptionPriceBigDecimal);
+    String getMembershipFromPrice(BigDecimal price);
+    Long getCurrentMembershipPrice(Integer userId);
+    List<Transactions> getTransactionsByUserId(Integer userId);
+
+    // ── Admin ─────────────────────────────────────────────────────────────────
     BigDecimal getTotalRevenue();
-    
-    // Get revenue by subscription
     List<Map<String, Object>> getRevenueBySubscription();
-    
-    // Get all transactions
     List<Transactions> getAllTransactions();
-    
-    // Get active transactions (ongoing)
     List<Transactions> getActiveTransactions();
-    
-    // Get transaction count
     long getTotalTransactionCount();
-
-    // ===============================
     Page<TransactionAdminResponse> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter);
-
     TransactionSummaryResponse getTransactionSummary();
-
-    // Cancel expired transactions and downgrade users if they have no active subscriptions
     void cancelExpiredTransactionsAndDowngradeUsers();
 }

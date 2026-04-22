@@ -4,13 +4,13 @@ import com.group1.mangaflowweb.dto.SubscriptionCheckDTO;
 import com.group1.mangaflowweb.dto.SubscriptionsDTO;
 import com.group1.mangaflowweb.dto.momo.MomoPaymentResponse;
 import com.group1.mangaflowweb.dto.zalopay.ZaloPayPaymentResponse;
-import com.group1.mangaflowweb.entity.Users;
-import com.group1.mangaflowweb.service.UserService;
 import com.group1.mangaflowweb.service.MomoService;
-import com.group1.mangaflowweb.service.SubcriptionsService;
-import com.group1.mangaflowweb.service.TransactionsService;
+import com.group1.mangaflowweb.service.SubscriptionService;
+import com.group1.mangaflowweb.service.TransactionService;
+import com.group1.mangaflowweb.service.UserService;
 import com.group1.mangaflowweb.service.ZaloPayService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,27 +24,31 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 @Controller
 @RequestMapping("/pricing")
 public class PricingController {
 
-    @Autowired
-    private SubcriptionsService subscriptionsService;
+    private static final Logger log = LoggerFactory.getLogger(PricingController.class);
 
-    @Autowired
-    private MomoService momoService;
+    private final SubscriptionService subscriptionsService;
+    private final MomoService momoService;
+    private final ZaloPayService zaloPayService;
+    private final TransactionService transactionsService;
+    private final UserService userService;
 
-    @Autowired
-    private ZaloPayService zaloPayService;
-
-    @Autowired
-    private TransactionsService transactionsService;
-
-    @Autowired
-    private UserService userService;
+    public PricingController(SubscriptionService subscriptionsService,
+                             MomoService momoService,
+                             ZaloPayService zaloPayService,
+                             TransactionService transactionsService,
+                             UserService userService) {
+        this.subscriptionsService = subscriptionsService;
+        this.momoService = momoService;
+        this.zaloPayService = zaloPayService;
+        this.transactionsService = transactionsService;
+        this.userService = userService;
+    }
 
     @GetMapping
     public String getPricingPage(Model model) {
@@ -209,15 +213,18 @@ public class PricingController {
         try {
             if ("zalopay".equalsIgnoreCase(payment)) {
                 ZaloPayPaymentResponse response = zaloPayService.createPayment(orderId, amount, orderInfo);
-                if (response != null && response.getOrder_url() != null && !response.getOrder_url().isEmpty()) {
-                    // Store orderId để check lại discount khi callback
+                log.info("ZaloPay response: return_code={}, order_url={}, msg={}",
+                        response != null ? response.getReturn_code() : "null",
+                        response != null ? response.getOrder_url() : "null",
+                        response != null ? response.getReturn_message() : "null");
+                if (response != null && response.getReturn_code() == 1
+                        && response.getOrder_url() != null && !response.getOrder_url().isEmpty()) {
                     session.setAttribute("lastOrderId", orderId);
                     return new RedirectView(response.getOrder_url());
                 }
             } else {
                 MomoPaymentResponse response = momoService.createPayment(orderId, amount, orderInfo);
                 if (response != null && response.getPayUrl() != null && !response.getPayUrl().isEmpty()) {
-                    // Store orderId để check lại discount khi callback
                     session.setAttribute("lastOrderId", orderId);
                     return new RedirectView(response.getPayUrl());
                 }

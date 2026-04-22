@@ -22,6 +22,11 @@ public class ImageUrlResolver {
             return "";
         }
 
+        // Blob URLs are dead (created by old client-side code) — return empty so img onerror fires
+        if (path.startsWith("blob:")) {
+            return "";
+        }
+
         if (isAbsoluteUrl(path)) {
             return path;
         }
@@ -48,7 +53,7 @@ public class ImageUrlResolver {
     }
 
     private boolean isAbsoluteUrl(String value) {
-        return value.startsWith("http://") || value.startsWith("https://");
+        return value.startsWith("http://") || value.startsWith("https://") || value.startsWith("blob:");
     }
 
     private String stripLegacyUploadPrefix(String value) {

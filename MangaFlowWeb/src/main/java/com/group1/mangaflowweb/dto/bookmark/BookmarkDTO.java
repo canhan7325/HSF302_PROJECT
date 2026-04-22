@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookmarkRequest {
+public class BookmarkDTO {
     @NotNull
     private Integer userId;
 

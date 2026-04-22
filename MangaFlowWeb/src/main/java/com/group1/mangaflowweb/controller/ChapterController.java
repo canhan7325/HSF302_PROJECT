@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.dto.ChapterReadViewDTO;
-import com.group1.mangaflowweb.dto.chapter.ChapterRequest;
+import com.group1.mangaflowweb.dto.chapter.ChapterDTO;
 import com.group1.mangaflowweb.dto.chapter.ChapterResponse;
 import com.group1.mangaflowweb.service.*;
 import jakarta.validation.Valid;
@@ -48,13 +48,13 @@ public class ChapterController {
     // ================== FORM CREATE ==================
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("chapter", new ChapterRequest());
+        model.addAttribute("chapter", new ChapterDTO());
         return "chapter/create";
     }
 
     // ================== CREATE ==================
     @PostMapping("/create")
-    public String create(@Valid @ModelAttribute("chapter") ChapterRequest request,
+    public String create(@Valid @ModelAttribute("chapter") ChapterDTO request,
                          BindingResult bindingResult,
                          Model model) {
         if (bindingResult.hasErrors()) {
@@ -81,7 +81,7 @@ public class ChapterController {
     // ================== UPDATE ==================
     @PostMapping("/edit/{chapterId}")
     public String update(@PathVariable Integer chapterId,
-                         @Valid @ModelAttribute("chapter") ChapterRequest request,
+                         @Valid @ModelAttribute("chapter") ChapterDTO request,
                          BindingResult bindingResult,
                          Model model) {
         if (bindingResult.hasErrors()) {

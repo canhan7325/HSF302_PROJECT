@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.UserAdRequest;
+import com.group1.mangaflowweb.dto.request.admin.UserAdDTO;
 import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
 import com.group1.mangaflowweb.service.UserService;
 import jakarta.validation.Valid;
@@ -45,14 +45,14 @@ public class UserAdController {
 
     @GetMapping("/users/new")
     public String userNewForm(Model model) {
-        model.addAttribute("user", new UserAdRequest());
+        model.addAttribute("user", new UserAdDTO());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/users";
     }
 
     @PostMapping("/users/new")
-    public String userCreate(@Valid UserAdRequest user, BindingResult result,
+    public String userCreate(@Valid UserAdDTO user, BindingResult result,
             Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
@@ -90,7 +90,7 @@ public class UserAdController {
 
     @PostMapping("/users/{id}/edit")
     public String userUpdate(@PathVariable Integer id,
-            @Valid UserAdRequest user, BindingResult result,
+            @Valid UserAdDTO user, BindingResult result,
             Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {

@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller;
 
-import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
+import com.group1.mangaflowweb.dto.bookmark.BookmarkDTO;
 import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
 import com.group1.mangaflowweb.dto.view.BookmarkListItemView;
 import com.group1.mangaflowweb.entity.ReadingHistories;
@@ -59,13 +59,13 @@ public class BookmarkController {
     // ================== FORM CREATE ==================
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("bookmark", new BookmarkRequest());
+        model.addAttribute("bookmark", new BookmarkDTO());
         return "bookmark/create"; // templates/bookmark/create.html
     }
 
     // ================== CREATE ==================
     @PostMapping("/create")
-    public String create(@Valid @ModelAttribute("bookmark") BookmarkRequest request) {
+    public String create(@Valid @ModelAttribute("bookmark") BookmarkDTO request) {
         bookmarkService.create(request);
         return "redirect:/bookmarks";
     }
@@ -87,7 +87,7 @@ public class BookmarkController {
     // ================== UPDATE ==================
     @PostMapping("/edit/{bookmarkId}")
     public String update(@PathVariable Integer bookmarkId,
-                         @Valid @ModelAttribute("bookmark") BookmarkRequest request) {
+                         @Valid @ModelAttribute("bookmark") BookmarkDTO request) {
         bookmarkService.update(bookmarkId, request);
         return "redirect:/bookmarks";
     }

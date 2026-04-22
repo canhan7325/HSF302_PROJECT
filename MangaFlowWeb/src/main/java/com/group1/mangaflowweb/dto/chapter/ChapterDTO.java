@@ -1,4 +1,4 @@
-package com.group1.mangaflowweb.dto.page;
+package com.group1.mangaflowweb.dto.chapter;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,13 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageRequest {
+public class ChapterDTO {
     @NotNull
-    private Integer chapterId;
+    private Integer comicId;
 
     @NotNull
-    private Integer pageNumber;
+    private Integer chapterNumber;
 
-    @NotNull
-    private String imgPath;
+    private String title;
 }

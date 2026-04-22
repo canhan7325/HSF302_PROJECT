@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ChapterRequest {
+public class ChapterDTO {
     private Integer chapterId;
 
     private Integer chapterNumber;
@@ -15,5 +15,5 @@ public class ChapterRequest {
 
     private Comics comic;
 
-    private List<PageRequest> pageRequests;
+    private List<PageDTO> PageDTOs;
 }

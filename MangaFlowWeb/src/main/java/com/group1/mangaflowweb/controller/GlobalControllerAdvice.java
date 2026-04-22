@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.service.UserService;
-import com.group1.mangaflowweb.service.TransactionsService;
+import com.group1.mangaflowweb.service.TransactionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -20,7 +20,7 @@ public class GlobalControllerAdvice {
     private UserService userService;
 
     @Autowired
-    private TransactionsService transactionsService;
+    private TransactionService transactionsService;
 
     @ModelAttribute("userMembership")
     public String getUserMembership() {

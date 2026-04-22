@@ -1,6 +1,5 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.response.admin.RevenueDataPointResponse;
 import com.group1.mangaflowweb.service.AdminDashboardService;
 import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.service.TransactionService;
@@ -10,9 +9,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
@@ -47,15 +43,6 @@ public class AdminController {
         model.addAttribute("username",  SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/dashboard";
     }
-
-    @GetMapping("/dashboard/revenue")
-    @ResponseBody
-    public List<RevenueDataPointResponse> getRevenue(
-            @RequestParam(defaultValue = "month") String period) {
-        return dashboardService.getRevenueByPeriod(period);
-    }
-
-    // ── Revenue page ──────────────────────────────────────────────────────────
 
     @GetMapping("/revenue")
     public String revenuePage(Model model) {

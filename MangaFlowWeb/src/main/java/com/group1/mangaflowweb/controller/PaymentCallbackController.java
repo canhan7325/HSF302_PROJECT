@@ -1,11 +1,8 @@
 package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.dto.TransactionsDTO;
-import com.group1.mangaflowweb.entity.Users;
+import com.group1.mangaflowweb.service.TransactionService;
 import com.group1.mangaflowweb.service.UserService;
-import com.group1.mangaflowweb.service.SubcriptionsService;
-import com.group1.mangaflowweb.service.TransactionsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -18,20 +15,18 @@ import org.springframework.web.servlet.view.RedirectView;
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/payment")
 public class PaymentCallbackController {
 
-    @Autowired
-    private TransactionsService transactionsService;
+    private final TransactionService transactionsService;
+    private final UserService userService;
 
-    @Autowired
-    private SubcriptionsService subscriptionsService;
-
-    @Autowired
-    private UserService userService;
+    public PaymentCallbackController(TransactionService transactionsService, UserService userService) {
+        this.transactionsService = transactionsService;
+        this.userService = userService;
+    }
 
     /**
      * ZaloPay callback - user is redirected here after payment

@@ -3,7 +3,7 @@ package com.group1.mangaflowweb.dto.request;
 import lombok.Data;
 
 @Data
-public class PageRequest {
+public class PageDTO {
     private Integer pageId;
 
     private Integer pageNumber;

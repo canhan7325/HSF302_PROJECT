@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReadingHistoryRequest {
+public class ReadingHistoryDTO {
     Integer userId;
     Integer chapterId;
 }

@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
+import com.group1.mangaflowweb.dto.bookmark.BookmarkDTO;
 import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
 import com.group1.mangaflowweb.dto.view.BookmarkListItemView;
 import com.group1.mangaflowweb.entity.*;
@@ -65,7 +65,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 				});
 	}
     @Override
-    public BookmarkResponse create(BookmarkRequest request) {
+    public BookmarkResponse create(BookmarkDTO request) {
         Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         Comics comic = comicRepository.findById(request.getComicId())
@@ -109,7 +109,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public BookmarkResponse update(Integer bookmarkId, BookmarkRequest request) {
+    public BookmarkResponse update(Integer bookmarkId, BookmarkDTO request) {
         Bookmarks bookmark = findBookmarkOrThrow(bookmarkId);
 
         Users user = userRepository.findById(request.getUserId())

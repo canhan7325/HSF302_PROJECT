@@ -1,5 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
+import com.group1.mangaflowweb.dto.page.PageDTO;
+import com.group1.mangaflowweb.dto.page.PageResponse;
 import com.group1.mangaflowweb.dto.response.admin.PageAdminResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Pages;
@@ -13,23 +15,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import lombok.RequiredArgsConstructor;
-import com.group1.mangaflowweb.util.ImageUrlResolver;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-import com.group1.mangaflowweb.dto.page.PageRequest;
-import com.group1.mangaflowweb.dto.page.PageResponse;
 @Service
 public class PageServiceImpl implements PageService {
+
     private final ImageUrlResolver imageUrlResolver;
     private final PageRepository pageRepository;
     private final ChapterRepository chapterRepository;
@@ -49,7 +43,8 @@ public class PageServiceImpl implements PageService {
     public List<PageAdminResponse> getPagesByChapter(Integer chapterId) {
         return pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId)
                 .stream()
-                .map(p -> new PageAdminResponse(p.getPageId(), p.getPageNumber(), imageUrlResolver.resolve(p.getImgPath())))
+                .map(p -> new PageAdminResponse(p.getPageId(), p.getPageNumber(),
+                        imageUrlResolver.resolve(p.getImgPath())))
                 .toList();
     }
 
@@ -58,28 +53,22 @@ public class PageServiceImpl implements PageService {
     public String uploadAndAddPage(Integer chapterId, MultipartFile file) {
         Chapters chapter = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new EntityNotFoundException("Chapter not found: " + chapterId));
-
         if (file == null || file.isEmpty()) {
             throw new RuntimeException("Empty page file");
         }
-
         int nextNum = pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId).size() + 1;
         String publicId = "chapters/" + chapterId + "/page_" + String.format("%04d", nextNum);
-
         String storedId;
         try {
             storedId = cloudinaryUploadService.uploadImage(file, publicId);
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload page image to Cloudinary: " + e.getMessage(), e);
         }
-
         Pages page = new Pages();
         page.setChapter(chapter);
         page.setPageNumber(nextNum);
-
         page.setImgPath(imageUrlResolver.normalizeForStorage(storedId));
         pageRepository.save(page);
-
         return page.getImgPath();
     }
 
@@ -89,7 +78,6 @@ public class PageServiceImpl implements PageService {
         Chapters chapter = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new EntityNotFoundException("Chapter not found: " + chapterId));
         int nextNum = pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId).size() + 1;
-
         Pages page = new Pages();
         page.setChapter(chapter);
         page.setPageNumber(nextNum);
@@ -116,21 +104,16 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public PageResponse create(PageRequest request) {
+    public PageResponse create(PageDTO request) {
         Chapters chapter = chapterRepository.findById(request.getChapterId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
-
         pageRepository.findByChapter_ChapterIdAndPageNumber(request.getChapterId(), request.getPageNumber())
-                .ifPresent(page -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Page number already exists for this chapter");
-                });
-
+                .ifPresent(p -> { throw new ResponseStatusException(HttpStatus.CONFLICT, "Page number already exists"); });
         Pages page = Pages.builder()
                 .chapter(chapter)
                 .pageNumber(request.getPageNumber())
                 .imgPath(imageUrlResolver.normalizeForStorage(request.getImgPath()))
                 .build();
-
         return toResponse(pageRepository.save(page));
     }
 
@@ -155,10 +138,7 @@ public class PageServiceImpl implements PageService {
     @Override
     @Transactional(readOnly = true)
     public Optional<String> getFirstPageImagePath(Integer chapterId) {
-        if (chapterId == null) {
-            return Optional.empty();
-        }
-
+        if (chapterId == null) return Optional.empty();
         return pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId)
                 .stream()
                 .map(Pages::getImgPath)
@@ -167,17 +147,13 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public PageResponse update(Integer pageId, PageRequest request) {
+    public PageResponse update(Integer pageId, PageDTO request) {
         Pages page = findPageOrThrow(pageId);
         Chapters chapter = chapterRepository.findById(request.getChapterId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
-
         pageRepository.findByChapter_ChapterIdAndPageNumber(request.getChapterId(), request.getPageNumber())
                 .filter(existing -> !existing.getPageId().equals(pageId))
-                .ifPresent(existing -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Page number already exists for this chapter");
-                });
-
+                .ifPresent(existing -> { throw new ResponseStatusException(HttpStatus.CONFLICT, "Page number already exists"); });
         page.setChapter(chapter);
         page.setPageNumber(request.getPageNumber());
         page.setImgPath(imageUrlResolver.normalizeForStorage(request.getImgPath()));
@@ -186,8 +162,7 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public void delete(Integer pageId) {
-        Pages page = findPageOrThrow(pageId);
-        pageRepository.delete(page);
+        pageRepository.delete(findPageOrThrow(pageId));
     }
 
     private Pages findPageOrThrow(Integer pageId) {
@@ -204,4 +179,3 @@ public class PageServiceImpl implements PageService {
                 .build();
     }
 }
-

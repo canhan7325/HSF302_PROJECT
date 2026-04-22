@@ -33,6 +33,29 @@
 
         <!-- Pricing Grid -->
         <div class="pricing-grid">
+            <!-- Static free tier card (always shown, no DB subscription needed) -->
+            <div class="card card-free">
+                <span class="card-label">ENTRY</span>
+                <h3 class="card-title">Gói Miễn Phí</h3>
+                <p class="card-desc">Đọc miễn phí các nội dung cơ bản.</p>
+                <div class="card-price">
+                    <div class="price-row">
+                        <span class="price-amount">0đ</span>
+                        <span class="price-period">/ mãi mãi</span>
+                    </div>
+                </div>
+                <ul class="features">
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active">check_circle</span>
+                        <span class="feature-text">Truy cập cơ bản chương đầu truyện</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active">check_circle</span>
+                        <span class="feature-text">Đọc nội dung cơ bản</span>
+                    </li>
+                </ul>
+                <button class="btn-card btn-purchase btn-free" style="border:none;cursor:default;opacity:.6;font-family:inherit;" disabled>Gói Hiện Tại</button>
+            </div>
             <div class="card" th:each="subscription : ${subscriptions}"
                 th:with="isFree=${subscription.price < 1000}, isSilver=${subscription.price >= 1000 and subscription.price < 100000}, isGold=${subscription.price >= 100000}"
                 th:classappend="${isGold} ? 'card-gold' : (${isSilver} ? 'card-silver' : 'card-free')">

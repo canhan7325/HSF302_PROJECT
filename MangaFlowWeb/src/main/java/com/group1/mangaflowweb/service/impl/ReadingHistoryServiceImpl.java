@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.readinghistory.ReadingHistoryRequest;
+import com.group1.mangaflowweb.dto.readinghistory.ReadingHistoryDTO;
 import com.group1.mangaflowweb.dto.readinghistory.ReadingHistoryResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Comics;
@@ -29,11 +29,11 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
     private final ComicRepository comicRepository;
 
     @Override
-    public ReadingHistoryResponse readingHistory(ReadingHistoryRequest readingHistoryRequest) {
-        Users user = userRepository.findById(readingHistoryRequest.getUserId())
+    public ReadingHistoryResponse readingHistory(ReadingHistoryDTO ReadingHistoryDTO) {
+        Users user = userRepository.findById(ReadingHistoryDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Chapters chapter = chapterRepository.findById(readingHistoryRequest.getChapterId())
+        Chapters chapter = chapterRepository.findById(ReadingHistoryDTO.getChapterId())
                 .orElseThrow(() -> new RuntimeException("Chapter not found"));
 
         ReadingHistories readingHistories = ReadingHistories.builder()

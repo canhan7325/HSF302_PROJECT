@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public class SubscriptionAdRequest {
+public class SubscriptionAdDTO {
 
     @NotBlank
     private String name;

@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.GenreAdRequest;
+import com.group1.mangaflowweb.dto.request.admin.GenreAdDTO;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 import com.group1.mangaflowweb.service.GenreService;
 import jakarta.persistence.EntityNotFoundException;
@@ -41,14 +41,14 @@ public class GenreAdController {
 
     @GetMapping("/genres/new")
     public String genreNewForm(Model model) {
-        model.addAttribute("genre", new GenreAdRequest());
+        model.addAttribute("genre", new GenreAdDTO());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/genres";
     }
 
     @PostMapping("/genres/new")
-    public String genreCreate(@Valid GenreAdRequest genre, BindingResult result,
+    public String genreCreate(@Valid GenreAdDTO genre, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
@@ -84,7 +84,7 @@ public class GenreAdController {
 
     @PostMapping("/genres/{id}/edit")
     public String genreUpdate(@PathVariable Integer id,
-                              @Valid GenreAdRequest genre, BindingResult result,
+                              @Valid GenreAdDTO genre, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {

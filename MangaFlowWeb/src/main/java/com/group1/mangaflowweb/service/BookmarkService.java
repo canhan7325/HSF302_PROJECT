@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
+import com.group1.mangaflowweb.dto.bookmark.BookmarkDTO;
 import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
 import com.group1.mangaflowweb.dto.view.BookmarkListItemView;
 
@@ -13,7 +13,7 @@ public interface BookmarkService {
 	long countFollowers(Integer comicId);
 
 	boolean toggleBookmark(Integer userId, Integer comicId);
-    BookmarkResponse create(BookmarkRequest request);
+    BookmarkResponse create(BookmarkDTO request);
 
     BookmarkResponse getById(Integer bookmarkId);
 
@@ -23,7 +23,7 @@ public interface BookmarkService {
 
     List<BookmarkResponse> getByComicId(Integer comicId);
 
-    BookmarkResponse update(Integer bookmarkId, BookmarkRequest request);
+    BookmarkResponse update(Integer bookmarkId, BookmarkDTO request);
 
     void delete(Integer bookmarkId);
 

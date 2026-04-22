@@ -1,10 +1,10 @@
 package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.dto.comic.ComicSearchDTO;
-import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
+import com.group1.mangaflowweb.dto.request.admin.ComicAdDTO;
 import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
-import com.group1.mangaflowweb.dto.comic.ComicRequest;
+import com.group1.mangaflowweb.dto.comic.ComicDTO;
 import com.group1.mangaflowweb.dto.comic.ComicResponse;
 import com.group1.mangaflowweb.entity.*;
 import com.group1.mangaflowweb.enums.ComicEnum;
@@ -63,8 +63,15 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     @Transactional
-    public void createComic(ComicAdRequest form) {
+    public void createComic(ComicAdDTO form) {
         LocalDateTime now = LocalDateTime.now();
+
+        // Resolve the currently logged-in user as the uploader
+        String username = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+        Users uploader = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+
         Comics comic = new Comics();
         comic.setTitle(form.getTitle());
         comic.setSlug(SlugUtils.toSlug(form.getTitle()));
@@ -74,6 +81,7 @@ public class ComicServiceImpl implements ComicService {
         comic.setViewCount(0);
         comic.setCreatedAt(now);
         comic.setUpdatedAt(now);
+        comic.setUser(uploader);
         Comics saved = comicRepository.save(comic);
 
         if (form.getGenreIds() != null && !form.getGenreIds().isEmpty()) {
@@ -93,7 +101,7 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     @Transactional
-    public void updateComic(Integer id, ComicAdRequest form) {
+    public void updateComic(Integer id, ComicAdDTO form) {
         Comics comic = comicRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Comic not found with id: " + id));
         comic.setTitle(form.getTitle());
@@ -236,7 +244,7 @@ public class ComicServiceImpl implements ComicService {
         );
     }
     @Override
-    public ComicResponse create(ComicRequest request) {
+    public ComicResponse create(ComicDTO request) {
         Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
@@ -306,7 +314,7 @@ public class ComicServiceImpl implements ComicService {
     }
 
     @Override
-    public ComicResponse update(Integer comicId, ComicRequest request) {
+    public ComicResponse update(Integer comicId, ComicDTO request) {
         Comics comic = findComicOrThrow(comicId);
         com.group1.mangaflowweb.entity.Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));

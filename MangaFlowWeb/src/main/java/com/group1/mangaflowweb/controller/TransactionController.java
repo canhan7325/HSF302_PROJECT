@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller;
 
-import com.group1.mangaflowweb.service.TransactionsService;
+import com.group1.mangaflowweb.service.TransactionService;
 import com.group1.mangaflowweb.service.UserContextService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class TransactionController {
 
-    private final TransactionsService transactionsService;
+    private final TransactionService transactionsService;
     private final UserContextService userContextService;
 
     @GetMapping

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RegisterRequest {
+public class RegisterDTO {
 
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email phải đúng định dạng (ví dụ: a@gmail.com)")

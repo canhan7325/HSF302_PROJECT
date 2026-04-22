@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ComicRequest {
+public class ComicDTO {
     @NotBlank
     private String title;
 

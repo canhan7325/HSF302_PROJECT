@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller;
 
-import com.group1.mangaflowweb.dto.page.PageRequest;
+import com.group1.mangaflowweb.dto.page.PageDTO;
 import com.group1.mangaflowweb.dto.page.PageResponse;
 import com.group1.mangaflowweb.service.PageService;
 import jakarta.validation.Valid;
@@ -40,12 +40,12 @@ public class PageController {
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("page", new PageRequest());
+        model.addAttribute("page", new PageDTO());
         return "page/create"; // templates/page/create.html
     }
 
     @PostMapping("/create")
-    public String create(@Valid @ModelAttribute("page") PageRequest request,
+    public String create(@Valid @ModelAttribute("page") PageDTO request,
                          BindingResult bindingResult,
                          Model model) {
         if (bindingResult.hasErrors()) {
@@ -70,7 +70,7 @@ public class PageController {
 
     @PostMapping("/edit/{pageId}")
     public String update(@PathVariable Integer pageId,
-                         @Valid @ModelAttribute("page") PageRequest request,
+                         @Valid @ModelAttribute("page") PageDTO request,
                          BindingResult bindingResult,
                          Model model) {
         if (bindingResult.hasErrors()) {

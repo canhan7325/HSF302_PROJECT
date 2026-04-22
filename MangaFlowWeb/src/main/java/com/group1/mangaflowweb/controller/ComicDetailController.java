@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller;
 
-import com.group1.mangaflowweb.dto.comic.ComicRequest;
+import com.group1.mangaflowweb.dto.comic.ComicDTO;
 import com.group1.mangaflowweb.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +62,7 @@ public class ComicDetailController {
 
     @GetMapping("/upload-comic")
     public String showCreateComicForm(Model model) {
-        model.addAttribute("comic", new ComicRequest()); // Thêm một đối tượng trống để form binding
+        model.addAttribute("comic", new ComicDTO()); // Thêm một đối tượng trống để form binding
         model.addAttribute("genres", genreService.getAllGenres());
         return "author/upload-comic";
     }
@@ -81,13 +81,13 @@ public class ComicDetailController {
     }
 
     @PostMapping("/upload-comic")
-    public String createComic(@Valid @ModelAttribute("comic") ComicRequest comicRequest,
+    public String createComic(@Valid @ModelAttribute("comic") ComicDTO ComicDTO,
                               BindingResult bindingResult,
                               @RequestParam(required = false, name = "coverFile") MultipartFile coverFile,
                               Model model) {
 
         // Resolve userId from current logged-in user (server-side).
-        if (comicRequest.getUserId() == null) {
+        if (ComicDTO.getUserId() == null) {
             Integer currentUserId = userContextService.getCurrentUser()
                     .map(com.group1.mangaflowweb.entity.Users::getUserId)
                     .orElse(null);
@@ -106,7 +106,7 @@ public class ComicDetailController {
             }
 
             if (currentUserId != null) {
-                comicRequest.setUserId(currentUserId);
+                ComicDTO.setUserId(currentUserId);
             }
         }
 
@@ -122,7 +122,7 @@ public class ComicDetailController {
             return "author/upload-comic";
         }
 
-        if (comicRequest.getUserId() == null) {
+        if (ComicDTO.getUserId() == null) {
             model.addAttribute("error", "You must be logged in to create a comic.");
             return "author/upload-comic";
         }
@@ -130,19 +130,19 @@ public class ComicDetailController {
         // Upload cover to Cloudinary (optional). Save public_id into coverImg.
         if (coverFile != null && !coverFile.isEmpty()) {
             try {
-                String slug = safeSlug(comicRequest.getSlug() != null ? comicRequest.getSlug() : comicRequest.getTitle());
+                String slug = safeSlug(ComicDTO.getSlug() != null ? ComicDTO.getSlug() : ComicDTO.getTitle());
                 if (slug.isBlank()) slug = "comic";
 
                 String publicId = "comics/" + slug + "/cover";
                 String storedId = cloudinaryUploadService.uploadImage(coverFile, publicId);
-                comicRequest.setCoverImg(storedId);
+                ComicDTO.setCoverImg(storedId);
             } catch (IOException e) {
                 model.addAttribute("error", "Upload cover image failed: " + e.getMessage());
                 return "author/upload-comic";
             }
         }
 
-        comicService.create(comicRequest);
+        comicService.create(ComicDTO);
         return "redirect:/author/dashboard";
     }
 

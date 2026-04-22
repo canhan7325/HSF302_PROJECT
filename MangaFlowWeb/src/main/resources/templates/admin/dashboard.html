@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Overview — Admin Panel</title>
+<title>Tổng Quan — Trang Quản Trị</title>
 <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -13,8 +13,8 @@
 
 <main class="ml-72 flex-1 p-8 bg-background">
     <header class="mb-8">
-        <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Overview</p>
-        <h2 class="text-4xl font-extrabold tracking-tighter text-on-surface">Dashboard</h2>
+        <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Tổng Quan</p>
+        <h2 class="text-4xl font-extrabold tracking-tighter text-on-surface">Bảng Điều Khiển</h2>
     </header>
 
     <!-- Stats cards -->
@@ -22,66 +22,68 @@
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
             <div class="flex items-center gap-3 mb-3">
                 <span class="material-symbols-outlined text-primary">group</span>
-                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Users</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Người Dùng Hoạt Động</p>
             </div>
             <p class="text-3xl font-extrabold tracking-tighter" th:text="${stats.totalActiveUsers}">0</p>
         </div>
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
             <div class="flex items-center gap-3 mb-3">
                 <span class="material-symbols-outlined text-primary">menu_book</span>
-                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Manga</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Manga Đang Hoạt Động</p>
             </div>
             <p class="text-3xl font-extrabold tracking-tighter" th:text="${stats.totalActiveComics}">0</p>
         </div>
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
             <div class="flex items-center gap-3 mb-3">
                 <span class="material-symbols-outlined text-primary">visibility</span>
-                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Views</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Tổng Lượt Xem</p>
             </div>
             <p class="text-3xl font-extrabold tracking-tighter" th:text="${stats.totalViewCount}">0</p>
         </div>
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
             <div class="flex items-center gap-3 mb-3">
                 <span class="material-symbols-outlined text-primary">category</span>
-                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Genres</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Thể Loại Đang Dùng</p>
             </div>
             <p class="text-3xl font-extrabold tracking-tighter" th:text="${stats.totalActiveGenres}">0</p>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Most Viewed Manga -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <h3 class="text-lg font-bold">Most Viewed Manga</h3>
+                <h3 class="text-lg font-bold">Manga Xem Nhiều Nhất</h3>
                 <div class="flex gap-1">
                     <button data-limit="5"  class="manga-limit-btn px-3 py-1 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors">Top 5</button>
                     <button data-limit="10" class="manga-limit-btn px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">Top 10</button>
-                    <button data-limit="0"  class="manga-limit-btn px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">All</button>
+                    <button data-limit="0"  class="manga-limit-btn px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">Tất Cả</button>
                 </div>
             </div>
-            <canvas id="mangaViewsChart" height="120"></canvas>
+            <canvas id="mangaViewsChart"></canvas>
         </div>
-    </div>
 
-    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold">Revenue Over Time</h3>
-            <div class="flex gap-2">
-                <a th:href="@{/admin/dashboard(period='week')}"  id="btn-week"
-                   th:classappend="${activePeriod == 'week'}  ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
-                   class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Week</a>
-                <a th:href="@{/admin/dashboard(period='month')}" id="btn-month"
-                   th:classappend="${activePeriod == 'month'} ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
-                   class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Month</a>
-                <a th:href="@{/admin/dashboard(period='year')}"  id="btn-year"
-                   th:classappend="${activePeriod == 'year'}  ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
-                   class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Year</a>
-                <a th:href="@{/admin/dashboard(period='all')}"   id="btn-all"
-                   th:classappend="${activePeriod == 'all'}   ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
-                   class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">All</a>
+        <!-- Revenue Over Time -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-bold">Doanh Thu Theo Thời Gian</h3>
+                <div class="flex gap-2">
+                    <a th:href="@{/admin/dashboard(period='week')}"
+                       th:classappend="${activePeriod == 'week'}  ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
+                       class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Tuần</a>
+                    <a th:href="@{/admin/dashboard(period='month')}"
+                       th:classappend="${activePeriod == 'month'} ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
+                       class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Tháng</a>
+                    <a th:href="@{/admin/dashboard(period='year')}"
+                       th:classappend="${activePeriod == 'year'}  ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
+                       class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Năm</a>
+                    <a th:href="@{/admin/dashboard(period='all')}"
+                       th:classappend="${activePeriod == 'all'}   ? ' bg-primary text-on-primary' : ' border border-outline-variant hover:bg-surface-container'"
+                       class="px-3 py-1 rounded-lg text-xs font-bold transition-colors">Tất Cả</a>
+                </div>
             </div>
+            <canvas id="revenueChart"></canvas>
         </div>
-        <canvas id="revenueChart" height="120"></canvas>
     </div>
 </main>
 

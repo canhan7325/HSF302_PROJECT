@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
+import com.group1.mangaflowweb.dto.request.admin.ComicAdDTO;
 import com.group1.mangaflowweb.service.CloudinaryUploadService;
 import com.group1.mangaflowweb.service.ComicService;
 import jakarta.validation.Valid;
@@ -43,7 +43,7 @@ public class ComicAdController {
 
     @GetMapping("/manga/new")
     public String mangaNewForm(Model model) {
-        model.addAttribute("comic", new ComicAdRequest());
+        model.addAttribute("comic", new ComicAdDTO());
         model.addAttribute("genres", comicService.getAllGenresWithCount());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
@@ -51,13 +51,26 @@ public class ComicAdController {
     }
 
     @PostMapping("/manga/new")
-    public String mangaCreate(@Valid ComicAdRequest comic, BindingResult result,
+    public String mangaCreate(@Valid ComicAdDTO comic, BindingResult result,
+                              @RequestParam(required = false) MultipartFile coverFile,
                               Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("genres", comicService.getAllGenresWithCount());
             model.addAttribute("view", "form");
             model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
             return "admin/manga";
+        }
+        if (coverFile != null && !coverFile.isEmpty()) {
+            try {
+                // Use a temp slug from the title for the public ID
+                String slug = comic.getTitle() != null
+                        ? comic.getTitle().toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "")
+                        : "cover";
+                String storedId = cloudinaryUploadService.uploadImage(coverFile, "comics/" + slug + "/cover");
+                comic.setCoverImg(storedId);
+            } catch (Exception e) {
+                // proceed without cover
+            }
         }
         comicService.createComic(comic);
         redirectAttributes.addFlashAttribute("successMessage", "Manga created successfully.");
@@ -67,7 +80,7 @@ public class ComicAdController {
     @GetMapping("/manga/{id}/edit")
     public String mangaEditForm(@PathVariable Integer id, Model model) {
         var existing = comicService.getComicById(id);
-        ComicAdRequest form = new ComicAdRequest();
+        ComicAdDTO form = new ComicAdDTO();
         form.setTitle(existing.getTitle());
         form.setDescription(null);
         form.setCoverImg(null);
@@ -84,7 +97,7 @@ public class ComicAdController {
 
     @PostMapping("/manga/{id}/edit")
     public String mangaUpdate(@PathVariable Integer id,
-                              @Valid ComicAdRequest comic, BindingResult result,
+                              @Valid ComicAdDTO comic, BindingResult result,
                               @RequestParam(required = false) MultipartFile coverFile,
                               Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {

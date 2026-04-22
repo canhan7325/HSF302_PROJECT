@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.RegisterRequest;
+import com.group1.mangaflowweb.dto.request.RegisterDTO;
 import com.group1.mangaflowweb.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,13 +24,13 @@ public class RegisterAdController {
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("hideNav", true);
-        model.addAttribute("registerRequest", new RegisterRequest());
+        model.addAttribute("RegisterDTO", new RegisterDTO());
         return "register";
     }
 
     @PostMapping("/register")
     public String registerUser(
-            @Valid @ModelAttribute RegisterRequest registerRequest,
+            @Valid @ModelAttribute RegisterDTO RegisterDTO,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -43,18 +43,18 @@ public class RegisterAdController {
         }
 
         // Kiểm tra tên đăng nhập đã tồn tại
-        if (userService.existsByUsername(registerRequest.getUsername())) {
+        if (userService.existsByUsername(RegisterDTO.getUsername())) {
             bindingResult.rejectValue("username", "error.username", "Tên đăng nhập đã tồn tại!");
             return "register";
         }
 
         // Kiểm tra email đã tồn tại
-        if (userService.existsByEmail(registerRequest.getEmail())) {
+        if (userService.existsByEmail(RegisterDTO.getEmail())) {
             bindingResult.rejectValue("email", "error.email", "Email đã được đăng ký!");
             return "register";
         }
 
-        userService.registerUser(registerRequest);
+        userService.registerUser(RegisterDTO);
 
         redirectAttributes.addFlashAttribute("message", "Đăng ký thành công! Vui lòng đăng nhập.");
         return "redirect:/login";
