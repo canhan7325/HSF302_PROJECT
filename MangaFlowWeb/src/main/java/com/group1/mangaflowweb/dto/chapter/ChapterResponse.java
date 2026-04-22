@@ -20,6 +20,5 @@ public class ChapterResponse {
     private String title;
     private LocalDateTime createdAt;
 
-    // optional: include pages when needed (e.g., chapter detail/read)
     private List<PageResponse> pages;
 }

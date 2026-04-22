@@ -1,12 +1,9 @@
 package com.group1.mangaflowweb.controller;
 
+import com.group1.mangaflowweb.dto.ChapterReadViewDTO;
 import com.group1.mangaflowweb.dto.chapter.ChapterRequest;
 import com.group1.mangaflowweb.dto.chapter.ChapterResponse;
-import com.group1.mangaflowweb.dto.page.PageResponse;
-import com.group1.mangaflowweb.service.AccessService;
-import com.group1.mangaflowweb.service.ChapterService;
-import com.group1.mangaflowweb.service.ComicService;
-import com.group1.mangaflowweb.service.UserContextService;
+import com.group1.mangaflowweb.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -14,9 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Comparator;
-import java.util.List;
 
 @Controller
 @RequestMapping("/chapters")
@@ -27,8 +21,9 @@ public class ChapterController {
     private final UserContextService userContextService;
     private final AccessService accessService;
     private final ComicService comicService;
-    private final com.group1.mangaflowweb.service.BookmarkService bookmarkService;
-    private final com.group1.mangaflowweb.service.ReadingHistoryService readingHistoryService;
+    private final BookmarkService bookmarkService;
+    private final ReadingHistoryService readingHistoryService;
+    private final ReadingService readingService;
 
     // ================== GET ALL ==================
     @GetMapping
@@ -119,66 +114,25 @@ public class ChapterController {
     // ================== READ CHAPTER (QUAN TRỌNG) ==================
     @GetMapping("/{chapterId}/read")
     public String readChapter(@PathVariable Integer chapterId, Model model) {
-        ChapterResponse chapter = chapterService.getById(chapterId);
-        model.addAttribute("chapter", chapter);
+        ChapterReadViewDTO readView = readingService.getChapterReadDetails(chapterId);
 
-        List<PageResponse> pages = chapterService.getAllPageByChapterId(chapterId);
-        model.addAttribute("pages", pages);
+        model.addAttribute("readView", readView); // Bạn có thể add nguyên object
+        // Hoặc nếu file HTML cũ dùng các biến lẻ, bạn add từng cái:
+        model.addAttribute("chapter", readView.getChapter());
+        model.addAttribute("pages", readView.getPages());
+        model.addAttribute("comicId", readView.getComicId());
+        model.addAttribute("comicTitle", readView.getComicTitle());
+        model.addAttribute("comicSlug", readView.getComicSlug());
+        model.addAttribute("chaptersInComic", readView.getChaptersInComic());
+        model.addAttribute("prevChapterId", readView.getPrevChapterId());
+        model.addAttribute("nextChapterId", readView.getNextChapterId());
+        model.addAttribute("canReadFull", readView.isCanReadFull());
+        model.addAttribute("previewCount", readView.getPreviewCount());
+        model.addAttribute("isBookmarked", readView.isBookmarked());
 
-        Integer comicId = chapter.getComicId();
-        model.addAttribute("comicId", comicId);
-
-        var comic = comicService.getById(comicId);
-        model.addAttribute("comicTitle", comic.getTitle());
-        model.addAttribute("comicSlug", comic.getSlug());
-
-        // Increase view count when entering read page
-        readingHistoryService.incrementComicViewCount(comicId);
-
-        // Chapters dropdown + prev/next navigation (by chapterNumber)
-        List<ChapterResponse> chaptersInComic = (comicId != null)
-                ? chapterService.getByComicId(comicId)
-                : List.of();
-        chaptersInComic = chaptersInComic.stream()
-                .sorted(Comparator.comparing(ChapterResponse::getChapterNumber))
-                .toList();
-        model.addAttribute("chaptersInComic", chaptersInComic);
-
-        Integer prevChapterId = null;
-        Integer nextChapterId = null;
-        for (int i = 0; i < chaptersInComic.size(); i++) {
-            if (chaptersInComic.get(i).getChapterId().equals(chapterId)) {
-                if (i > 0) prevChapterId = chaptersInComic.get(i - 1).getChapterId();
-                if (i < chaptersInComic.size() - 1) nextChapterId = chaptersInComic.get(i + 1).getChapterId();
-                break;
-            }
-        }
-        model.addAttribute("prevChapterId", prevChapterId);
-        model.addAttribute("nextChapterId", nextChapterId);
-
+        // isLoggedIn và currentUserId có thể lấy từ userContextService trực tiếp ở Controller nếu cần
         boolean isLoggedIn = userContextService.getCurrentUser().isPresent();
-
-        AccessService.ChapterAccess access = userContextService.getCurrentUser()
-                .map(accessService::getChapterAccess)
-                .orElse(new AccessService.ChapterAccess(false, 2));
-
-        boolean canReadFull = access.isCanReadFull();
-        int previewCount = access.getPreviewCount();
-
         model.addAttribute("isLoggedIn", isLoggedIn);
-        model.addAttribute("canReadFull", canReadFull);
-        model.addAttribute("previewCount", previewCount);
-
-        Integer currentUserId = userContextService.getCurrentUser().map(com.group1.mangaflowweb.entity.Users::getUserId).orElse(null);
-        model.addAttribute("currentUserId", currentUserId);
-
-        // Upsert reading history (1 record per comic per user)
-        if (currentUserId != null) {
-            readingHistoryService.upsertForUserReadChapter(currentUserId, chapterId);
-        }
-
-        boolean isBookmarked = (currentUserId != null && comicId != null) && bookmarkService.isBookmarked(currentUserId, comicId);
-        model.addAttribute("isBookmarked", isBookmarked);
 
         return "chapter/read";
     }

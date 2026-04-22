@@ -76,7 +76,7 @@ public class PageServiceImpl implements PageService {
         Pages page = new Pages();
         page.setChapter(chapter);
         page.setPageNumber(nextNum);
-        // store public_id (compatible with ImageUrlResolver.resolve)
+
         page.setImgPath(imageUrlResolver.normalizeForStorage(storedId));
         pageRepository.save(page);
 

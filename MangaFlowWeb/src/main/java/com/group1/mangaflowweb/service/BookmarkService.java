@@ -2,8 +2,10 @@ package com.group1.mangaflowweb.service;
 
 import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
 import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
+import com.group1.mangaflowweb.dto.view.BookmarkListItemView;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BookmarkService {
 	boolean isBookmarked(Integer userId, Integer comicId);
@@ -24,4 +26,7 @@ public interface BookmarkService {
     BookmarkResponse update(Integer bookmarkId, BookmarkRequest request);
 
     void delete(Integer bookmarkId);
+
+    List<BookmarkListItemView> getUserBookmarkListView(Integer userId, Integer comicId);
+    Map<String, Object> toggleBookmarkStatus(Integer comicId);
 }

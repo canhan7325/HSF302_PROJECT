@@ -20,7 +20,6 @@ public class PageController {
 
     private final PageService pageService;
 
-    // ================== GET ALL ==================
     @GetMapping
     public String getAll(@RequestParam(required = false) Integer chapterId,
                          Model model) {
@@ -33,21 +32,18 @@ public class PageController {
         return "page/list"; // templates/page/list.html
     }
 
-    // ================== GET BY ID ==================
-    @GetMapping("/{pageId}")
+   @GetMapping("/{pageId}")
     public String getById(@PathVariable Integer pageId, Model model) {
         model.addAttribute("page", pageService.getById(pageId));
         return "page/detail"; // templates/page/detail.html
     }
 
-    // ================== FORM CREATE ==================
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("page", new PageRequest());
         return "page/create"; // templates/page/create.html
     }
 
-    // ================== CREATE ==================
     @PostMapping("/create")
     public String create(@Valid @ModelAttribute("page") PageRequest request,
                          BindingResult bindingResult,
@@ -66,14 +62,12 @@ public class PageController {
         }
     }
 
-    // ================== FORM UPDATE ==================
-    @GetMapping("/edit/{pageId}")
+   @GetMapping("/edit/{pageId}")
     public String showUpdateForm(@PathVariable Integer pageId, Model model) {
         model.addAttribute("page", pageService.getById(pageId));
         return "page/edit"; // templates/page/edit.html
     }
 
-    // ================== UPDATE ==================
     @PostMapping("/edit/{pageId}")
     public String update(@PathVariable Integer pageId,
                          @Valid @ModelAttribute("page") PageRequest request,
@@ -97,7 +91,6 @@ public class PageController {
         }
     }
 
-    // ================== DELETE ==================
     @GetMapping("/delete/{pageId}")
     public String delete(@PathVariable Integer pageId) {
         pageService.delete(pageId);

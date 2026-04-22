@@ -24,7 +24,6 @@ public interface ChapterService {
 
     void delete(Integer chapterId);
 
-    // requested: get all pages of a chapter
     List<PageResponse> getAllPageByChapterId(Integer chapterId);
 
     List<ChapterAdminResponse> getChaptersByComic(Integer comicId);
@@ -36,4 +35,5 @@ public interface ChapterService {
     void updateChapter(Integer chapterId, ChapterAdRequest form);
 
     void deleteChapter(Integer chapterId);
+
 }

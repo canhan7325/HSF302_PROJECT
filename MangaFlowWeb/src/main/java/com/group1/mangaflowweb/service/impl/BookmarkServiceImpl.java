@@ -2,20 +2,23 @@ package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
 import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
-import com.group1.mangaflowweb.entity.Bookmarks;
-import com.group1.mangaflowweb.entity.Comics;
-import com.group1.mangaflowweb.entity.Users;
-import com.group1.mangaflowweb.repository.BookmarkRepository;
-import com.group1.mangaflowweb.repository.ComicRepository;
-import com.group1.mangaflowweb.repository.UserRepository;
+import com.group1.mangaflowweb.dto.view.BookmarkListItemView;
+import com.group1.mangaflowweb.entity.*;
+import com.group1.mangaflowweb.repository.*;
 import com.group1.mangaflowweb.service.BookmarkService;
+import com.group1.mangaflowweb.service.ComicService;
+import com.group1.mangaflowweb.service.UserContextService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,10 @@ public class BookmarkServiceImpl implements BookmarkService {
 	private final BookmarkRepository bookmarkRepository;
 	private final ComicRepository comicRepository;
 	private final UserRepository userRepository;
+    private final ReadingHistoryRepository readingHistoryRepository;
+    private final ChapterRepository chapterRepository;
+    private final UserContextService userContextService;
+    private final ComicService comicService;
 
 	@Override
 	public boolean isBookmarked(Integer userId, Integer comicId) {
@@ -139,5 +146,88 @@ public class BookmarkServiceImpl implements BookmarkService {
                 .comicId(bookmark.getComic() != null ? bookmark.getComic().getComicId() : null)
                 .createdAt(bookmark.getCreatedAt())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookmarkListItemView> getUserBookmarkListView(Integer userId, Integer comicId) {
+
+        List<BookmarkResponse> bookmarkResponses;
+        if (userId != null) {
+            bookmarkResponses = getByUserId(userId);
+        } else if (comicId != null) {
+            bookmarkResponses = getByComicId(comicId);
+        } else {
+            bookmarkResponses = getAll();
+        }
+
+
+        final Map<Integer, ReadingHistories> latestByComic = (userId != null)
+                ? readingHistoryRepository.findByUser_UserIdOrderByReadAtDesc(userId).stream()
+                .filter(rh -> rh.getChapter() != null && rh.getChapter().getComic() != null)
+                .collect(Collectors.toMap(
+                        rh -> rh.getChapter().getComic().getComicId(),
+                        Function.identity(),
+                        (a, b) -> a
+                ))
+                : Map.of();
+
+
+        return bookmarkResponses.stream()
+                .map(br -> {
+                    Integer bComicId = br.getComicId();
+                    var comic = (bComicId != null) ? comicService.getById(bComicId) : null;
+
+
+                    ReadingHistories rh = (bComicId != null) ? latestByComic.get(bComicId) : null;
+                    Integer continueChapterId = (rh != null && rh.getChapter() != null) ? rh.getChapter().getChapterId() : null;
+                    Integer continueChapterNumber = (rh != null && rh.getChapter() != null) ? rh.getChapter().getChapterNumber() : null;
+
+
+                    Chapters first = null;
+
+                    if (bComicId != null) {
+                        first = chapterRepository
+                                .findFirstByComic_ComicIdOrderByChapterNumberAsc(bComicId)
+                                .orElse(null);
+                    }
+
+                    Integer firstChapterId = (first != null) ? first.getChapterId() : null;
+                    Integer firstChapterNumber = (first != null) ? first.getChapterNumber() : null;
+
+                    return BookmarkListItemView.builder()
+                            .bookmarkId(br.getBookmarkId())
+                            .comicId(bComicId)
+                            .comicName(comic != null ? comic.getTitle() : "")
+                            .thumbnailUrl(comic != null ? comic.getCoverImg() : "")
+                            .continueChapterId(continueChapterId)
+                            .continueChapterNumber(continueChapterNumber)
+                            .firstChapterId(firstChapterId)
+                            .firstChapterNumber(firstChapterNumber)
+                            .comicSlug(comic != null ? comic.getSlug() : null)
+                            .bookmarked(true)
+                            .build();
+                })
+                .sorted(Comparator.comparing(BookmarkListItemView::getBookmarkId, Comparator.nullsLast(Integer::compareTo)))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> toggleBookmarkStatus(Integer comicId) {
+        Integer currentUserId = userContextService.getCurrentUser()
+                .map(com.group1.mangaflowweb.entity.Users::getUserId)
+                .orElse(null);
+
+        if (currentUserId == null) {
+            return Map.of("ok", false, "error", "UNAUTHORIZED");
+        }
+
+        boolean isNowBookmarked = toggleBookmark(currentUserId, comicId);
+
+        return Map.of(
+                "ok", true,
+                "bookmarked", isNowBookmarked
+        );
     }
 }

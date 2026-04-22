@@ -1,6 +1,3 @@
-/* Chapter reader behavior extracted from templates/chapter/read.html
-   Keep global function names used by inline onclick handlers. */
-
 (function () {
     function setMode(mode) {
         if (mode === "horizontal") {
@@ -10,7 +7,6 @@
         }
     }
 
-    // Expose handlers referenced by HTML (onclick)
     window.toggleReadingMode = function () {
         document.body.classList.toggle("horizontal-mode");
         localStorage.setItem(
