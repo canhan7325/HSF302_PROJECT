@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.group1.mangaflowweb.dto.user.UserResponse;
+import com.group1.mangaflowweb.dto.request.RegisterRequest;
 
 public interface UserService {
     long getTotalUsers();

@@ -19,10 +19,6 @@ public class ChapterController {
 
     private final ChapterService chapterService;
     private final UserContextService userContextService;
-    private final AccessService accessService;
-    private final ComicService comicService;
-    private final BookmarkService bookmarkService;
-    private final ReadingHistoryService readingHistoryService;
     private final ReadingService readingService;
 
     // ================== GET ALL ==================
@@ -116,8 +112,7 @@ public class ChapterController {
     public String readChapter(@PathVariable Integer chapterId, Model model) {
         ChapterReadViewDTO readView = readingService.getChapterReadDetails(chapterId);
 
-        model.addAttribute("readView", readView); // Bạn có thể add nguyên object
-        // Hoặc nếu file HTML cũ dùng các biến lẻ, bạn add từng cái:
+        model.addAttribute("readView", readView);
         model.addAttribute("chapter", readView.getChapter());
         model.addAttribute("pages", readView.getPages());
         model.addAttribute("comicId", readView.getComicId());
@@ -130,7 +125,6 @@ public class ChapterController {
         model.addAttribute("previewCount", readView.getPreviewCount());
         model.addAttribute("isBookmarked", readView.isBookmarked());
 
-        // isLoggedIn và currentUserId có thể lấy từ userContextService trực tiếp ở Controller nếu cần
         boolean isLoggedIn = userContextService.getCurrentUser().isPresent();
         model.addAttribute("isLoggedIn", isLoggedIn);
 

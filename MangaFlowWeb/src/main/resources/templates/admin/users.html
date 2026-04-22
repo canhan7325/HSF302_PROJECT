@@ -40,12 +40,7 @@
     </a>
   </header>
   <th:block th:replace="~{admin/fragments/admin :: flash(${successMessage}, ${errorMessage})}"></th:block>
-  <script th:if="${successMessage != null}" th:inline="javascript">
-    document.addEventListener('DOMContentLoaded',function(){showToast([[${successMessage}]],'success');});
-  </script>
-  <script th:if="${errorMessage != null}" th:inline="javascript">
-    document.addEventListener('DOMContentLoaded',function(){showToast([[${errorMessage}]],'error');});
-  </script>
+  <div id="page-messages" th:attr="data-success=${successMessage}, data-error=${errorMessage}"></div>
   <form th:action="@{/admin/users}" method="get" class="flex gap-2 max-w-md mb-6">
     <div class="relative flex-1">
       <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size:18px">search</span>
@@ -201,6 +196,13 @@ function showToast(message,type){
   setTimeout(function(){item.style.opacity='0';setTimeout(function(){item.remove();},350);},3500);
 }
 document.addEventListener('DOMContentLoaded',function(){
+  var msgs = document.getElementById('page-messages');
+  if (msgs) {
+    var s = msgs.dataset.success;
+    var e = msgs.dataset.error;
+    if (s && s !== 'null') showToast(s, 'success');
+    if (e && e !== 'null') showToast(e, 'error');
+  }
   document.querySelectorAll('.delete-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
       var form=btn.closest('.delete-form');

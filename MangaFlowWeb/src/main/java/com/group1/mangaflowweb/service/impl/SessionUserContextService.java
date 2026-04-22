@@ -28,19 +28,6 @@ public class SessionUserContextService implements UserContextService {
             return userRepository.findByUsername(authentication.getName());
         }
 
-        // Fallback: older session-based userId (if present)
-        Object userIdObj = httpSession.getAttribute("userId");
-        if (userIdObj instanceof Integer userId) {
-            return userRepository.findById(userId);
-        }
-        if (userIdObj instanceof String userIdStr) {
-            try {
-                Integer userId = Integer.valueOf(userIdStr);
-                return userRepository.findById(userId);
-            } catch (NumberFormatException ignored) {
-                return Optional.empty();
-            }
-        }
         return Optional.empty();
     }
 }

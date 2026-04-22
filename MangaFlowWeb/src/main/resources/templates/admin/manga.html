@@ -76,12 +76,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
   </header>
 
   <th:block th:replace="~{admin/fragments/admin :: flash(${successMessage}, ${errorMessage})}"></th:block>
-  <script th:if="${successMessage != null}" th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function() { showToast([[${successMessage}]], 'success'); });
-  </script>
-  <script th:if="${errorMessage != null}" th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function() { showToast([[${errorMessage}]], 'error'); });
-  </script>
+  <div id="page-messages" th:attr="data-success=${successMessage}, data-error=${errorMessage}"></div>
 
   <div class="flex items-center gap-3 mb-6">
     <form th:action="@{/admin/manga}" method="get" class="flex gap-2 max-w-md flex-1">
@@ -533,6 +528,13 @@ function showToast(message, type) {
 
 // ── Delete buttons ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
+  var msgs = document.getElementById('page-messages');
+  if (msgs) {
+    var s = msgs.dataset.success;
+    var e = msgs.dataset.error;
+    if (s && s !== 'null') showToast(s, 'success');
+    if (e && e !== 'null') showToast(e, 'error');
+  }
   document.querySelectorAll('.delete-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var form  = btn.closest('.delete-form');

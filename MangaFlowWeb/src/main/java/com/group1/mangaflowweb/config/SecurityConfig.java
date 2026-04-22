@@ -45,6 +45,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/comic/**", "/pricing/**", "/api/comics/search", "/search-comic").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/reader/**").hasAnyRole("READER", "USER")
+                .requestMatchers("/author/**").hasAnyRole("AUTHOR")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

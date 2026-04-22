@@ -1,3 +1,6 @@
+* {
+    box-sizing: border-box;
+}
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -82,7 +85,7 @@ body {
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 80px;
+    bottom: 75px;
     width: min(520px, calc(100vw - 28px));
     background: #fff;
     border: 1px solid #ddd;
@@ -91,7 +94,7 @@ body {
     overflow: auto;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
     display: none;
-    z-index: 1001;
+    z-index: 4000;
 }
 
 #chapterMenuToggle:checked ~ .chapter-dropdown { display: block; }
@@ -170,21 +173,45 @@ body {
 
 
 .horizontal-mode .content {
-    display: flex;
+    display: flex !important;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100vw;
+}
+
+.horizontal-mode .mf-main-content {
+    max-width: 100% !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.horizontal-mode .chapter-start-nav {
+    margin-top: 80px;
 }
 
 .horizontal-mode .page-wrap {
-    min-width: 100vw;
+    min-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
     flex-shrink: 0;
     scroll-snap-align: start;
+
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative; /* Tạo môi trường cho nav-zone nếu nó nằm trong này */
+    overflow: hidden;
 }
 
 .horizontal-mode .comic-img {
-    width: 100%;
-    height: 100vh;
-    object-fit: contain;
+    display: block !important;
+    max-width: 100% !important;
+    max-height: 100vh !important;
+    object-fit: contain !important;
+    margin: 0 auto !important; /* Căn giữa tự động */
 }
 
 
@@ -204,11 +231,13 @@ body {
 .horizontal-mode #nav-overlay { display: block; }
 
 .nav-zone {
-    position: fixed;
+    position: fixed; /* Hoặc absolute nếu nằm trong page-wrap */
     top: 0;
-    width: 50%;
+    bottom: 0;
+    width: 25%; /* Giảm độ rộng vùng bấm nếu nó quá to */
     height: 100%;
     z-index: 1500;
+    pointer-events: auto; /* Vẫn bấm được */
 }
 
 .nav-zone.left { left: 0; }
@@ -342,9 +371,9 @@ body {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 70px;
+    bottom: 90px !important; /* Tăng lên 90px để né thanh bar 70px */
     padding: 8px 14px;
-    z-index: 3200;
+    z-index: 2900 !important; /* Thấp hơn Bottom Bar (3000) */
     pointer-events: none;
 }
 
@@ -392,4 +421,9 @@ body {
 .right-actions .bookmark-btn.is-loading {
     opacity: 0.6;
     pointer-events: none;
+}
+.horizontal-mode .mf-footer::after {
+    content: "";
+    display: block;
+    height: 60px; /* đủ để vượt qua slider */
 }

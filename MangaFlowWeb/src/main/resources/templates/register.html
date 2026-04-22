@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Đăng ký - Editorial Manga</title>
+    <title>Đăng ký - Manga Curator</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" th:href="@{/bootstrap.min.css}" />
     <link rel="stylesheet" th:href="@{/style.css}" />
@@ -53,13 +53,25 @@
             color: #212529;
             margin-bottom: 0.2rem;
         }
+
+        /* Register page fullscreen */
+        .register-main {
+            min-height: 100vh;
+            padding-top: 8rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .register-main {
+                padding-top: 10rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-register">
     <!-- Header -->
     <div th:replace="~{fragments/headers :: header}"></div>
 
-    <main class="container d-flex flex-column align-items-center justify-content-center min-vh-100 py-5">
+    <main class="register-main container d-flex flex-column align-items-center justify-content-center py-5">
         <div class="text-center mb-5">
             <h1 class="brand-title">MangaCurator</h1>
             <p class="text-muted">The Digital Curator Experience.</p>

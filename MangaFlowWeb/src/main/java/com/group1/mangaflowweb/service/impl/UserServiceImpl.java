@@ -132,6 +132,31 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
+    @Override
+    @Transactional
+    public void registerReader(RegisterRequest registerRequest) {
+        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("USERNAME_EXISTS");
+        }
+        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("EMAIL_EXISTS");
+        }
+
+        Users newUser = Users.builder()
+                .email(registerRequest.getEmail())
+                .username(registerRequest.getUsername())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .role("READER")
+                .enabled(true)
+                .build();
+
+        try {
+            userRepository.save(newUser);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("USERNAME_OR_EMAIL_EXISTS", e);
+        }
+    }
+
     private UserResponse toResponse(Users user) {
         return UserResponse.builder()
                 .userId(user.getUserId())
