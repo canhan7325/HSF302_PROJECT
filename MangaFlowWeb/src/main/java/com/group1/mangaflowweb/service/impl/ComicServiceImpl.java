@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.comic.ComicSearchResponse;
+import com.group1.mangaflowweb.dto.comic.ComicSearchDTO;
 import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
@@ -17,17 +17,18 @@ import com.group1.mangaflowweb.util.SlugUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.data.domain.PageRequest;
 import com.group1.mangaflowweb.util.ImageUrlResolver;
-import com.group1.mangaflowweb.dto.comic.ComicSearchResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -271,20 +272,30 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComicSearchResponse> searchByTitle(String keyword, int limit) {
-        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+    public List<ComicSearchDTO> searchByTitle(String query) {
+        String normalizedKeyword = query == null ? "" : query.trim();
         if (normalizedKeyword.isEmpty()) {
             return List.of();
         }
 
-        int safeLimit = Math.max(1, Math.min(limit, 20));
-        return comicRepository.searchByTitle(normalizedKeyword, PageRequest.of(0, safeLimit))
-                .stream()
-                .map(comic -> ComicSearchResponse.builder()
-                        .comicId(comic.getComicId())
+        int limit = 8;
+        Map<Integer, Comics> uniqueMatches = new LinkedHashMap<>();
+
+        comicRepository.findByTitleContainingIgnoreCase(normalizedKeyword, PageRequest.of(0, limit))
+                .forEach(comic -> uniqueMatches.put(comic.getComicId(), comic));
+
+        if (uniqueMatches.size() < limit) {
+            comicRepository.findBySlugContainingIgnoreCase(normalizedKeyword, PageRequest.of(0, limit))
+                    .forEach(comic -> uniqueMatches.putIfAbsent(comic.getComicId(), comic));
+        }
+
+        return uniqueMatches.values().stream()
+                .limit(limit)
+                .map(comic -> ComicSearchDTO.builder()
+                        .id(comic.getComicId())
                         .title(comic.getTitle())
                         .slug(comic.getSlug())
-                        .coverImg(comic.getCoverImg())
+                        .coverImage(imageUrlResolver.resolve(comic.getCoverImg()))
                         .build())
                 .toList();
     }

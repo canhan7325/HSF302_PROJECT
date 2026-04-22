@@ -1,98 +1,118 @@
 (function () {
-    const wrapper = document.querySelector('.mf-header-search');
-    if (!wrapper) {
+    const wrapper = document.querySelector('.mf-header-search') || document;
+    const input = document.getElementById('searchInput') || document.getElementById('comicSearchInput');
+    const dropdown = document.getElementById('searchResultDropdown') || document.getElementById('comicSearchSuggestions');
+    const endpoint = (wrapper.getAttribute && wrapper.getAttribute('data-search-endpoint')) || '/api/comics/search';
+
+    if (!input || !dropdown) {
         return;
     }
 
-    const input = wrapper.querySelector('#comicSearchInput');
-    const suggestions = wrapper.querySelector('#comicSearchSuggestions');
-    const endpoint = wrapper.getAttribute('data-search-endpoint') || '/api/comics/search';
+    let debounceTimer;
 
-    if (!input || !suggestions) {
-        return;
+    function debounce(callback, delay) {
+        return function () {
+            const context = this;
+            const args = arguments;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () {
+                callback.apply(context, args);
+            }, delay);
+        };
     }
 
-    let debounceTimer = null;
-
-    function escapeHtml(value) {
-        return String(value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+    function clearAndHideDropdown() {
+        dropdown.innerHTML = '';
+        dropdown.classList.add('d-none');
     }
 
-    function hideSuggestions() {
-        suggestions.classList.add('d-none');
-        suggestions.innerHTML = '';
+    function showDropdown() {
+        dropdown.classList.remove('d-none');
     }
 
-    function renderSuggestions(items) {
-        if (!items || items.length === 0) {
-            suggestions.innerHTML = '<div class="mf-search-empty">Khong tim thay truyen phu hop</div>';
-            suggestions.classList.remove('d-none');
-            return;
-        }
-
-        suggestions.innerHTML = items.map(function (item) {
-            const safeTitle = escapeHtml(item.title || 'Khong co tieu de');
-            const safeSlug = encodeURIComponent(item.slug || '');
-            const safeCover = escapeHtml(item.coverImg || '');
-            const coverHtml = safeCover
-                ? '<img class="mf-search-item-cover" src="' + safeCover + '" alt="' + safeTitle + '">'
-                : '<div class="mf-search-item-cover mf-search-item-cover-placeholder"></div>';
-
-            return '<a class="mf-search-item" href="/comic/' + safeSlug + '">' +
-                coverHtml +
-                '<span class="mf-search-item-title">' + safeTitle + '</span>' +
-                '</a>';
-        }).join('');
-
-        suggestions.classList.remove('d-none');
+    function createNoResultItem() {
+        const item = document.createElement('div');
+        item.className = 'list-group-item text-muted';
+        item.textContent = 'No results found';
+        return item;
     }
 
-    async function fetchSuggestions(keyword) {
-        const response = await fetch(endpoint + '?q=' + encodeURIComponent(keyword) + '&limit=8', {
-            headers: {
-                'Accept': 'application/json'
+    function createResultItem(comic) {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'list-group-item list-group-item-action d-flex align-items-center gap-2';
+
+        const thumbnail = document.createElement('img');
+        thumbnail.src = comic.coverImage || comic.coverImg || 'data:,';
+        thumbnail.alt = comic.title || 'Comic';
+        thumbnail.width = 36;
+        thumbnail.height = 48;
+        thumbnail.style.objectFit = 'cover';
+        thumbnail.className = 'rounded';
+
+        const title = document.createElement('span');
+        title.textContent = comic.title || 'Untitled comic';
+
+        item.appendChild(thumbnail);
+        item.appendChild(title);
+        item.addEventListener('click', function () {
+            if (comic.slug) {
+                window.location.href = '/comic/' + encodeURIComponent(comic.slug);
+                return;
             }
+            window.location.href = '/comic-detail/' + encodeURIComponent(comic.id);
+        });
+
+        return item;
+    }
+
+    async function fetchResults(query) {
+        const response = await fetch(endpoint + '?query=' + encodeURIComponent(query), {
+            headers: { Accept: 'application/json' }
         });
 
         if (!response.ok) {
-            hideSuggestions();
+            clearAndHideDropdown();
             return;
         }
 
-        const items = await response.json();
-        renderSuggestions(items);
+        const results = await response.json();
+        dropdown.innerHTML = '';
+        dropdown.classList.add('list-group');
+
+        if (!Array.isArray(results) || results.length === 0) {
+            dropdown.appendChild(createNoResultItem());
+            showDropdown();
+            return;
+        }
+
+        results.forEach(function (comic) {
+            dropdown.appendChild(createResultItem(comic));
+        });
+        showDropdown();
     }
 
-    input.addEventListener('input', function () {
-        const keyword = input.value.trim();
-        clearTimeout(debounceTimer);
-
-        if (!keyword) {
-            hideSuggestions();
+    input.addEventListener('input', debounce(function () {
+        const query = input.value.trim();
+        if (!query) {
+            clearAndHideDropdown();
             return;
         }
 
-        debounceTimer = setTimeout(function () {
-            fetchSuggestions(keyword).catch(function () {
-                hideSuggestions();
-            });
-        }, 250);
-    });
+        fetchResults(query).catch(function () {
+            clearAndHideDropdown();
+        });
+    }, 300));
 
     document.addEventListener('click', function (event) {
-        if (!wrapper.contains(event.target)) {
-            hideSuggestions();
+        if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+            clearAndHideDropdown();
         }
     });
 
     input.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
-            hideSuggestions();
+            clearAndHideDropdown();
             input.blur();
         }
     });

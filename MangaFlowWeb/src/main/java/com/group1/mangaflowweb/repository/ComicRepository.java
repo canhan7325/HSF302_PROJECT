@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.jpa.repository.EntityGraph;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +20,8 @@ public interface ComicRepository extends JpaRepository<Comics, Integer> {
 	long countByStatusNot(ComicEnum status);
 
 	Page<Comics> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+
+	Page<Comics> findBySlugContainingIgnoreCase(String slug, Pageable pageable);
 
 	List<Comics> findByTitleContainingIgnoreCase(String title);
 
@@ -48,9 +49,5 @@ public interface ComicRepository extends JpaRepository<Comics, Integer> {
 	Page<Comics> findAllByOrderByUpdatedAtDesc(Pageable pageable);
 
 		List<Comics> findByUser_UserId(Integer userId);
-
-
-	@Query("SELECT c FROM Comics c WHERE LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY c.updatedAt DESC")
-	Page<Comics> searchByTitle(String keyword, Pageable pageable);
 
 	}

@@ -9,13 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Manrope:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/style.css(v=20260420_3)}">
+    <link rel="stylesheet" th:href="@{/style.css(v=20260422_1)}">
 </head>
 <body class="mf-body">
 <div th:replace="~{fragments/headers :: header}"></div>
 
 <main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
     <div class="mf-detail-hero rounded-4 p-3 p-md-4 mb-4 mb-md-5">
+        <div class="mf-detail-hero-bg"
+             th:if="${!#strings.isEmpty(@imageUrlResolver.resolve(comic.coverImg))}"
+             th:style="'background-image: url(' + ${@imageUrlResolver.resolve(comic.coverImg)} + ');'"></div>
         <div class="row g-4 align-items-end">
             <div class="col-12 col-md-4 col-lg-3">
                 <div class="mf-detail-cover-wrap">

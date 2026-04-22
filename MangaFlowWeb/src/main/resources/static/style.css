@@ -433,6 +433,32 @@ body.mf-body {
 	background: linear-gradient(135deg, #2f2f2e, #44403c);
 	color: #fff;
 	box-shadow: 0 10px 26px rgba(41, 37, 36, 0.18);
+	position: relative;
+	overflow: hidden;
+}
+
+.mf-detail-hero > * {
+	position: relative;
+	z-index: 2;
+}
+
+.mf-detail-hero-bg {
+	position: absolute;
+	inset: -18px;
+	background-position: center;
+	background-size: cover;
+	filter: blur(18px);
+	transform: scale(1.08);
+	opacity: 0.58;
+	z-index: 0;
+}
+
+.mf-detail-hero::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(135deg, rgba(20, 20, 20, 0.66), rgba(45, 45, 45, 0.5));
+	z-index: 1;
 }
 
 .mf-detail-cover-wrap {

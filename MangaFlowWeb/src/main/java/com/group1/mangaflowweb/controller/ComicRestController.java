@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller;
 
-import com.group1.mangaflowweb.dto.comic.ComicSearchResponse;
+import com.group1.mangaflowweb.dto.comic.ComicSearchDTO;
 import com.group1.mangaflowweb.service.ComicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,15 +13,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/comics")
 @RequiredArgsConstructor
-public class ComicSearchController {
+public class ComicRestController {
 
     private final ComicService comicService;
 
     @GetMapping("/search")
-    public List<ComicSearchResponse> searchByTitle(
-            @RequestParam(name = "q", required = false) String keyword,
-            @RequestParam(name = "limit", defaultValue = "8") int limit
-    ) {
-        return comicService.searchByTitle(keyword, limit);
+    public List<ComicSearchDTO> searchByTitle(
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "q", required = false) String legacyQuery) {
+        String keyword = (query != null && !query.isBlank()) ? query : legacyQuery;
+        return comicService.searchByTitle(keyword);
     }
 }
+
