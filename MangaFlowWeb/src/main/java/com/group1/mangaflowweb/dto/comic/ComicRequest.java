@@ -24,6 +24,5 @@ public class ComicRequest {
     @NotNull
     private ComicEnum status;
 
-    @NotNull
     private Integer userId;
 }

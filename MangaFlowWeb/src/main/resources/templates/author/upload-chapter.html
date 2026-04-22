@@ -34,6 +34,8 @@
             <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
 
             <form class="row g-4" th:action="@{/author/upload-chapter}" method="post" enctype="multipart/form-data">
+                <!-- userId is resolved server-side from the current session; do not send it from the client -->
+
                 <!-- Left column -->
                 <div class="col-12 col-xl-8">
                     <section class="mf-panel p-3 p-md-4 mb-4">
@@ -46,7 +48,7 @@
                             <label class="form-label mf-form-label" for="comicId">Select Manga Series</label>
                             <select id="comicId" name="comicId" class="form-select mf-form-control" required>
                                 <option value="" selected>Select a series...</option>
-                                <option th:each="comic : ${myComics}" th:value="${comic.id}" th:text="${comic.title}">Series</option>
+                                <option th:each="comic : ${myComics}" th:value="${comic.comicId}" th:text="${comic.title}">Series</option>
                             </select>
                         </div>
 
@@ -75,7 +77,7 @@
                         </div>
 
                         <div class="mf-uc-dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload manuscript pages">
-                            <input class="visually-hidden" id="pages" name="pages" type="file" accept="image/*" multiple required>
+                            <input class="visually-hidden" id="pages" name="pages" type="file" accept="image/*" multiple="multiple" required>
 
                             <div class="mf-uc-dropzone__inner">
                                 <div class="mf-uc-dropzone__icon">
