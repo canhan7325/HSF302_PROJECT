@@ -37,6 +37,7 @@
                     </li>
                     <li class="nav-item"><a th:href="@{/bookmarks}" class="nav-link">Thư viện</a></li>
                     <li class="nav-item"><a th:href="@{/reading-histories}" class="nav-link">Lịch sử đọc</a></li>
+                    <li class="nav-item"><a th:href="@{/transactions}" class="nav-link" sec:authorize="isAuthenticated()">Giao dịch</a></li>
                     <li class="nav-item"><a th:href="@{/login(redirect='/pricing')}" class="nav-link" sec:authorize="!isAuthenticated()">Gói Hội Viên</a></li>
                     <li class="nav-item"><a th:href="@{/pricing}" class="nav-link" sec:authorize="isAuthenticated()">Gói Hội Viên</a></li>
                 </ul>

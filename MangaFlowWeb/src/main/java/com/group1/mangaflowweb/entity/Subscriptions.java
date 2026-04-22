@@ -24,7 +24,7 @@ public class Subscriptions {
     @Column(nullable = false, length = 100, name = "name")
     private String name;
 
-    @Column(columnDefinition = "VARCHAR(MAX)", name = "description")
+    @Column(columnDefinition = "NVARCHAR(MAX)", name = "description")
     private String description;
 
     @Column(nullable = false, precision = 10, scale = 2, name = "price")

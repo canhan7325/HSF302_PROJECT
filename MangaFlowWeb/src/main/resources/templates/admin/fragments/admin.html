@@ -17,7 +17,12 @@
 
 <!-- coverImg(src, alt) -->
 <th:block th:fragment="coverImg(src, alt)">
-    <img th:if="${src != null and src != ''}" th:src="${src}" th:alt="${alt}" class="w-full h-full object-cover"/>
+    <th:block th:if="${src != null and src != ''}">
+        <!-- If src is a full URL (starts with http), use it directly -->
+        <img th:if="${src.startsWith('http')}" th:src="${src}" th:alt="${alt}" class="w-full h-full object-cover"/>
+        <!-- Otherwise, build Cloudinary URL from the src -->
+        <img th:unless="${src.startsWith('http')}" th:src="${'https://res.cloudinary.com/dfh8o4dh4/image/upload/' + src}" th:alt="${alt}" class="w-full h-full object-cover"/>
+    </th:block>
     <div th:if="${src == null or src == ''}"
          class="w-full h-full flex items-center justify-center bg-surface-container-high">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#afadac" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử giao dịch</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/style.css(v=20260422_5)}">
+    <style>
+        .transaction-card {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(47, 47, 46, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transaction-table thead {
+            background-color: rgba(127, 61, 0, 0.08);
+            border-bottom: 2px solid #c2410c;
+        }
+
+        .transaction-table thead th {
+            color: #7f3d00;
+            font-weight: 700;
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .transaction-table tbody tr {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            transition: background-color 0.2s ease;
+        }
+
+        .transaction-table tbody tr:hover {
+            background-color: rgba(127, 61, 0, 0.04);
+        }
+
+        .transaction-table tbody td {
+            padding: 1rem;
+            font-size: 0.95rem;
+            color: #44403c;
+        }
+
+        .transaction-id {
+            font-weight: 700;
+            color: #7f3d00;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            color: #16a34a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-canceled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-failed {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-updated {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #78716c;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #44403c;
+        }
+
+        .empty-state-subtext {
+            font-size: 0.9rem;
+            color: #a8a29e;
+        }
+
+        .mf-transaction-btn {
+            background: linear-gradient(135deg, #ea580c, #f97316);
+            color: white;
+            border: 0;
+            border-radius: 9999px;
+            font-weight: 700;
+            padding: 0.5rem 1.1rem;
+            box-shadow: 0 8px 16px rgba(234, 88, 12, 0.25);
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .mf-transaction-btn:hover {
+            color: white;
+            filter: brightness(1.03);
+        }
+
+        @media (max-width: 768px) {
+            .transaction-table {
+                font-size: 0.85rem;
+            }
+
+            .transaction-table th,
+            .transaction-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .status-badge {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body class="mf-body">
+
+<!-- Header Fragment -->
+<div th:replace="~{fragments/headers :: header}"></div>
+
+<main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
+    <!-- Page header -->
+    <header class="mb-4 mb-md-5">
+        <h1 class="mb-2 mf-page-heading">Lịch sử giao dịch</h1>
+        <p class="mb-0 mf-page-subtitle">Xem lại tất cả các giao dịch của bạn trên nền tảng.</p>
+    </header>
+
+    <section>
+        <div class="transaction-card">
+            <div th:if="${#lists.isEmpty(transactions)}" class="empty-state">
+                <div class="empty-state-icon"></div>
+                <p class="empty-state-text">Bạn chưa có giao dịch nào</p>
+                <p class="empty-state-subtext">Hãy nâng cấp thành viên để bắt đầu sử dụng các tính năng VIP</p>
+                <a th:href="@{/pricing}" class="mf-transaction-btn">
+                    Xem gói hội viên
+                </a>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(transactions)}">
+                <div class="table-responsive">
+                    <table class="transaction-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Gói hội viên</th>
+                                <th>Số tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày bắt đầu</th>
+                                <th>Ngày kết thúc</th>
+                                <th>Ngày giao dịch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="transaction, iterStat : ${transactions}">
+                                <td class="transaction-id" th:text="'#' + ${iterStat.count}"></td>
+                                <td>
+                                    <th:block th:if="${transaction.subscription.name == 'Silver'}">Gói Bạc</th:block>
+                                    <th:block th:if="${transaction.subscription.name == 'Gold'}">Gói Vàng</th:block>
+                                    <th:block th:unless="${transaction.subscription.name == 'Silver' or transaction.subscription.name == 'Gold'}" th:text="${transaction.subscription.name}"></th:block>
+                                </td>
+                                <td class="transaction-amount" th:text="${#numbers.formatDecimal(transaction.price, 1, 0)} + 'đ'"></td>
+                                <td>
+                                    <span class="status-badge"
+                                          th:classappend="${'status-' + transaction.status.name().toLowerCase()}"
+                                          th:text="${transaction.status.getDisplayName()}"></span>
+                                </td>
+                                <td th:text="${#temporals.format(transaction.startedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td th:text="${transaction.endedAt != null ? #temporals.format(transaction.endedAt, 'dd/MM/yyyy HH:mm') : 'Còn hiệu lực'}"></td>
+                                <td th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer Fragment -->
+<div th:replace="~{fragments/footers :: footer}"></div>
+
+<script th:src="@{/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
+
+
+
+
+
+
