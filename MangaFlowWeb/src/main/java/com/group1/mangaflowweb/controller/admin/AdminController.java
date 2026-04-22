@@ -53,12 +53,19 @@ public class AdminController {
     // ── Revenue page ──────────────────────────────────────────────────────────
 
     @GetMapping("/revenue")
-    public String revenuePage(Model model) {
+    public String revenuePage(
+            @RequestParam(required = false, defaultValue = "ALL") String statusFilter,
+            @RequestParam(required = false, defaultValue = "ALL") String subscriptionFilter,
+            @RequestParam(required = false, defaultValue = "20") Integer limit,
+            Model model) {
+        
         model.addAttribute("totalRevenue",         transactionService.getTotalRevenue());
         model.addAttribute("totalTransactions",    transactionService.getTotalTransactionCount());
         model.addAttribute("activeTransactions",   transactionService.getActiveTransactions());
         model.addAttribute("revenueBySubscription",transactionService.getRevenueBySubscription());
-        model.addAttribute("transactions",         transactionService.getAllTransactions());
+        model.addAttribute("transactions",         transactionService.getRecentTransactions(limit, statusFilter, subscriptionFilter));
+        model.addAttribute("statusFilter",         statusFilter);
+        model.addAttribute("subscriptionFilter",   subscriptionFilter);
         model.addAttribute("username",             SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/revenue";
     }

@@ -19,7 +19,7 @@ public interface TransactionService {
     // Get revenue by subscription
     List<Map<String, Object>> getRevenueBySubscription();
     
-    // Get all transactions
+    // Get all transactions (sorted by createdAt DESC)
     List<Transactions> getAllTransactions();
     
     // Get active transactions (ongoing)
@@ -27,6 +27,9 @@ public interface TransactionService {
     
     // Get transaction count
     long getTotalTransactionCount();
+    
+    // Get recent transactions with filters
+    List<Transactions> getRecentTransactions(Integer limit, String statusFilter, String subscriptionFilter);
 
     // ===============================
     Page<TransactionAdminResponse> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter);

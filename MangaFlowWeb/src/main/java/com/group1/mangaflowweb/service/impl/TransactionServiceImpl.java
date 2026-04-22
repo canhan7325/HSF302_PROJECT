@@ -60,6 +60,32 @@ public class TransactionServiceImpl implements TransactionService {
     public long getTotalTransactionCount() {
         return transactionRepository.count();
     }
+    
+    @Override
+    public List<Transactions> getRecentTransactions(Integer limit, String statusFilter, String subscriptionFilter) {
+        List<Transactions> transactions = transactionRepository.findAllByOrderByCreatedAtDesc();
+        
+        // Filter by status if provided
+        if (statusFilter != null && !statusFilter.isBlank() && !statusFilter.equals("ALL")) {
+            transactions = transactions.stream()
+                    .filter(t -> t.getStatus().name().equals(statusFilter))
+                    .toList();
+        }
+        
+        // Filter by subscription if provided
+        if (subscriptionFilter != null && !subscriptionFilter.isBlank() && !subscriptionFilter.equals("ALL")) {
+            transactions = transactions.stream()
+                    .filter(t -> t.getSubscription().getName().equalsIgnoreCase(subscriptionFilter))
+                    .toList();
+        }
+        
+        // Limit results
+        if (limit != null && limit > 0) {
+            transactions = transactions.stream().limit(limit).toList();
+        }
+        
+        return transactions;
+    }
     // ====================================
     @Override
     public Page<TransactionAdminResponse> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter) {

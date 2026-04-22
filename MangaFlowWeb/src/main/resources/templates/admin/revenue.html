@@ -61,7 +61,62 @@
   <!-- Recent transactions -->
   <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
     <div class="px-6 py-4 border-b border-surface-container-high">
-      <h3 class="text-lg font-bold">Recent Transactions</h3>
+      <div class="mb-4">
+        <h3 class="text-lg font-bold mb-4">Recent Transactions</h3>
+
+        <!-- Filters -->
+        <div class="flex gap-4 flex-wrap">
+          <!-- Status Filter -->
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs font-bold uppercase text-on-surface-variant mr-2">Status:</span>
+            <a th:href="@{/admin/revenue(statusFilter='ALL', subscriptionFilter=${subscriptionFilter})}"
+               class="text-xs px-2 py-1 rounded transition"
+               th:classappend="${statusFilter == 'ALL' ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high text-on-surface hover:bg-surface-container'}">
+              All
+            </a>
+            <a th:href="@{/admin/revenue(statusFilter='PENDING', subscriptionFilter=${subscriptionFilter})}"
+               class="text-xs px-2 py-1 rounded transition"
+               th:classappend="${statusFilter == 'PENDING' ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high text-on-surface hover:bg-surface-container'}">
+              Pending
+            </a>
+            <a th:href="@{/admin/revenue(statusFilter='SUCCESS', subscriptionFilter=${subscriptionFilter})}"
+               class="text-xs px-2 py-1 rounded transition"
+               th:classappend="${statusFilter == 'SUCCESS' ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high text-on-surface hover:bg-surface-container'}">
+              Success
+            </a>
+            <a th:href="@{/admin/revenue(statusFilter='FAILED', subscriptionFilter=${subscriptionFilter})}"
+               class="text-xs px-2 py-1 rounded transition"
+               th:classappend="${statusFilter == 'FAILED' ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high text-on-surface hover:bg-surface-container'}">
+              Failed
+            </a>
+            <a th:href="@{/admin/revenue(statusFilter='CANCELED', subscriptionFilter=${subscriptionFilter})}"
+               class="text-xs px-2 py-1 rounded transition"
+               th:classappend="${statusFilter == 'CANCELED' ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high text-on-surface hover:bg-surface-container'}">
+              Canceled
+            </a>
+          </div>
+
+          <!-- Subscription Filter -->
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs font-bold uppercase text-on-surface-variant mr-2">Subscription:</span>
+            <a th:href="@{/admin/revenue(statusFilter=${statusFilter}, subscriptionFilter='ALL')}"
+               class="text-xs px-2 py-1 rounded transition"
+               th:classappend="${subscriptionFilter == 'ALL' ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high text-on-surface hover:bg-surface-container'}">
+              All
+            </a>
+            <a th:href="@{/admin/revenue(statusFilter=${statusFilter}, subscriptionFilter='Free')}"
+               class="text-xs px-2 py-1 rounded transition"
+               th:classappend="${subscriptionFilter == 'Free' ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high text-on-surface hover:bg-surface-container'}">
+              Free
+            </a>
+            <a th:href="@{/admin/revenue(statusFilter=${statusFilter}, subscriptionFilter='Premium')}"
+               class="text-xs px-2 py-1 rounded transition"
+               th:classappend="${subscriptionFilter == 'Premium' ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high text-on-surface hover:bg-surface-container'}">
+              Premium
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
     <table class="w-full text-left border-collapse" th:if="${!transactions.isEmpty()}">
       <thead>
@@ -78,11 +133,11 @@
           <td class="px-6 py-3 text-sm font-mono text-on-surface-variant" th:text="'#' + ${t.transactionId}"></td>
           <td class="px-6 py-3 text-sm font-medium" th:text="${t.subscription.name}"></td>
           <td class="px-6 py-3 text-sm font-bold text-green-600" th:text="'$' + ${#numbers.formatDecimal(t.price, 1, 2)}"></td>
-          <td class="px-6 py-3">
-            <span th:text="${t.status}"
-                  class="text-xs font-bold px-2 py-0.5 rounded-full"
-                  th:classappend="${t.status.name() == 'ONGOING'} ? ' text-green-700 bg-green-100' : (${t.status.name() == 'SCHEDULED'} ? ' text-blue-700 bg-blue-100' : ' text-stone-500 bg-stone-100')"></span>
-          </td>
+           <td class="px-6 py-3">
+             <span th:text="${t.status}"
+                   class="text-xs font-bold px-2 py-0.5 rounded-full"
+                   th:classappend="${t.status.name() == 'SUCCESS'} ? ' text-green-700 bg-green-100' : (${t.status.name() == 'PENDING'} ? ' text-yellow-700 bg-yellow-100' : (${t.status.name() == 'FAILED'} ? ' text-red-700 bg-red-100' : (${t.status.name() == 'CANCELED'} ? ' text-orange-700 bg-orange-100' : ' text-stone-500 bg-stone-100')))"></span>
+           </td>
           <td class="px-6 py-3 text-sm text-on-surface-variant" th:text="${#temporals.format(t.createdAt, 'dd/MM/yyyy')}"></td>
         </tr>
       </tbody>

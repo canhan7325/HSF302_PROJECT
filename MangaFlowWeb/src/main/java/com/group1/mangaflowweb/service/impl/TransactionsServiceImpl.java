@@ -72,7 +72,7 @@ public class TransactionsServiceImpl implements TransactionsService {
 
         // Nếu upgrade từ Bạc → Vàng: lấy thời gian còn lại của bạc + cộng vào endedAt của vàng
         if (isUpgrade && discountAmount == 60000) {
-            transaction.setStatus(TransactionEnum.UPDATED);
+            transaction.setStatus(TransactionEnum.UPDATE);
 
             // Get remaining days from old silver subscription
             long remainingDaysFromOldSubscription = getRemainingDaysFromCurrentSubscription(transaction.getUser().getUserId());

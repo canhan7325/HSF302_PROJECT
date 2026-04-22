@@ -27,6 +27,9 @@ public interface TransactionRepository extends JpaRepository<Transactions, Integ
             LocalDateTime endedAt);
 
                                                         Page<Transactions> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    
+    // Get all transactions sorted by createdAt DESC (no pagination)
+    List<Transactions> findAllByOrderByCreatedAtDesc();
 
     Page<Transactions> findByStatusAndUserUsernameContaining(ComicEnum status, String username, Pageable pageable);
 

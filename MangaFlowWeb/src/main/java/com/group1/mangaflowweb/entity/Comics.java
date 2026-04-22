@@ -66,4 +66,8 @@ public class Comics {
     @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<GenreComics> genreComics = new HashSet<>();
+
+    public void addGenreComics(GenreComics genreComics) {
+        this.genreComics.add(genreComics);
+    }
 }
