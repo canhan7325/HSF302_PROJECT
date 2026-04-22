@@ -208,7 +208,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
       <div>
         <label class="block text-sm font-bold mb-1" for="titleEdit">Title</label>
         <input id="titleEdit" type="text" name="title"
-               th:value="${comicInfo != null ? comicInfo.title() : ''}"
+               th:value="${comicInfo != null ? comicInfo.title : ''}"
                class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
       </div>
       <div>
@@ -218,16 +218,16 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
       <div>
         <label class="block text-sm font-bold mb-1" for="coverImgEdit">Cover Image URL</label>
         <input id="coverImgEdit" type="text" name="coverImg"
-               th:value="${comicInfo != null ? comicInfo.coverImg() : ''}"
+               th:value="${comicInfo != null ? comicInfo.coverImg : ''}"
                class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
       </div>
       <div>
         <label class="block text-sm font-bold mb-1" for="statusEdit">Status</label>
         <select id="statusEdit" name="status" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="">-- Select Status --</option>
-          <option value="SCHEDULED" th:selected="${comicInfo != null and comicInfo.status() != null and comicInfo.status().name() == 'SCHEDULED'}">SCHEDULED</option>
-          <option value="ONGOING"   th:selected="${comicInfo != null and comicInfo.status() != null and comicInfo.status().name() == 'ONGOING'}">ONGOING</option>
-          <option value="CANCELED"  th:selected="${comicInfo != null and comicInfo.status() != null and comicInfo.status().name() == 'CANCELED'}">CANCELED</option>
+          <option value="SCHEDULED" th:selected="${comicInfo != null and comicInfo.status != null and comicInfo.status.name() == 'SCHEDULED'}">SCHEDULED</option>
+          <option value="ONGOING"   th:selected="${comicInfo != null and comicInfo.status != null and comicInfo.status.name() == 'ONGOING'}">ONGOING</option>
+          <option value="CANCELED"  th:selected="${comicInfo != null and comicInfo.status != null and comicInfo.status.name() == 'CANCELED'}">CANCELED</option>
         </select>
       </div>
       <div>
