@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.text.NumberFormat;
 
 @Service
 @RequiredArgsConstructor
@@ -70,12 +72,14 @@ public class TransactionsServiceImpl implements TransactionsService {
 
         LocalDateTime endedAt;
 
-        // Nếu upgrade từ Bạc → Vàng: lấy thời gian còn lại của bạc + cộng vào endedAt của vàng
+        // Nếu upgrade từ Bạc → Vàng: lấy thời gian còn lại của bạc + cộng vào endedAt
+        // của vàng
         if (isUpgrade && discountAmount == 60000) {
             transaction.setStatus(TransactionEnum.UPDATED);
 
             // Get remaining days from old silver subscription
-            long remainingDaysFromOldSubscription = getRemainingDaysFromCurrentSubscription(transaction.getUser().getUserId());
+            long remainingDaysFromOldSubscription = getRemainingDaysFromCurrentSubscription(
+                    transaction.getUser().getUserId());
 
             // endedAt = now + durationDays của vàng + ngày còn lại của bạc
             endedAt = now.plusDays(durationDays + remainingDaysFromOldSubscription);
@@ -104,8 +108,8 @@ public class TransactionsServiceImpl implements TransactionsService {
         for (Transactions trans : transactions) {
             // Find the most recent active (SUCCESS status) subscription
             if (trans.getStatus() == TransactionEnum.SUCCESS &&
-                trans.getSubscription() != null &&
-                (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
+                    trans.getSubscription() != null &&
+                    (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
 
                 LocalDateTime now = LocalDateTime.now();
                 if (trans.getEndedAt() != null) {
@@ -128,9 +132,9 @@ public class TransactionsServiceImpl implements TransactionsService {
         for (Transactions trans : transactions) {
             // Find silver package transactions that are still active (SUCCESS status)
             if (trans.getStatus() == TransactionEnum.SUCCESS &&
-                trans.getSubscription() != null &&
-                trans.getSubscription().getPrice().longValue() < 100000 &&
-                (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
+                    trans.getSubscription() != null &&
+                    trans.getSubscription().getPrice().longValue() < 100000 &&
+                    (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
                 // Cancel this transaction
                 trans.setStatus(TransactionEnum.CANCELED);
                 transactionsRepository.save(trans);
@@ -169,7 +173,8 @@ public class TransactionsServiceImpl implements TransactionsService {
     }
 
     @Override
-    public SubscriptionCheckDTO checkSubscription(Integer userId, Long newSubscriptionPrice, BigDecimal newSubscriptionPriceBigDecimal) {
+    public SubscriptionCheckDTO checkSubscription(Integer userId, Long newSubscriptionPrice,
+            BigDecimal newSubscriptionPriceBigDecimal) {
         Long currentPrice = getCurrentMembershipPrice(userId);
         boolean isUpgrade = newSubscriptionPrice > currentPrice;
         boolean isDowngrade = newSubscriptionPrice < currentPrice;
@@ -191,8 +196,12 @@ public class TransactionsServiceImpl implements TransactionsService {
             java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
             if (!transactions.isEmpty()) {
                 Transactions current = transactions.get(0);
-                String startDate = current.getStartedAt() != null ? current.getStartedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
-                String endDate = current.getEndedAt() != null ? current.getEndedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+                String startDate = current.getStartedAt() != null
+                        ? current.getStartedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        : "";
+                String endDate = current.getEndedAt() != null
+                        ? current.getEndedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        : "";
                 String message = "Bạn đã là " + membership + " từ ngày " + startDate + " đến ngày " + endDate;
                 return SubscriptionCheckDTO.builder()
                         .canSubscribe(false)
@@ -223,7 +232,8 @@ public class TransactionsServiceImpl implements TransactionsService {
             }
 
             // Downgrade giữa các gói có phí (Vàng → Bạc) → cũng không cho phép
-            String message = "Bạn không thể hạ từ " + currentMembership + " xuống " + newMembership + ". Vui lòng đợi hết hạn gói hiện tại.";
+            String message = "Bạn không thể hạ từ " + currentMembership + " xuống " + newMembership
+                    + ". Vui lòng đợi hết hạn gói hiện tại.";
             return SubscriptionCheckDTO.builder()
                     .canSubscribe(false)
                     .message(message)

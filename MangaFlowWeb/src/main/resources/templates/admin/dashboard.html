@@ -73,6 +73,8 @@
                         class="px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">Month</button>
                 <button onclick="loadRevenue('year')" id="btn-year"
                         class="px-3 py-1 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors">Year</button>
+                <button onclick="loadRevenue('all')" id="btn-all"
+                        class="px-3 py-1 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors">All</button>
             </div>
         </div>
         <canvas id="revenueChart" height="120"></canvas>
@@ -125,7 +127,7 @@
     let revenueChart = null;
 
     function loadRevenue(period) {
-        ['week', 'month', 'year'].forEach(p => {
+        ['week', 'month', 'year', 'all'].forEach(p => {
             const btn = document.getElementById('btn-' + p);
             if (p === period) {
                 btn.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors';
@@ -143,30 +145,48 @@
                     revenueChart = null;
                 }
                 revenueChart = new Chart(document.getElementById('revenueChart'), {
-                    type: 'bar',
+                    type: 'line',
                     data: {
                         labels,
                         datasets: [{
-                            label: 'Revenue ($)',
+                            label: 'Revenue (₫)',
                             data: values,
-                            backgroundColor: '#914700cc',
-                            borderRadius: 6,
-                            borderSkipped: false,
+                            borderColor: '#1a73e8',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2.5,
+                            tension: 0,
+                            fill: false,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#1a73e8',
+                            pointHoverRadius: 6,
                         }]
                     },
                     options: {
                         responsive: true,
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: true,
+                        },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
+                                displayColors: false,
                                 callbacks: {
-                                    label: ctx => ' $' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+                                    title: ctx => ctx[0].label,
+                                    label: ctx => 'Revenue: ' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2} + '₫')
                                 }
                             }
                         },
                         scales: {
-                            y: { beginAtZero: true, ticks: { callback: v => '$' + v } },
-                            x: { ticks: { maxRotation: 45 } }
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(0,0,0,0.08)' },
+                                ticks: { callback: v => v + '₫'}
+                            },
+                            x: {
+                                grid: { color: 'rgba(0,0,0,0.08)' },
+                                ticks: { maxRotation: 45 }
+                            }
                         }
                     }
                 });
