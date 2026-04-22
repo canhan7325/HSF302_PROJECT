@@ -49,7 +49,7 @@ public class PageServiceImpl implements PageService {
     public List<PageAdminResponse> getPagesByChapter(Integer chapterId) {
         return pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId)
                 .stream()
-                .map(p -> new PageAdminResponse(p.getPageId(), p.getPageNumber(), p.getImgPath()))
+                .map(p -> new PageAdminResponse(p.getPageId(), p.getPageNumber(), imageUrlResolver.resolve(p.getImgPath())))
                 .toList();
     }
 
@@ -200,7 +200,7 @@ public class PageServiceImpl implements PageService {
                 .pageId(page.getPageId())
                 .chapterId(page.getChapter() != null ? page.getChapter().getChapterId() : null)
                 .pageNumber(page.getPageNumber())
-                .imgPath(page.getImgPath())
+                .imgPath(imageUrlResolver.resolve(page.getImgPath()))
                 .build();
     }
 }
