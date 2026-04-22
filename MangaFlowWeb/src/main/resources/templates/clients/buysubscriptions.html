@@ -117,10 +117,12 @@
                     th:text="${isFree ? 'Bắt Đầu Ngay' : (isSilver ? 'Đăng Ký ' : 'Đăng Ký ')}">
             </a>
 
-            <!-- Unauthenticated users -->
-            <button sec:authorize="!isAuthenticated()" class="btn-card btn-purchase btn-free"
-                    onclick="openLoginModal()" style="border: none; cursor: pointer; font-family: inherit;">
-                Vui lòng đăng nhập
+            <!-- Unauthenticated users - Show same button but trigger login modal -->
+            <button sec:authorize="!isAuthenticated()" class="btn-card btn-purchase btn-subscribe"
+                    th:classappend="${isGold} ? 'btn-gold' : (${isSilver} ? 'btn-silver' : 'btn-free')"
+                    onclick="openLoginModal()"
+                    style="border: none; cursor: pointer; font-family: inherit;"
+                    th:text="${isFree ? 'Bắt Đầu Ngay' : (isSilver ? 'Đăng Ký ' : 'Đăng Ký ')}">
             </button>
         </div>
 
