@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.dto.comic.ComicRequest;
 import com.group1.mangaflowweb.service.BookmarkService;
+import com.group1.mangaflowweb.service.CloudinaryUploadService;
 import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.service.UserContextService;
 import com.group1.mangaflowweb.service.UserService;
@@ -20,11 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
+import java.text.Normalizer;
+import java.util.Locale;
 
 @Controller
 @RequiredArgsConstructor
@@ -34,6 +32,7 @@ public class ComicDetailController {
     private final BookmarkService bookmarkService;
     private final UserService userService;
     private final UserContextService userContextService;
+    private final CloudinaryUploadService cloudinaryUploadService;
 
     @GetMapping("/comic/{slug}")
     public String getComicDetail(@PathVariable String slug, Model model) {
@@ -116,32 +115,35 @@ public class ComicDetailController {
             return "author/upload-comic";
         }
 
-        // Handle cover upload (optional)
+        // Upload cover to Cloudinary (optional). Save public_id into coverImg.
         if (coverFile != null && !coverFile.isEmpty()) {
             try {
-                String originalName = coverFile.getOriginalFilename();
-                String ext = "";
-                if (originalName != null) {
-                    int dot = originalName.lastIndexOf('.');
-                    if (dot >= 0 && dot < originalName.length() - 1) {
-                        ext = originalName.substring(dot);
-                    }
-                }
+                String slug = safeSlug(comicRequest.getSlug() != null ? comicRequest.getSlug() : comicRequest.getTitle());
+                if (slug.isBlank()) slug = "comic";
 
-                String safeName = UUID.randomUUID() + ext;
-                Path uploadDir = Paths.get("D:/uploads");
-                Files.createDirectories(uploadDir);
-                Path target = uploadDir.resolve(safeName);
-                Files.copy(coverFile.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-
-                comicRequest.setCoverImg(safeName);
+                String publicId = "comics/" + slug + "/cover";
+                String storedId = cloudinaryUploadService.uploadImage(coverFile, publicId);
+                comicRequest.setCoverImg(storedId);
             } catch (IOException e) {
-                model.addAttribute("error", "Upload cover image failed.");
+                model.addAttribute("error", "Upload cover image failed: " + e.getMessage());
                 return "author/upload-comic";
             }
         }
 
         comicService.create(comicRequest);
         return "redirect:/author/dashboard";
+    }
+
+    private String safeSlug(String input) {
+        if (input == null) return "";
+        String s = input.trim().toLowerCase(Locale.ROOT);
+        if (s.isEmpty()) return "";
+
+        s = Normalizer.normalize(s, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        s = s.replace('đ', 'd');
+        s = s.replaceAll("[^a-z0-9]+", "-");
+        s = s.replaceAll("^-+|-+$", "");
+        return s;
     }
 }

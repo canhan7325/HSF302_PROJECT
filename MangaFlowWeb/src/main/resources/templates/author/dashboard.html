@@ -43,7 +43,7 @@
                         <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
                             <article class="mf-comic-card h-100">
                                 <div class="position-relative mf-cover-wrap mb-2">
-                                    <img th:src="${comic.coverImg != null ? '/uploads/' + comic.coverImg : 'https://placehold.co/600x840?text=Cover'}"
+                                    <img th:src="${comic.coverImg != null ? @imageUrlResolver.resolve(comic.coverImg) : 'https://placehold.co/600x840?text=Cover'}"
                                          class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
                                     <div class="mf-cover-overlay"></div>
                                 </div>

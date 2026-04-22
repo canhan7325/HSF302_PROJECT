@@ -1,38 +1,40 @@
 package com.group1.mangaflowweb.service.impl;
 
+import com.group1.mangaflowweb.dto.page.PageRequest;
+import com.group1.mangaflowweb.dto.page.PageResponse;
 import com.group1.mangaflowweb.dto.response.admin.PageAdminResponse;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Pages;
 import com.group1.mangaflowweb.repository.ChapterRepository;
 import com.group1.mangaflowweb.repository.PageRepository;
+import com.group1.mangaflowweb.service.CloudinaryUploadService;
 import com.group1.mangaflowweb.service.PageService;
+import com.group1.mangaflowweb.util.ImageUrlResolver;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import lombok.RequiredArgsConstructor;
-import com.group1.mangaflowweb.util.ImageUrlResolver;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
 
-import com.group1.mangaflowweb.dto.page.PageRequest;
-import com.group1.mangaflowweb.dto.page.PageResponse;
+import java.io.IOException;
+import java.util.List;
+
 @Service
 public class PageServiceImpl implements PageService {
     private final ImageUrlResolver imageUrlResolver;
     private final PageRepository pageRepository;
     private final ChapterRepository chapterRepository;
+    private final CloudinaryUploadService cloudinaryUploadService;
 
-    public PageServiceImpl(PageRepository pageRepository, ChapterRepository chapterRepository, ImageUrlResolver imageUrlResolver) {
+    public PageServiceImpl(PageRepository pageRepository,
+                           ChapterRepository chapterRepository,
+                           ImageUrlResolver imageUrlResolver,
+                           CloudinaryUploadService cloudinaryUploadService) {
         this.pageRepository = pageRepository;
         this.chapterRepository = chapterRepository;
         this.imageUrlResolver = imageUrlResolver;
+        this.cloudinaryUploadService = cloudinaryUploadService;
     }
 
     @Override
@@ -49,40 +51,28 @@ public class PageServiceImpl implements PageService {
         Chapters chapter = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new EntityNotFoundException("Chapter not found: " + chapterId));
 
-        // Build unique filename
-        String original = file.getOriginalFilename();
-        String ext = (original != null && original.contains("."))
-                ? original.substring(original.lastIndexOf('.'))
-                : ".jpg";
-        String filename = "ch" + chapterId + "_" + UUID.randomUUID().toString().replace("-", "") + ext;
-
-        // Save to disk — write to both src (permanent) and target/classes (served immediately by devtools)
-        try {
-            Path srcDir = Paths.get("src/main/resources/static/images/pages");
-            Files.createDirectories(srcDir);
-            Files.copy(file.getInputStream(), srcDir.resolve(filename));
-
-            // Also copy to target so it's served without restart
-            Path targetDir = Paths.get("target/classes/static/images/pages");
-            if (Files.exists(Paths.get("target/classes"))) {
-                Files.createDirectories(targetDir);
-                Files.copy(srcDir.resolve(filename), targetDir.resolve(filename),
-                        java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save page image: " + e.getMessage(), e);
+        if (file == null || file.isEmpty()) {
+            throw new RuntimeException("Empty page file");
         }
 
-        // Persist page record
-        String imgPath = "/images/pages/" + filename;
-        int nextNum = (chapter.getPages() != null ? chapter.getPages().size() : 0) + 1;
+        int nextNum = pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId).size() + 1;
+        String publicId = "chapters/" + chapterId + "/page_" + String.format("%04d", nextNum);
+
+        String storedId;
+        try {
+            storedId = cloudinaryUploadService.uploadImage(file, publicId);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload page image to Cloudinary: " + e.getMessage(), e);
+        }
+
         Pages page = new Pages();
         page.setChapter(chapter);
         page.setPageNumber(nextNum);
-        page.setImgPath(imgPath);
+        // store public_id (compatible with ImageUrlResolver.resolve)
+        page.setImgPath(imageUrlResolver.normalizeForStorage(storedId));
         pageRepository.save(page);
 
-        return imgPath;
+        return page.getImgPath();
     }
 
     @Override
@@ -90,11 +80,12 @@ public class PageServiceImpl implements PageService {
     public void addPage(Integer chapterId, String imgPath) {
         Chapters chapter = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new EntityNotFoundException("Chapter not found: " + chapterId));
-        int nextNum = (chapter.getPages() != null ? chapter.getPages().size() : 0) + 1;
+        int nextNum = pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId).size() + 1;
+
         Pages page = new Pages();
         page.setChapter(chapter);
         page.setPageNumber(nextNum);
-        page.setImgPath(imgPath);
+        page.setImgPath(imageUrlResolver.normalizeForStorage(imgPath));
         pageRepository.save(page);
     }
 
@@ -108,12 +99,14 @@ public class PageServiceImpl implements PageService {
     @Transactional
     public void reorderPages(Integer chapterId, List<Integer> orderedPageIds) {
         for (int i = 0; i < orderedPageIds.size(); i++) {
+            final int pageNum = i + 1;
             pageRepository.findById(orderedPageIds.get(i)).ifPresent(p -> {
-                p.setPageNumber(orderedPageIds.indexOf(p.getPageId()) + 1);
+                p.setPageNumber(pageNum);
                 pageRepository.save(p);
             });
         }
     }
+
     @Override
     public PageResponse create(PageRequest request) {
         Chapters chapter = chapterRepository.findById(request.getChapterId())
@@ -189,5 +182,4 @@ public class PageServiceImpl implements PageService {
                 .build();
     }
 }
-
 

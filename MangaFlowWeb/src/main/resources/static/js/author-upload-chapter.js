@@ -14,10 +14,26 @@
 	/** @type {File[]} */
 	let files = [];
 
+	let draggingIndex = null;
+
 	const syncInputFiles = () => {
 		const dt = new DataTransfer();
 		files.forEach((f) => dt.items.add(f));
 		input.files = dt.files;
+	};
+
+	const moveFile = (fromIndex, toIndex) => {
+		if (fromIndex == null || toIndex == null) return;
+		if (fromIndex === toIndex) return;
+		if (fromIndex < 0 || fromIndex >= files.length) return;
+		if (toIndex < 0 || toIndex >= files.length) return;
+
+		const next = files.slice();
+		const [picked] = next.splice(fromIndex, 1);
+		next.splice(toIndex, 0, picked);
+		files = next;
+		syncInputFiles();
+		renderPreview();
 	};
 
 	const renderPreview = () => {
@@ -33,6 +49,49 @@
 
 			const item = document.createElement('div');
 			item.className = 'mf-uc-preview-item';
+			item.setAttribute('draggable', 'true');
+			item.dataset.index = String(idx);
+			item.title = 'Drag to reorder';
+
+			item.addEventListener('dragstart', (e) => {
+				draggingIndex = idx;
+				item.classList.add('is-dragging');
+				try {
+					// Required in some browsers to start DnD
+					e.dataTransfer?.setData('text/plain', String(idx));
+				} catch (_) {}
+				e.dataTransfer && (e.dataTransfer.effectAllowed = 'move');
+			});
+
+			item.addEventListener('dragend', () => {
+				item.classList.remove('is-dragging');
+				draggingIndex = null;
+				previewGrid.querySelectorAll('.is-drop-target').forEach((el) => el.classList.remove('is-drop-target'));
+			});
+
+			item.addEventListener('dragover', (e) => {
+				e.preventDefault();
+				item.classList.add('is-drop-target');
+				e.dataTransfer && (e.dataTransfer.dropEffect = 'move');
+			});
+
+			item.addEventListener('dragleave', () => {
+				item.classList.remove('is-drop-target');
+			});
+
+			item.addEventListener('drop', (e) => {
+				e.preventDefault();
+				item.classList.remove('is-drop-target');
+
+				const toIndex = Number(item.dataset.index);
+				let fromIndex = draggingIndex;
+				if (fromIndex == null) {
+					const raw = e.dataTransfer?.getData('text/plain');
+					if (raw != null && raw !== '') fromIndex = Number(raw);
+				}
+				if (Number.isNaN(fromIndex) || Number.isNaN(toIndex)) return;
+				moveFile(fromIndex, toIndex);
+			});
 
 			const img = document.createElement('img');
 			img.src = url;
@@ -105,7 +164,7 @@
 		clearFiles();
 	});
 
-	// Drag & drop visual state
+	// Drag & drop visual state (dropzone file add)
 	['dragenter', 'dragover'].forEach((evt) => {
 		dropzone.addEventListener(evt, (e) => {
 			e.preventDefault();
