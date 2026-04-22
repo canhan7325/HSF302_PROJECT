@@ -1,13 +1,16 @@
 package com.group1.mangaflowweb.controller.admin;
 
+import com.group1.mangaflowweb.dto.request.RegisterRequest;
 import com.group1.mangaflowweb.entity.Users;
 import com.group1.mangaflowweb.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -24,27 +27,40 @@ public class RegisterAdController {
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("hideNav", true);
+        model.addAttribute("registerRequest", new RegisterRequest());
         return "register";
     }
 
     @PostMapping("/register")
     public String registerUser(
-            @RequestParam String email,
-            @RequestParam String username,
-            @RequestParam String password,
+            @Valid @ModelAttribute RegisterRequest registerRequest,
+            BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        if (userRepository.findByUsername(username).isPresent()) {
-            model.addAttribute("error", "Tên đăng nhập đã tồn tại!");
-            model.addAttribute("hideNav", true);
+        model.addAttribute("hideNav", true);
+
+        // Kiểm tra lỗi validation
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
+
+        // Kiểm tra tên đăng nhập đã tồn tại
+        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+            bindingResult.rejectValue("username", "error.username", "Tên đăng nhập đã tồn tại!");
+            return "register";
+        }
+
+        // Kiểm tra email đã tồn tại
+        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            bindingResult.rejectValue("email", "error.email", "Email đã được đăng ký!");
             return "register";
         }
 
         Users newUser = Users.builder()
-                .email(email)
-                .username(username)
-                .password(passwordEncoder.encode(password))
+                .email(registerRequest.getEmail())
+                .username(registerRequest.getUsername())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role("READER")
                 .enabled(true)
                 .build();
