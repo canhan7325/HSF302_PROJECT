@@ -13,4 +13,5 @@ public interface ChapterRepository extends JpaRepository<Chapters, Integer> {
 
     List<Chapters> findByComic_ComicId(Integer comicId);
     List<Chapters> findByComic_ComicIdOrderByChapterNumberDesc(Integer comicId);
+    Optional<Chapters> findFirstByComic_ComicIdOrderByChapterNumberAsc(Integer comicId);
 }

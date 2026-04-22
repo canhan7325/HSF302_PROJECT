@@ -30,8 +30,8 @@ public class UserAdController {
 
     @GetMapping("/users")
     public String userList(@PageableDefault(size = 10) Pageable pageable,
-                           @RequestParam(required = false) String search,
-                           Model model) {
+            @RequestParam(required = false) String search,
+            Model model) {
         if (search != null && !search.isBlank()) {
             model.addAttribute("page", userService.searchUsers(search, pageable));
         } else {
@@ -53,7 +53,7 @@ public class UserAdController {
 
     @PostMapping("/users/new")
     public String userCreate(@Valid UserAdRequest user, BindingResult result,
-                             Model model, RedirectAttributes redirectAttributes) {
+            Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
             model.addAttribute("view", "form");
@@ -90,8 +90,8 @@ public class UserAdController {
 
     @PostMapping("/users/{id}/edit")
     public String userUpdate(@PathVariable Integer id,
-                             @Valid UserAdRequest user, BindingResult result,
-                             Model model, RedirectAttributes redirectAttributes) {
+            @Valid UserAdRequest user, BindingResult result,
+            Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
             model.addAttribute("editMode", true);

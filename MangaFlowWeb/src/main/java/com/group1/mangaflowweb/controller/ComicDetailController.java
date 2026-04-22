@@ -4,6 +4,7 @@ import com.group1.mangaflowweb.dto.comic.ComicRequest;
 import com.group1.mangaflowweb.service.BookmarkService;
 import com.group1.mangaflowweb.service.CloudinaryUploadService;
 import com.group1.mangaflowweb.service.ComicService;
+import com.group1.mangaflowweb.service.ReadingHistoryService;
 import com.group1.mangaflowweb.service.UserContextService;
 import com.group1.mangaflowweb.service.UserService;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public class ComicDetailController {
 
     private final ComicService comicService;
     private final BookmarkService bookmarkService;
+    private final ReadingHistoryService readingHistoryService;
     private final UserService userService;
     private final UserContextService userContextService;
     private final CloudinaryUploadService cloudinaryUploadService;
@@ -67,6 +69,19 @@ public class ComicDetailController {
     public String showCreateComicForm(Model model) {
         model.addAttribute("comic", new ComicRequest()); // Thêm một đối tượng trống để form binding
         return "author/upload-comic";
+    }
+
+    @GetMapping("/comic/{comicId}/read-now")
+    public String readNow(@PathVariable Integer comicId) {
+        Integer currentUserId = userContextService.getCurrentUser()
+                .map(com.group1.mangaflowweb.entity.Users::getUserId)
+                .orElse(null);
+
+        Integer chapterId = readingHistoryService.resolveReadNowChapterId(currentUserId, comicId);
+        if (chapterId == null) {
+            return "redirect:/";
+        }
+        return "redirect:/chapters/" + chapterId + "/read";
     }
 
     @PostMapping("/upload-comic")

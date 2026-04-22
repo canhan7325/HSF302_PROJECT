@@ -92,6 +92,27 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Integer resolveReadNowChapterId(Integer userId, Integer comicId) {
+        if (comicId == null) {
+            return null;
+        }
+
+        if (userId != null) {
+            Optional<ReadingHistories> lastHistory = readingHistoryRepository
+                    .findFirstByUser_UserIdAndChapter_Comic_ComicIdOrderByReadAtDesc(userId, comicId);
+
+            if (lastHistory.isPresent() && lastHistory.get().getChapter() != null) {
+                return lastHistory.get().getChapter().getChapterId();
+            }
+        }
+
+        return chapterRepository.findFirstByComic_ComicIdOrderByChapterNumberAsc(comicId)
+                .map(Chapters::getChapterId)
+                .orElse(null);
+    }
+
+    @Override
     @Transactional
     public void incrementComicViewCount(Integer comicId) {
         if (comicId == null) return;

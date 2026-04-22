@@ -72,18 +72,30 @@
                 <div th:if="${error}" class="alert alert-danger small" th:text="${error}"></div>
                 <div th:if="${message}" class="alert alert-success small" th:text="${message}"></div>
 
-                <form th:action="@{/register}" method="post">
+                <form th:action="@{/register}" method="post" th:object="${registerRequest}">
                     <div class="mb-3">
                         <label for="email" class="form-label small text-muted">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                        <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="name@example.com">
+                        <small class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
                     </div>
                     <div class="mb-3">
                         <label for="username" class="form-label small text-muted">Tên đăng nhập</label>
-                        <input type="text" class="form-control" id="username" name="username" placeholder="manga_fan_99" required>
+                        <input type="text" class="form-control" id="username" th:field="*{username}" placeholder="manga_fan_99">
+                        <small class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label small text-muted">Mật khẩu</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                        <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="••••••••">
+                        <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                        <div class="small text-muted mt-2">
+                            <p style="margin-bottom: 0.3rem;">Yêu cầu mật khẩu:</p>
+                            <ul style="margin-bottom: 0; padding-left: 1.2rem;">
+                                <li>Tối thiểu 6 ký tự</li>
+                                <li>Ít nhất 1 ký tự đặc biệt (!@#$%^&*()...)</li>
+                                <li>Ít nhất 1 ký tự in hoa (A-Z)</li>
+                                <li>Ít nhất 1 ký tự thường (a-z)</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="mb-4 form-check">

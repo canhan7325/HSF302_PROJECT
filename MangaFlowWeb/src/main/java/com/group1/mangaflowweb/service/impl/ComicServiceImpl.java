@@ -300,6 +300,23 @@ public class ComicServiceImpl implements ComicService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ComicResponse> searchForPageByTitle(String query) {
+        String normalizedKeyword = query == null ? "" : query.trim();
+        if (normalizedKeyword.isEmpty()) {
+            return List.of();
+        }
+
+        return comicRepository.findByTitleContainingIgnoreCase(normalizedKeyword).stream()
+                .sorted(Comparator.comparing(
+                        Comics::getUpdatedAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
+                .map(this::toResponse)
+                .toList();
+    }
+
     private Comics findComicOrThrow(Integer comicId) {
         return comicRepository.findById(comicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found"));

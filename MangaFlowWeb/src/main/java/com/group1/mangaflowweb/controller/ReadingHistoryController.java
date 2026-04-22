@@ -2,7 +2,9 @@ package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.entity.ReadingHistories;
 import com.group1.mangaflowweb.repository.ReadingHistoryRepository;
+import com.group1.mangaflowweb.service.PageService;
 import com.group1.mangaflowweb.service.UserContextService;
+import com.group1.mangaflowweb.util.ImageUrlResolver;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,9 @@ import java.util.Objects;
 public class ReadingHistoryController {
 
     private final ReadingHistoryRepository readingHistoryRepository;
+    private final PageService pageService;
     private final UserContextService userContextService;
+    private final ImageUrlResolver imageUrlResolver;
 
     @GetMapping
     public String readingHistories(Model model) {
@@ -62,17 +66,20 @@ public class ReadingHistoryController {
         }
 
         LocalDateTime readAt = rh.getReadAt();
+        String firstPageImage = pageService.getFirstPageImagePath(chapter.getChapterId())
+                .map(imageUrlResolver::resolve)
+                .orElse("");
+        String fallbackCover = imageUrlResolver.resolve(comic.getCoverImg());
+        String thumbnail = !firstPageImage.isBlank() ? firstPageImage : (!fallbackCover.isBlank() ? fallbackCover : null);
+
         return ReadingHistoryItemView.builder()
                 .comicId(comic.getComicId())
                 .comicSlug(comic.getSlug())
                 .comicTitle(comic.getTitle())
-                // template expects full URL (or placeholder). Our uploads are served under /uploads/ on other pages.
-                .coverUrl(comic.getCoverImg() != null && !comic.getCoverImg().isBlank()
-                        ? "/uploads/" + comic.getCoverImg()
-                        : null)
+                .coverUrl(thumbnail)
                 .chapterId(chapter.getChapterId())
                 .chapterText(chapterText)
-                .continueUrl(chapter.getChapterId() != null ? ("/chapter/" + chapter.getChapterId() + "/read") : null)
+                .continueUrl(chapter.getChapterId() != null ? ("/chapters/" + chapter.getChapterId() + "/read") : null)
                 .readAt(readAt)
                 .timeAgo(formatTimeAgo(readAt))
                 .timestampText(formatTimestamp(readAt))
