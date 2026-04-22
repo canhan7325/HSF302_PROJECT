@@ -65,12 +65,15 @@
                         Read Now
                     </a>
 
-                    <form th:action="@{/comic/{slug}/bookmark(slug=${comic.slug})}" method="post" sec:authorize="isAuthenticated()">
-                        <button type="submit" class="btn btn-outline-light rounded-pill px-4 py-2">
-                            <span class="material-symbols-outlined me-1" th:text="${comic.bookmarked} ? 'bookmark_added' : 'bookmark'"></span>
-                            <span th:text="${comic.bookmarked} ? 'Bookmarked' : 'Bookmark'">Bookmark</span>
-                        </button>
-                    </form>
+                    <button type="button"
+                            class="btn btn-outline-light rounded-pill px-4 py-2 bookmark-btn"
+                            th:classappend="${comic.bookmarked} ? ' is-bookmarked' : ''"
+                            th:attr="data-comic-id=${comic.comicId}"
+                            sec:authorize="isAuthenticated()">
+
+                        <span class="material-symbols-outlined me-1">bookmark</span>
+                        <span>Bookmark</span>
+                    </button>
 
                     <a th:href="@{/login}" sec:authorize="!isAuthenticated()" class="btn btn-outline-light rounded-pill px-4 py-2">
                         <span class="material-symbols-outlined me-1">bookmark</span>
@@ -154,6 +157,11 @@
 
 <script th:src="@{/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/comic-detail.js}"></script>
+<script th:inline="javascript">
+    window.APP_IS_LOGGED_IN = /*[[${#authorization.expression('isAuthenticated()')}]]*/ false;
+</script>
+
+<script th:src="@{/js/bookmark.js}" defer></script>
 </body>
 </html>
 

@@ -40,9 +40,6 @@
                                      th:alt="${comic.title}">
                                 <div class="mf-cover-overlay"></div>
                                 <div class="position-absolute top-0 start-0 m-2 badge rounded-pill text-uppercase mf-badge-hot">Nổi bật</div>
-                                <div class="position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center mf-bookmark-icon">
-                                    <span class="material-symbols-outlined">bookmark</span>
-                                </div>
                             </div>
 
                             <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>
@@ -76,9 +73,6 @@
                                 <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}" class="w-100 h-100 object-fit-cover mf-comic-cover"
                                      th:alt="${comic.title}">
                                 <div class="mf-cover-overlay"></div>
-                                <div class="position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center mf-bookmark-icon">
-                                    <span class="material-symbols-outlined">bookmark</span>
-                                </div>
                             </div>
 
                             <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>

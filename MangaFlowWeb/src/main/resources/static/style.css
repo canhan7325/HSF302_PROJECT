@@ -903,6 +903,10 @@ body {
     color: #fff;
     filter: brightness(1.03);
 }
+.bookmark-btn.is-bookmarked {
+	background: #f5c542;
+	color: #111827;
+}
 
 @media (max-width: 991.98px) {
     .mf-author-sidebar {
