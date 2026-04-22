@@ -70,7 +70,7 @@
                             th:href="'#'"
                             aria-disabled="true">
                         <span class="material-symbols-outlined me-1">menu_book</span>
-                        Read Now
+                        Đọc ngay
                     </a>
 
                     <button type="button"
@@ -104,7 +104,7 @@
                         <span class="material-symbols-outlined me-1">description</span>
                         Giới Thiệu
                     </h2>
-                    <p class="mb-0 text-secondary lh-lg" th:text="${comic.description}">Comic description...</p>
+                    <p class="mb-0 text-secondary lh-lg" th:text="${comic.description}">Chưa có mô tả</p>
                 </div>
             </section>
         </div>
@@ -118,7 +118,7 @@
                     </h3>
                     <div class="d-flex flex-wrap gap-2">
                         <span class="badge rounded-pill text-bg-secondary" th:each="genre : ${comic.genres}" th:text="${genre.name}">Action</span>
-                        <span class="text-muted small" th:if="${#lists.isEmpty(comic.genres)}">No genre data.</span>
+                        <span class="text-muted small" th:if="${#lists.isEmpty(comic.genres)}">Chưa có dữ liệu thể loại</span>
                     </div>
                 </div>
             </section>
@@ -153,18 +153,18 @@
                     <td class="px-4 py-3 fw-semibold">
                         <a class="text-decoration-none"
                            th:href="@{/chapters/{chapterId}/read(chapterId=${chapter.chapterId})}"
-                           th:text="'Chapter ' + ${chapter.chapterNumber}">Chapter 1</a>
+                           th:text="'Chương ' + ${chapter.chapterNumber}">Chương 1</a>
                     </td>
                     <td class="px-4 py-3">
                         <a class="text-decoration-none"
                            th:href="@{/chapters/{chapterId}/read(chapterId=${chapter.chapterId})}"
-                           th:text="${chapter.title != null and !#strings.isEmpty(chapter.title) ? chapter.title : 'Untitled'}">Title</a>
+                           th:text="${chapter.title != null and !#strings.isEmpty(chapter.title) ? chapter.title : 'Không có tiêu đề'}">Không có tiêu đề</a>
                     </td>
                     <td class="px-4 py-3 text-muted"
                         th:text="${chapter.createdAt != null ? #temporals.format(chapter.createdAt, 'dd/MM/yyyy') : ''}">01/01/2026</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(comic.chapters)}">
-                    <td colspan="3" class="px-4 py-4 text-center text-muted">No chapters yet.</td>
+                    <td colspan="3" class="px-4 py-4 text-center text-muted">Chưa có chương nào.</td>
                 </tr>
                 </tbody>
             </table>

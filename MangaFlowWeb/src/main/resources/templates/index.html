@@ -44,7 +44,7 @@
 
                             <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>
                             <small class="mf-comic-chapter"
-                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chapter ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
+                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chương ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
                         </article>
                     </a>
                 </div>
@@ -77,7 +77,7 @@
 
                             <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>
                             <small class="d-block mf-comic-chapter"
-                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chapter ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
+                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chương ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
                             <small class="mf-comic-time"
                                    th:text="${comic.updatedAt != null ? #temporals.format(comic.updatedAt, 'dd/MM/yyyy HH:mm') : 'Không có thời gian cập nhật'}"></small>
                         </article>

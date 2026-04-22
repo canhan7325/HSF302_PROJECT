@@ -28,7 +28,7 @@ public class Comics {
     @Column(nullable = false, unique = true, length = 255)
     private String slug;
 
-    @Column(columnDefinition = "VARCHAR(MAX)")
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
     @Column(name = "cover_img", length = 500)
