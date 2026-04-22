@@ -33,5 +33,14 @@
 - Fixed enum type: ComicEnum → TransactionEnum (TransactionAdminResponse)
 - Fixed controller calls: record accessor syntax → Lombok getters (ComicAdController, GenreAdController)
 
+## 2026-04-22 - Validation & Subscription Duration
+- Implement `duration_days` từ database: Lấy giá trị từ bảng Subscriptions thay vì hardcode
+- Cập nhật `completeTransaction()`: Tính endedAt = startedAt + duration_days (bình thường) hoặc now + duration_days + remaining_days (nâng cấp)
+- Thêm helper method `getRemainingDaysFromCurrentSubscription()`: Tính số ngày còn lại của gói hiện tại
+- Tăng cường `checkSubscription()`: Chặn hạ cấp xuống FREE, chặn hạ cấp giữa các gói khác
+- Thêm lớp validation: `paySubscription()` + `freeSubscriptionStart()` kiểm tra trước khi tạo giao dịch
+- Cập nhật giao diện: `buysubscriptions.html` - hiển thị dialog lỗi màu sắc (đỏ cho lỗi downgrade, xanh cho thành công)
+- Tự động phát hiện URL parameters: `?error=cannot_downgrade`, `?success=free_subscription`
+
 
 
