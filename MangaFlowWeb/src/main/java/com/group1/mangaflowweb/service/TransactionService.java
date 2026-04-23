@@ -30,6 +30,9 @@ public interface TransactionService {
     
     // Get recent transactions with filters
     List<Transactions> getRecentTransactions(Integer limit, String statusFilter, String subscriptionFilter);
+    
+    // Get transaction by ID
+    Transactions getTransactionById(Integer transactionId);
 
     // ===============================
     Page<TransactionAdminResponse> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter);

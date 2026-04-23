@@ -86,6 +86,12 @@ public class TransactionServiceImpl implements TransactionService {
         
         return transactions;
     }
+    
+    @Override
+    public Transactions getTransactionById(Integer transactionId) {
+        return transactionRepository.findById(transactionId).orElse(null);
+    }
+    
     // ====================================
     @Override
     public Page<TransactionAdminResponse> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter) {
