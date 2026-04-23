@@ -4,7 +4,6 @@ import com.group1.mangaflowweb.dto.page.PageAdminDTO;
 import com.group1.mangaflowweb.service.ChapterService;
 import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.service.PageService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -66,14 +65,6 @@ public class PageAdController {
         pageService.deletePage(pageId);
         redirectAttributes.addFlashAttribute("successMessage", "Page deleted.");
         return "redirect:/admin/manga/" + id + "/chapters/" + chId + "/pages";
-    }
-
-    @PostMapping("/manga/{id}/chapters/{chId}/pages/reorder")
-    @ResponseBody
-    public ResponseEntity<String> pageReorder(@PathVariable Integer id, @PathVariable Integer chId,
-                                              @RequestBody List<Integer> pageIds) {
-        pageService.reorderPages(chId, pageIds);
-        return ResponseEntity.ok("ok");
     }
 }
 

@@ -102,6 +102,16 @@ public class PageServiceImpl implements PageService {
     @Override
     @Transactional
     public void reorderPages(Integer chapterId, List<Integer> orderedPageIds) {
+        // First pass: set negative temp values to avoid unique constraint collisions
+        for (int i = 0; i < orderedPageIds.size(); i++) {
+            final int tempNum = -(i + 1);
+            pageRepository.findById(orderedPageIds.get(i)).ifPresent(p -> {
+                p.setPageNumber(tempNum);
+                pageRepository.save(p);
+            });
+        }
+        pageRepository.flush();
+        // Second pass: set the real page numbers
         for (int i = 0; i < orderedPageIds.size(); i++) {
             final int pageNum = i + 1;
             pageRepository.findById(orderedPageIds.get(i)).ifPresent(p -> {

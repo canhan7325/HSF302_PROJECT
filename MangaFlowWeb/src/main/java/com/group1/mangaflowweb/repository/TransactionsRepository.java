@@ -30,9 +30,9 @@ public interface TransactionsRepository extends JpaRepository<Transactions, Inte
 
                                                         Page<Transactions> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
-    Page<Transactions> findByStatusAndUserUsernameContaining(ComicEnum status, String username, Pageable pageable);
+    Page<Transactions> findByStatusAndUserUsernameContaining(TransactionEnum status, String username, Pageable pageable);
 
-    Page<Transactions> findByStatusOrderByCreatedAtDesc(ComicEnum status, Pageable pageable);
+    Page<Transactions> findByStatusOrderByCreatedAtDesc(TransactionEnum status, Pageable pageable);
 
     Page<Transactions> findByUserUsernameContainingOrderByCreatedAtDesc(String username, Pageable pageable);
 

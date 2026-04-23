@@ -1,6 +1,7 @@
 package com.group1.mangaflowweb.controller.admin;
 
 import com.group1.mangaflowweb.dto.admin.RevenueDataPointDTO;
+import com.group1.mangaflowweb.entity.Comics;
 import com.group1.mangaflowweb.service.AdminDashboardService;
 import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.service.TransactionsService;

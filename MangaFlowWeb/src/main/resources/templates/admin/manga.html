@@ -357,19 +357,20 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
             <td class="px-4 py-3 text-sm text-on-surface-variant" th:text="${#temporals.format(ch.createdAt,'yyyy-MM-dd')}"></td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-1">
-                <form th:action="@{/admin/manga/{id}/chapters/{chId}/edit(id=${comic.comicId},chId=${ch.chapterId})}"
+                <form th:id="'ch-edit-' + ${ch.chapterId}"
+                      th:action="@{/admin/manga/{id}/chapters/{chId}/edit(id=${comic.comicId},chId=${ch.chapterId})}"
                       method="post" class="flex items-center gap-1">
                   <input type="text" name="title" th:value="${ch.title}"
                          class="border border-outline-variant rounded px-2 py-1 text-xs w-28 focus:outline-none focus:ring-1 focus:ring-primary"/>
                   <input type="hidden" name="chapterNumber" th:value="${ch.chapterNumber}"/>
+                  <!-- Hidden page order inputs — populated by JS on drag -->
+                  <div th:id="'reorder-inputs-' + ${ch.chapterId}" class="hidden-inputs">
+                    <input th:each="p : ${ch.pages}" type="hidden" name="pageIds" th:value="${p.pageId}"/>
+                  </div>
                   <button type="submit" title="Save" class="p-1 rounded hover:bg-surface-container text-secondary transition-colors">
                     <span class="material-symbols-outlined" style="font-size:16px">save</span>
                   </button>
                 </form>
-                <a th:href="@{/admin/manga/{id}/chapters/{chId}/pages(id=${comic.comicId},chId=${ch.chapterId})}"
-                   title="Pages" class="p-1 rounded hover:bg-surface-container text-primary transition-colors">
-                  <span class="material-symbols-outlined" style="font-size:16px">photo_library</span>
-                </a>
                 <form th:action="@{/admin/manga/{id}/chapters/{chId}/delete(id=${comic.comicId},chId=${ch.chapterId})}"
                       method="post" class="delete-form">
                   <button type="button" title="Delete" class="p-1 rounded hover:bg-red-50 text-red-500 transition-colors delete-btn" data-title="Xóa Chương" data-msg="Thao tác này sẽ xóa vĩnh viễn chương và tất cả các trang.">
@@ -379,14 +380,17 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
               </div>
             </td>
           </tr>
-          <!-- Pages strip row -->
+          <!-- Pages strip row — drag to reorder, chapter save button saves order -->
           <tr class="bg-surface-container-low border-t border-surface-container">
             <td colspan="5" class="px-4 py-3">
-              <div class="flex flex-wrap gap-2 items-start">
-                <!-- Existing pages -->
+              <div th:id="'page-strip-' + ${ch.chapterId}"
+                   class="flex flex-wrap gap-2 items-start page-strip"
+                   th:attr="data-inputs-id='reorder-inputs-' + ${ch.chapterId}">
                 <div th:each="p : ${ch.pages}"
-                     class="relative rounded overflow-hidden shadow-sm bg-surface-container group flex-shrink-0"
-                     style="width:56px;">
+                     class="page-card relative rounded overflow-hidden shadow-sm bg-surface-container group flex-shrink-0"
+                     style="width:56px;"
+                     draggable="true"
+                     th:attr="data-page-id=${p.pageId}">
                   <div style="width:100%;padding-top:150%;position:relative;overflow:hidden;">
                     <img th:src="${p.imgPath}" th:alt="'Page ' + ${p.pageNumber}"
                          class="page-zoom-img"
@@ -396,10 +400,9 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
                       <span class="material-symbols-outlined" style="font-size:20px;color:#afadac;">broken_image</span>
                     </div>
                   </div>
-                  <div class="absolute bottom-0 left-0 right-0 text-white font-bold text-center"
+                  <div class="page-num-label absolute bottom-0 left-0 right-0 text-white font-bold text-center"
                        style="font-size:8px;background:rgba(0,0,0,.5);padding:1px 0;"
                        th:text="${p.pageNumber}"></div>
-                  <!-- Per-page delete -->
                   <form th:action="@{/admin/manga/{id}/chapters/{chId}/pages/{pId}/delete(id=${comic.comicId},chId=${ch.chapterId},pId=${p.pageId})}"
                         method="post" class="delete-form">
                     <button type="button"
@@ -409,7 +412,6 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
                     </button>
                   </form>
                 </div>
-                <!-- Add pages button -->
                 <form th:action="@{/admin/manga/{id}/chapters/{chId}/pages/add(id=${comic.comicId},chId=${ch.chapterId})}"
                       method="post" enctype="multipart/form-data" class="flex-shrink-0">
                   <label class="flex flex-col items-center justify-center rounded border-2 border-dashed border-outline-variant cursor-pointer hover:bg-surface-container transition-colors text-on-surface-variant"
@@ -456,8 +458,12 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
   </form>
 
   <!-- Page grid -->
-  <div class="flex flex-wrap gap-3 mb-4">
-    <div th:each="p : ${pages}" class="relative rounded-lg overflow-hidden shadow-sm bg-surface-container group" style="width:80px;">
+  <div id="page-grid" class="flex flex-wrap gap-3 mb-4">
+    <div th:each="p : ${pages}"
+         class="page-card relative rounded-lg overflow-hidden shadow-sm bg-surface-container group"
+         style="width:80px;"
+         draggable="true"
+         th:attr="data-page-id=${p.pageId}">
       <div style="width:100%;padding-top:150%;position:relative;overflow:hidden;">
         <img th:src="${p.imgPath}" th:alt="'Page ' + ${p.pageNumber}"
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in;"
@@ -467,7 +473,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
           <span class="material-symbols-outlined" style="font-size:24px;color:#afadac;">broken_image</span>
         </div>
       </div>
-      <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white font-bold px-1 py-0.5 text-center" style="font-size:10px"
+      <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white font-bold px-1 py-0.5 text-center page-num-label" style="font-size:10px"
            th:text="${p.pageNumber}"></div>
       <!-- Delete button -->
       <form th:action="@{/admin/manga/{id}/chapters/{chId}/pages/{pId}/delete(id=${comic.comicId},chId=${chapter.chapterId},pId=${p.pageId})}"
@@ -561,6 +567,62 @@ document.addEventListener('DOMContentLoaded', function() {
       lightbox.style.display = 'none';
       lightboxImg.src = '';
     });
+  }
+});
+</script>
+
+<script>
+// ── Page drag-and-drop reorder (form POST, no fetch) ─────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.page-strip').forEach(function(strip) {
+    var dragged = null;
+
+    strip.addEventListener('dragstart', function(e) {
+      dragged = e.target.closest('.page-card');
+      if (!dragged) return;
+      dragged.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    strip.addEventListener('dragend', function() {
+      if (dragged) dragged.classList.remove('dragging');
+      strip.querySelectorAll('.page-card').forEach(function(c) { c.classList.remove('drag-over'); });
+      dragged = null;
+      onReorder(strip);
+    });
+
+    strip.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      var target = e.target.closest('.page-card');
+      if (!target || target === dragged) return;
+      strip.querySelectorAll('.page-card').forEach(function(c) { c.classList.remove('drag-over'); });
+      target.classList.add('drag-over');
+      var rect = target.getBoundingClientRect();
+      strip.insertBefore(dragged, e.clientX < rect.left + rect.width / 2 ? target : target.nextSibling);
+    });
+
+    strip.addEventListener('drop', function(e) { e.preventDefault(); });
+  });
+
+  function onReorder(strip) {
+    var cards = strip.querySelectorAll('.page-card');
+    // Update visible page number labels
+    cards.forEach(function(c, i) {
+      var lbl = c.querySelector('.page-num-label');
+      if (lbl) lbl.textContent = i + 1;
+    });
+    // The strip carries data-inputs-id pointing to the hidden-inputs div inside the chapter edit form
+    var inputsDiv = document.getElementById(strip.dataset.inputsId);
+    if (inputsDiv) {
+      inputsDiv.innerHTML = '';
+      cards.forEach(function(c) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = 'pageIds';
+        inp.value = c.dataset.pageId;
+        inputsDiv.appendChild(inp);
+      });
+    }
   }
 });
 </script>

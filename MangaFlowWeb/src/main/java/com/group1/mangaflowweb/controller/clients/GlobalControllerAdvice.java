@@ -16,6 +16,13 @@ public class GlobalControllerAdvice {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalControllerAdvice.class);
 
+    @ModelAttribute("isLoggedIn")
+    public boolean isLoggedIn() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.isAuthenticated() &&
+                !"anonymousUser".equals(authentication.getPrincipal());
+    }
+
     @Autowired
     private UserService userService;
 

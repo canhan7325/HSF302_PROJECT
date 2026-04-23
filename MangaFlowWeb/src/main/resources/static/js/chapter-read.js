@@ -179,7 +179,111 @@
         }
     }
 
+    function initSecurity() {
+        // Kiểm tra quyền (Chỉ chạy cho người dùng thường)
+        if (window.APP_CAN_USE_DEVTOOLS) {
+            console.warn("SECURITY: Disabled for Admin/Author.");
+            return;
+        }
+        console.log("SECURITY: Aggressive protection enabled.");
+
+        // 1. Vòng lặp Debugger (Chống F12 cực mạnh)
+        setInterval(function() {
+            (function() { return false; }["constructor"]("debugger")["call"]());
+        }, 200);
+
+        // 2. Chặn chuột phải và các tổ hợp phím
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            // Chặn F12, Ctrl+Shift+I/C/J, Ctrl+U, Ctrl+P, Ctrl+S, PrintScreen
+            const blockedKeys = [123, 44]; // F12, PrintScreen
+            if (blockedKeys.includes(e.keyCode) || 
+                (e.ctrlKey && (e.shiftKey && [73, 67, 74].includes(e.keyCode))) || // Ctrl+Shift+I/C/J
+                (e.ctrlKey && [85, 80, 83].includes(e.keyCode)) || // Ctrl+U/P/S
+                ((e.metaKey || e.osKey) && e.shiftKey && e.keyCode === 83) // Win+Shift+S
+            ) {
+                e.preventDefault();
+                showSecurityOverlayImmediate();
+                return false;
+            }
+        });
+
+        // 3. Bảo vệ nội dung khi mất Focus hoặc Chuột rời khỏi trang
+        const showSecurityOverlay = () => {
+            if (!document.getElementById('security-blur-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.id = 'security-blur-overlay';
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:999999;display:flex;align-items:center;justify-content:center;color:#fff;font-family:\"Plus Jakarta Sans\", \"Manrope\", sans-serif;text-align:center;padding:20px;pointer-events:none;backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);';
+                overlay.innerHTML = `
+                    <div style="max-width: 650px;">
+                        <div style="font-family:\"Plus Jakarta Sans\", sans-serif; font-size:42px;font-weight:900;color:#ff3333;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase;text-shadow: 0 0 20px rgba(255,0,0,0.4);">CẢNH BÁO BẢN QUYỀN</div>
+                        <div style="font-size:22px;font-weight:700;margin-bottom:15px;line-height:1.4;color:#f8fafc;">Hành động chụp ảnh/quay phim màn hình đã bị chặn.</div>
+                        <div style="font-size:15px;color:#94a3b8;font-weight:500;">Hệ thống bảo vệ nội dung đang hoạt động. Vui lòng quay lại tab để tiếp tục.</div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            }
+        };
+
+        let securityTimeout = null;
+
+        const hideSecurityOverlayWithDelay = () => {
+            if (securityTimeout) clearTimeout(securityTimeout);
+            securityTimeout = setTimeout(() => {
+                const overlay = document.getElementById('security-blur-overlay');
+                if (overlay) overlay.remove();
+                securityTimeout = null;
+            }, 1000); 
+        };
+
+        const showSecurityOverlayImmediate = () => {
+            if (securityTimeout) {
+                clearTimeout(securityTimeout);
+                securityTimeout = null;
+            }
+            showSecurityOverlay();
+        };
+
+        // Kiểm tra liên tục ở tốc độ 60fps (Cực nhanh)
+        function fastSecurityCheck() {
+            if (window.APP_CAN_USE_DEVTOOLS) return;
+
+            if (!document.hasFocus() || document.visibilityState !== 'visible') {
+                showSecurityOverlayImmediate();
+                // Xóa clipboard liên tục
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText("Protected Content");
+                }
+            }
+            requestAnimationFrame(fastSecurityCheck);
+        }
+        requestAnimationFrame(fastSecurityCheck);
+
+        // Chặn tức thì khi nhấn phím bổ trợ (Shift, Win, Alt)
+        window.addEventListener('keydown', e => {
+            if (e.shiftKey || e.metaKey || e.altKey || e.ctrlKey) {
+                showSecurityOverlayImmediate();
+            }
+        });
+        window.addEventListener('keyup', e => {
+            if (!e.shiftKey && !e.metaKey && !e.altKey && !e.ctrlKey) {
+                hideSecurityOverlayWithDelay();
+            }
+        });
+
+        window.addEventListener('blur', showSecurityOverlayImmediate);
+        window.addEventListener('focus', hideSecurityOverlayWithDelay);
+        document.addEventListener('mouseleave', showSecurityOverlayImmediate);
+        document.addEventListener('mouseenter', hideSecurityOverlayWithDelay);
+
+        // 4. Chặn kéo thả ảnh
+        document.addEventListener('dragstart', e => {
+            if (e.target.tagName === 'IMG') e.preventDefault();
+        });
+    }
+
     function init() {
+        initSecurity();
         initHeaderAutoHide();
 
         // Restore reading mode

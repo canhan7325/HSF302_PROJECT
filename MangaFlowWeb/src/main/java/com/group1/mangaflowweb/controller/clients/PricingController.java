@@ -93,7 +93,7 @@ public class PricingController {
                 return ResponseEntity.badRequest().body(
                         SubscriptionCheckDTO.builder()
                                 .canSubscribe(false)
-                                .message("GÃ³i khÃ´ng tá»“n táº¡i")
+                                .message("Gói không tồn tại")
                                 .build());
             }
 
@@ -135,7 +135,7 @@ public class PricingController {
             return ResponseEntity.badRequest().body(
                     SubscriptionCheckDTO.builder()
                             .canSubscribe(false)
-                            .message("Lá»—i: " + e.getMessage())
+                            .message("Lỗi: " + e.getMessage())
                             .build());
         }
     }
@@ -165,18 +165,18 @@ public class PricingController {
             UserDTO user = userService.findByUsername(username);
 
             if (user != null) {
-                // âœ… CHECK: Kiá»ƒm tra xem user cÃ³ Ä‘Æ°á»£c phÃ©p downgrade khÃ´ng
+                // ✅ CHECK: Kiểm tra xem user có được phép downgrade không
                 SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
                         user.getUserId(),
                         subscription.getPrice().longValue(),
                         subscription.getPrice());
 
-                // Náº¿u canSubscribe = false (downgrade hoáº·c rule khÃ¡c bá»‹ vi pháº¡m), tá»« chá»‘i
+                // Nếu canSubscribe = false (downgrade hoặc rule khác bị vi phạm), từ chối
                 if (!checkResult.isCanSubscribe()) {
                     return new RedirectView("/pricing?error=cannot_downgrade");
                 }
 
-                // Store discount info vÃ o session (use passed value if available, otherwise use
+                // Store discount info vào session (use passed value if available, otherwise use
                 // checkResult)
                 if (discountAmount > 0) {
                     session.setAttribute("discountAmount", discountAmount);
@@ -194,8 +194,8 @@ public class PricingController {
             finalAmount = 0L;
 
         String amount = String.valueOf(finalAmount);
-        System.out.println("Final Amount to Gateway: " + amount + "Ä‘ (Original: " + subscription.getPrice()
-                + "Ä‘, Discount: " + discountAmount + "Ä‘)");
+        System.out.println("Final Amount to Gateway: " + amount + "đ (Original: " + subscription.getPrice()
+                + "đ, Discount: " + discountAmount + "đ)");
 
         String orderId = subscriptionId + "_" + UUID.randomUUID().toString().substring(0, 8);
         String orderInfo = "Thanh toan goi " + subscription.getName();
@@ -204,14 +204,14 @@ public class PricingController {
             if ("zalopay".equalsIgnoreCase(payment)) {
                 ZaloPayPaymentDTO response = zaloPayService.createPayment(orderId, amount, orderInfo);
                 if (response != null && response.getOrder_url() != null && !response.getOrder_url().isEmpty()) {
-                    // Store orderId Ä‘á»ƒ check láº¡i discount khi callback
+                    // Store orderId để check lại discount khi callback
                     session.setAttribute("lastOrderId", orderId);
                     return new RedirectView(response.getOrder_url());
                 }
             } else {
                 MomoPaymentDTO response = momoService.createPayment(orderId, amount, orderInfo);
                 if (response != null && response.getPayUrl() != null && !response.getPayUrl().isEmpty()) {
-                    // Store orderId Ä‘á»ƒ check láº¡i discount khi callback
+                    // Store orderId để check lại discount khi callback
                     session.setAttribute("lastOrderId", orderId);
                     return new RedirectView(response.getPayUrl());
                 }
@@ -252,18 +252,18 @@ public class PricingController {
                 throw new RuntimeException("User not found");
             }
 
-            // âœ… CHECK: KhÃ´ng cho phÃ©p háº¡ cáººp xuá»‘ng FREE (subscription.getPrice() = 0)
+            // ✅ CHECK: Không cho phép hạ cấp xuống FREE (subscription.getPrice() = 0)
             SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
                     user.getUserId(),
                     subscription.getPrice().longValue(),
                     subscription.getPrice());
 
-            // Náº¿u canSubscribe = false (downgrade hoáº·c rule khÃ¡c bá»‹ vi pháº¡m), tá»« chá»‘i
+            // Nếu canSubscribe = false (downgrade hoặc rule khác bị vi phạm), từ chối
             if (!checkResult.isCanSubscribe()) {
                 return new RedirectView("/pricing?error=cannot_downgrade");
             }
 
-            // KhÃ´ng cáº§n táº¡o transaction cho gÃ³i FREE (chá»‰ chuyá»ƒn hÆ°á»›ng)
+            // Không cần tạo transaction cho gói FREE (chỉ chuyển hướng)
             // transactionsService.createAndCompleteTransaction(user.getUserId(), subscriptionId, subscription.getPrice());
 
             // Redirect to reading page

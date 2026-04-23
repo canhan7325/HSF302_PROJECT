@@ -28,89 +28,88 @@
                 <span class="accent">Đọc Manga</span>
             </h1>
             <p>Chọn gói hội viên phù hợp để mở khóa những chương truyện mới nhất và ủng hộ trực tiếp cho các tác giả bạn
-        <!-- Pricing Grid -->
-        <div class="pricing-grid">
-            <div class="card" th:each="subscription : ${subscriptions}"
-                th:with="isFree=${subscription.price < 1000}, isSilver=${subscription.price >= 1000 and subscription.price < 100000}, isGold=${subscription.price >= 100000}, checkResult=${subChecks != null ? subChecks[subscription.subscriptionId] : null}"
-                th:classappend="${isGold} ? 'card-gold' : (${isSilver} ? 'card-silver' : 'card-free')">
+                <!-- Pricing Grid -->
+            <div class="pricing-grid">
+                <div class="card" th:each="subscription : ${subscriptions}"
+                    th:with="isFree=${subscription.price < 1000}, isSilver=${subscription.price >= 1000 and subscription.price < 100000}, isGold=${subscription.price >= 100000}, checkResult=${subChecks != null ? subChecks[subscription.subscriptionId] : null}"
+                    th:classappend="${isGold} ? 'card-gold' : (${isSilver} ? 'card-silver' : 'card-free')">
 
-                <span th:if="${isGold}" class="card-badge">Phổ Biến Nhất</span>
-                <span class="card-label" th:text="${isFree ? 'ENTRY' : (isSilver ? 'PRO' : 'ULTIMATE')}">Tier</span>
-                <h3 class="card-title" th:text="${isFree ? 'Gói Miễn Phí' : (isSilver ? 'Gói Bạc' : 'Gói Vàng')}">Tên Gói</h3>
-                <p class="card-desc">
-                    <span th:if="${isFree}">Đọc miễn phí các nội dung cơ bản.</span>
-                    <span th:if="${isSilver}">Đọc thêm nhiều chương truyện đặc sắc.</span>
-                    <span th:if="${isGold}">Đọc không giới hạn toàn bộ kho truyện.</span>
-                </p>
+                    <span th:if="${isGold}" class="card-badge">Phổ Biến Nhất</span>
+                    <span class="card-label" th:text="${isFree ? 'ENTRY' : (isSilver ? 'PRO' : 'ULTIMATE')}">Tier</span>
+                    <h3 class="card-title" th:text="${isFree ? 'Gói Miễn Phí' : (isSilver ? 'Gói Bạc' : 'Gói Vàng')}">
+                        Tên Gói</h3>
 
-                <div class="card-price">
-                    <div class="price-row">
-                        <span class="price-amount"
-                            th:text="${#numbers.formatDecimal(subscription.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">
-                        </span>
-                        <span class="price-period" th:text="${subscription.price < 1000 and subscription.durationDays == 0} ? '/ mãi mãi' : ('/ ' + ${subscription.durationDays} + ' ngày')">/ 30 ngày</span>
+                    <div class="card-price">
+                        <div class="price-row">
+                            <span class="price-amount"
+                                th:text="${#numbers.formatDecimal(subscription.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                            </span>
+                            <span class="price-period"
+                                th:text="${subscription.price < 1000 and subscription.durationDays == 0} ? '/ vĩnh viễn' : ('/ ' + ${subscription.durationDays} + ' ngày')">/
+                                30 ngày</span>
+                        </div>
+                        <div th:if="${isGold}" class="price-savings"></div>
                     </div>
-                    <div th:if="${isGold}" class="price-savings">TIẾT KIỆM ĐẾN 40%</div>
-                </div>
 
-                <!-- Features cho gói Free -->
-                <ul class="features" th:if="${isFree}">
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active">check_circle</span>
-                        <span class="feature-text">Truy cập cơ bản chương đầu truyện</span>
-                    </li>
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active">check_circle</span>
-                        <span class="feature-text">Đọc nội dung cơ bản</span>
-                    </li>
-                </ul>
+                    <!-- Features cho gói Free -->
+                    <ul class="features" th:if="${isFree}">
+                        <li class="feature-item">
+                            <span class="material-symbols-outlined icon-active">check_circle</span>
+                            <span class="feature-text">Truy cập cơ bản chương đầu truyện</span>
+                        </li>
+                        <li class="feature-item">
+                            <span class="material-symbols-outlined icon-active">check_circle</span>
+                            <span class="feature-text">Đọc nội dung cơ bản</span>
+                        </li>
+                    </ul>
 
-                <!-- Features cho gói Silver -->
-                <ul class="features" th:if="${isSilver}">
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active" style="color: #914700;">check_circle</span>
-                        <span class="feature-text">Toàn bộ quyền lợi Gói Miễn Phí</span>
-                    </li>
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active" style="color: #914700;">menu_book</span>
-                        <span class="feature-text">Mở khóa 10 chương truyện đặc sắc</span>
-                    </li>
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active" style="color: #914700;">ad_off</span>
-                        <span class="feature-text">Truy cập được nhiều truyện hơn</span>
-                    </li>
-                </ul>
+                    <!-- Features cho gói Silver -->
+                    <ul class="features" th:if="${isSilver}">
+                        <li class="feature-item">
+                            <span class="material-symbols-outlined icon-active"
+                                style="color: #914700;">check_circle</span>
+                            <span class="feature-text">Toàn bộ quyền lợi Gói Miễn Phí</span>
+                        </li>
+                        <li class="feature-item">
+                            <span class="material-symbols-outlined icon-active" style="color: #914700;">menu_book</span>
+                            <span class="feature-text">Mở khóa 10 chương truyện đặc sắc</span>
+                        </li>
+                        <li class="feature-item">
+                            <span class="material-symbols-outlined icon-active" style="color: #914700;">ad_off</span>
+                            <span class="feature-text">Truy cập được nhiều truyện hơn</span>
+                        </li>
+                    </ul>
 
-                <!-- Features cho gói Gold -->
-                <ul class="features" th:if="${isGold}">
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active" style="color: #f97f06;">star</span>
-                        <span class="feature-text feature-bold" style="color: #fff; font-weight: bold;">Giảm giá tới 60,000đ khi đã đăng kí Gói Bạc</span>
-                    </li>
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active" style="color: #f97f06;">all_inclusive</span>
-                        <span class="feature-text">Đọc không giới hạn kho truyện VIP</span>
-                    </li>
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active" style="color: #f97f06;">library_add_check</span>
-                        <span class="feature-text">Truy cập sớm các chương mới nhất</span>
-                    </li>
-                    <li class="feature-item">
-                        <span class="material-symbols-outlined icon-active" style="color: #f97f06;">military_tech</span>
-                        <span class="feature-text">Huy hiệu độc quyền trên Community</span>
-                    </li>
-                </ul>
+                    <!-- Features cho gói Gold -->
+                    <ul class="features" th:if="${isGold}">
+                        <li class="feature-item">
+                            <span class="material-symbols-outlined icon-active" style="color: #f97f06;">star</span>
+                            <span class="feature-text feature-bold" style="color: #fff; font-weight: bold;">Giảm giá tới
+                                60,000đ khi đã đăng kí Gói Bạc</span>
+                        </li>
+                        <li class="feature-item">
+                            <span class="material-symbols-outlined icon-active"
+                                style="color: #f97f06;">all_inclusive</span>
+                            <span class="feature-text">Đọc không giới hạn kho truyện VIP</span>
+                        </li>
 
-                <!-- Authenticated users -->
-                <div sec:authorize="isAuthenticated()">
-                    <!-- If this is the current package -->
-                    <button th:if="${checkResult != null and checkResult.isCurrent}" 
-                            class="btn-card btn-purchase btn-free" 
-                            style="border:none; cursor:default; opacity:.6; font-family:inherit;" 
-                            disabled>Gói Hiện Tại</button>
-                    
-                    <!-- If not current package, show subscribe button -->
-                    <button th:unless="${checkResult != null and checkResult.isCurrent}"
+                        <li class="feature-item">
+                            <span class="material-symbols-outlined icon-active"
+                                style="color: #f97f06;">military_tech</span>
+                            <span class="feature-text">Huy hiệu độc quyền trên Community</span>
+                        </li>
+                    </ul>
+
+                    <!-- Authenticated users -->
+                    <div sec:authorize="isAuthenticated()">
+                        <!-- If this is the current package -->
+                        <button th:if="${checkResult != null and checkResult.isCurrent}"
+                            class="btn-card btn-purchase btn-free"
+                            style="border:none; cursor:default; opacity:.6; font-family:inherit;" disabled>Gói Hiện
+                            Tại</button>
+
+                        <!-- If not current package, show subscribe button -->
+                        <button th:unless="${checkResult != null and checkResult.isCurrent}"
                             class="btn-card btn-purchase btn-subscribe"
                             th:classappend="${isGold} ? 'btn-gold' : (${isSilver} ? 'btn-silver' : 'btn-free')"
                             th:onclick="${isFree} ? |window.location.href='/pricing/free-start?subscriptionId=${subscription.subscriptionId}'| : 'handleSubscribeClick(this)'"
@@ -118,49 +117,50 @@
                             th:data-sub-id="${subscription.subscriptionId}"
                             th:data-message="${checkResult != null ? checkResult.message : ''}"
                             style="border: none; cursor: pointer; font-family: inherit;"
-                            th:text="${isFree ? 'Bắt Đầu Ngay' : 'Đăng Ký'}">
+                            th:text="${isFree ? 'Bắt Đầu Ngay' : (isSilver ? 'Đăng Ký' : 'Đăng Ký')}">
+                        </button>
+                    </div>
+
+                    <!-- Unauthenticated users -->
+                    <button sec:authorize="!isAuthenticated()" class="btn-card btn-purchase btn-subscribe"
+                        th:classappend="${isGold} ? 'btn-gold' : (${isSilver} ? 'btn-silver' : 'btn-free')"
+                        onclick="openLoginModal()" style="border: none; cursor: pointer; font-family: inherit;"
+                        th:text="${isFree ? 'Bắt Đầu Ngay' : (isSilver ? 'Đăng Ký' : 'Đăng Ký')}">
                     </button>
                 </div>
-
-                <!-- Unauthenticated users -->
-                <button sec:authorize="!isAuthenticated()" class="btn-card btn-purchase btn-subscribe"
-                    th:classappend="${isGold} ? 'btn-gold' : (${isSilver} ? 'btn-silver' : 'btn-free')"
-                    onclick="openLoginModal()" style="border: none; cursor: pointer; font-family: inherit;"
-                    th:text="${isFree ? 'Bắt Đầu Ngay' : 'Đăng Ký'}">
-                </button>
             </div>
-        </div>
 
-        <br />
+            <br />
 
-        <!-- Editorial Section -->
-        <section class="editorial-section">
-            <div class="editorial-text-box">
-                <h4>Tại sao nên chọn <br />MangaCurator Editorial?</h4>
-                <p>Chúng tôi không chỉ cung cấp bản dịch. Chúng tôi mang đến một trải nghiệm nghệ thuật. Mỗi khung hình
-                    đều được tối ưu hóa cho màn hình chất lượng cao, giữ nguyên vẹn từng nét vẽ của họa sĩ.</p>
-                <div class="editorial-feature">
-                    <div class="editorial-icon">
-                        <span class="material-symbols-outlined">high_quality</span>
-                    </div>
-                    <div class="editorial-feature-body">
-                        <span class="label">4K Rendering</span>
-                        <span class="sublabel">Hình ảnh sắc nét từng chi tiết nhỏ nhất.</span>
+            <!-- Editorial Section -->
+            <section class="editorial-section">
+                <div class="editorial-text-box">
+                    <h4>Tại sao nên chọn <br />MangaCurator Editorial?</h4>
+                    <p>Chúng tôi không chỉ cung cấp bản dịch. Chúng tôi mang đến một trải nghiệm nghệ thuật. Mỗi khung
+                        hình
+                        đều được tối ưu hóa cho màn hình chất lượng cao, giữ nguyên vẹn từng nét vẽ của họa sĩ.</p>
+                    <div class="editorial-feature">
+                        <div class="editorial-icon">
+                            <span class="material-symbols-outlined">high_quality</span>
+                        </div>
+                        <div class="editorial-feature-body">
+                            <span class="label">4K Rendering</span>
+                            <span class="sublabel">Hình ảnh sắc nét từng chi tiết nhỏ nhất.</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="editorial-image-box">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNixR1pBeTsLVPTY872hwWTLyXfwtiuBsQCCe_KJbibgl2t1is4YSzhbiM2KCnThQnjOtWsjKvcBlqr55h7zKPXmDQSLN7Kh_g0E8VtzQSoEFK1_6Rccxx71GDhwlkez0gNBQWWddtrw3KfVFx8bc4lcyYMb6bKNxxWNwV3WW139PdFo_IK-ymtIoRYWTwev5RJFrO4IuZuEc7MC3wMfE1Lx5KgiIIMhTpD3R27SKVB0tDOSmhGMKdOLWhrppfigmLvUiWJQJG7r8"
-                    alt="Manga Art Experience" />
-                <div class="editorial-image-overlay">
-                    <div>
-                        <h5>Giao diện Độc quyền</h5>
-                        <p>Đọc truyện theo phong cách tạp chí cao cấp, không bị gián đoạn.</p>
+                <div class="editorial-image-box">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNixR1pBeTsLVPTY872hwWTLyXfwtiuBsQCCe_KJbibgl2t1is4YSzhbiM2KCnThQnjOtWsjKvcBlqr55h7zKPXmDQSLN7Kh_g0E8VtzQSoEFK1_6Rccxx71GDhwlkez0gNBQWWddtrw3KfVFx8bc4lcyYMb6bKNxxWNwV3WW139PdFo_IK-ymtIoRYWTwev5RJFrO4IuZuEc7MC3wMfE1Lx5KgiIIMhTpD3R27SKVB0tDOSmhGMKdOLWhrppfigmLvUiWJQJG7r8"
+                        alt="Manga Art Experience" />
+                    <div class="editorial-image-overlay">
+                        <div>
+                            <h5>Giao diện Độc quyền</h5>
+                            <p>Đọc truyện theo phong cách tạp chí cao cấp, không bị gián đoạn.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
     </main>
 
     <!-- Footer -->
@@ -250,7 +250,8 @@
 
             <form th:action="@{/pricing/pay}" method="post">
                 <input type="hidden" name="subscriptionId" th:value="${subscription.subscriptionId}" />
-                <input type="hidden" name="discountAmount" th:value="${subChecks != null and subChecks[subscription.subscriptionId] != null ? subChecks[subscription.subscriptionId].discountAmount : 0}" />
+                <input type="hidden" name="discountAmount"
+                    th:value="${subChecks != null and subChecks[subscription.subscriptionId] != null ? subChecks[subscription.subscriptionId].discountAmount : 0}" />
 
                 <!-- Content Body -->
                 <div class="modal-body">
@@ -298,7 +299,8 @@
                     <hr class="modal-divider" />
 
                     <!-- Order Summary -->
-                    <section class="order-summary" th:with="checkResult=${subChecks != null ? subChecks[subscription.subscriptionId] : null}, discountAmount=${checkResult != null ? checkResult.discountAmount : 0}, finalPrice=${subscription.price - discountAmount > 0 ? subscription.price - discountAmount : 0}">
+                    <section class="order-summary"
+                        th:with="checkResult=${subChecks != null ? subChecks[subscription.subscriptionId] : null}, discountAmount=${checkResult != null ? checkResult.discountAmount : 0}, finalPrice=${subscription.price - discountAmount > 0 ? subscription.price - discountAmount : 0}">
                         <div class="summary-row">
                             <span>Tạm tính</span>
                             <span
@@ -306,12 +308,12 @@
                         </div>
                         <div class="summary-row discount">
                             <span>Khuyến mãi</span>
-                            <span th:text="${#numbers.formatDecimal(discountAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                            <span
+                                th:text="${#numbers.formatDecimal(discountAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
                         </div>
                         <div class="summary-row total">
                             <span>Tổng thanh toán</span>
-                            <span
-                                th:text="${#numbers.formatDecimal(finalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+                            <span th:text="${#numbers.formatDecimal(finalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
                         </div>
                     </section>
                 </div>
@@ -463,7 +465,7 @@
             // Handle cancel buttons in modals
             const cancelButtons = document.querySelectorAll('.btn-cancel');
             cancelButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     document.body.style.overflow = 'auto';
                 });
             });

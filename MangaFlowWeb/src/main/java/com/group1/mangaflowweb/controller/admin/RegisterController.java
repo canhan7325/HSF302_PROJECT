@@ -44,22 +44,18 @@ public class RegisterController {
             userService.registerReader(registerRequest);
         } catch (IllegalArgumentException ex) {
             if ("USERNAME_EXISTS".equals(ex.getMessage())) {
-                bindingResult.rejectValue("username", "error.username", "TÃªn Ä‘Äƒng nháº­p Ä‘Ã£ tá»“n táº¡i!");
+                bindingResult.rejectValue("username", "error.username", "Tên đăng nhập đã tồn tại!");
                 return "clients/home/register";
             }
             if ("EMAIL_EXISTS".equals(ex.getMessage())) {
-                bindingResult.rejectValue("email", "error.email", "Email Ä‘Ã£ Ä‘Æ°á»£c Ä‘Äƒng kÃ½!");
+                bindingResult.rejectValue("email", "error.email", "Email đã được đăng ký!");
                 return "clients/home/register";
             }
-            bindingResult.reject("error.register", "KhÃ´ng thá»ƒ Ä‘Äƒng kÃ½ tÃ i khoáº£n, vui lÃ²ng thá»­ láº¡i.");
+            bindingResult.reject("error.register", "Không thể đăng ký tài khoản, vui lòng thử lại.");
             return "clients/home/register";
         }
 
-        redirectAttributes.addFlashAttribute("message", "ÄÄƒng kÃ½ thÃ nh cÃ´ng! Vui lÃ²ng Ä‘Äƒng nháº­p.");
+        redirectAttributes.addFlashAttribute("message", "Đăng ký thành công! Vui lòng đăng nhập.");
         return "redirect:/login";
     }
 }
-
-
-
-
