@@ -164,14 +164,24 @@ body {
     white-space: nowrap;
 }
 
+.page-wrap { 
+    position: relative; 
+    margin-bottom: 0; 
+    line-height: 0; 
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
 .comic-img {
     width: 100%;
     max-width: 700px;
     margin: 0 auto;
     display: block;
+    pointer-events: none; /* Ngăn chặn click chuột phải trực tiếp lên ảnh */
+    -webkit-touch-callout: none; /* Chặn menu ngữ cảnh trên mobile */
 }
-
-
+.locked img { filter: blur(8px); }
 .horizontal-mode .content {
     display: flex !important;
     overflow-x: auto;

@@ -5,7 +5,7 @@ import com.group1.mangaflowweb.dto.transaction.TransactionsDTO;
 import com.group1.mangaflowweb.dto.transaction.TransactionAdminDTO;
 import com.group1.mangaflowweb.dto.transaction.TransactionSummaryDTO;
 import com.group1.mangaflowweb.entity.Transactions;
-import com.group1.mangaflowweb.enums.ComicEnum;
+import com.group1.mangaflowweb.enums.TransactionEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -32,7 +32,7 @@ public interface TransactionsService {
     List<Transactions> getAllTransactions();
     List<Transactions> getActiveTransactions();
     long getTotalTransactionCount();
-    Page<TransactionAdminDTO> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter);
+    Page<TransactionAdminDTO> getTransactionsPage(Pageable pageable, TransactionEnum statusFilter, String usernameFilter);
     TransactionSummaryDTO getTransactionSummary();
     void cancelExpiredTransactionsAndDowngradeUsers();
 }

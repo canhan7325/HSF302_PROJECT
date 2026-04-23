@@ -179,7 +179,76 @@
         }
     }
 
+    function initSecurity() {
+        // 1. Chặn chuột phải (Disable right-click)
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // 2. Chặn các phím tắt (Disable shortcuts)
+        document.addEventListener('keydown', function(e) {
+            // F12
+            if (e.keyCode === 123) {
+                e.preventDefault();
+                alert("Hành động bị chặn vì lý do bảo mật bản quyền.");
+                return false;
+            }
+            
+            // Ctrl+Shift+I (DevTools)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Ctrl+Shift+C (DevTools inspect)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Ctrl+Shift+J (DevTools console)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Ctrl+U (View Source)
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+                alert("Hành động bị chặn vì lý do bảo mật bản quyền.");
+                return false;
+            }
+
+            // Ctrl+P (Print)
+            if (e.ctrlKey && e.keyCode === 80) {
+                e.preventDefault();
+                alert("Hành động bị chặn vì lý do bảo mật bản quyền.");
+                return false;
+            }
+
+            // Ctrl+S (Save Page)
+            if (e.ctrlKey && e.keyCode === 83) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Print Screen (Capture)
+            if (e.key === 'PrintScreen' || e.keyCode === 44) {
+                e.preventDefault();
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(""); // Clear clipboard
+                }
+                alert("Chụp màn hình đã bị vô hiệu hóa trên trang này.");
+                return false;
+            }
+        });
+
+        // 3. Chặn kéo thả ảnh (Disable image drag)
+        document.addEventListener('dragstart', e => {
+            if (e.target.tagName === 'IMG') e.preventDefault();
+        });
+    }
+
     function init() {
+        initSecurity();
         initHeaderAutoHide();
 
         // Restore reading mode

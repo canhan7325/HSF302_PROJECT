@@ -26,9 +26,6 @@ public class PaymentCallbackController {
     private TransactionsService transactionsService;
 
     @Autowired
-    private SubscriptionsService subscriptionsService;
-
-    @Autowired
     private UserService userService;
 
     /**
@@ -64,22 +61,24 @@ public class PaymentCallbackController {
                 System.out.println("Current UserId: " + userId);
 
                 // Create transaction with current user ID
-                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId, new BigDecimal(amount));
+                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId,
+                        new BigDecimal(amount));
 
                 // Get discount info from session
                 Long discountAmount = (Long) session.getAttribute("discountAmount");
                 Boolean isUpgrade = (Boolean) session.getAttribute("isUpgrade");
 
-                if (discountAmount == null) discountAmount = 0L;
-                if (isUpgrade == null) isUpgrade = false;
+                if (discountAmount == null)
+                    discountAmount = 0L;
+                if (isUpgrade == null)
+                    isUpgrade = false;
 
                 System.out.println("Discount: " + discountAmount + ", IsUpgrade: " + isUpgrade);
 
                 TransactionsDTO completed = transactionsService.completeTransaction(
-                    dto.getTransactionId(),
-                    discountAmount,
-                    isUpgrade
-                );
+                        dto.getTransactionId(),
+                        discountAmount,
+                        isUpgrade);
 
                 // Clear discount info from session after use
                 session.removeAttribute("discountAmount");
@@ -105,7 +104,8 @@ public class PaymentCallbackController {
                 Integer subscriptionId = parseSubscriptionId(appTransId);
                 Integer userId = getCurrentUserId();
                 String safeAmount = (amount != null && !amount.isEmpty()) ? amount : "0";
-                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId, new BigDecimal(safeAmount));
+                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId,
+                        new BigDecimal(safeAmount));
                 transactionsService.failTransaction(dto.getTransactionId());
             } catch (Exception e) {
                 System.out.println("Error saving failed transaction: " + e.getMessage());
@@ -138,20 +138,22 @@ public class PaymentCallbackController {
                 Integer subscriptionId = parseSubscriptionId(orderId);
                 Integer userId = getCurrentUserId();
 
-                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId, new BigDecimal(amount));
+                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId,
+                        new BigDecimal(amount));
 
                 // Get discount info from session
                 Long discountAmount = (Long) session.getAttribute("discountAmount");
                 Boolean isUpgrade = (Boolean) session.getAttribute("isUpgrade");
 
-                if (discountAmount == null) discountAmount = 0L;
-                if (isUpgrade == null) isUpgrade = false;
+                if (discountAmount == null)
+                    discountAmount = 0L;
+                if (isUpgrade == null)
+                    isUpgrade = false;
 
                 TransactionsDTO completed = transactionsService.completeTransaction(
-                    dto.getTransactionId(),
-                    discountAmount,
-                    isUpgrade
-                );
+                        dto.getTransactionId(),
+                        discountAmount,
+                        isUpgrade);
 
                 // Clear discount info from session after use
                 session.removeAttribute("discountAmount");
@@ -173,14 +175,16 @@ public class PaymentCallbackController {
                 Integer subscriptionId = parseSubscriptionId(orderId);
                 Integer userId = getCurrentUserId();
                 String safeAmount = (amount != null && !amount.isEmpty()) ? amount : "0";
-                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId, new BigDecimal(safeAmount));
+                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId,
+                        new BigDecimal(safeAmount));
                 transactionsService.failTransaction(dto.getTransactionId());
             } catch (Exception e) {
                 System.out.println("Error saving failed transaction: " + e.getMessage());
             }
         }
 
-        model.addAttribute("errorMessage", "Giao dá»‹ch MoMo bá»‹ há»§y hoáº·c khÃ´ng thÃ nh cÃ´ng. MÃ£ lá»—i: " + resultCode);
+        model.addAttribute("errorMessage",
+                "Giao dá»‹ch MoMo bá»‹ há»§y hoáº·c khÃ´ng thÃ nh cÃ´ng. MÃ£ lá»—i: " + resultCode);
         return "clients/subscriptions/payment-failed";
     }
 
@@ -192,9 +196,11 @@ public class PaymentCallbackController {
         session.setAttribute("transaction_" + transId + "_id", dto.getTransactionId());
         session.setAttribute("transaction_" + transId + "_name", dto.getSubscriptionName());
         session.setAttribute("transaction_" + transId + "_amount", amount);
-        session.setAttribute("transaction_" + transId + "_started", dto.getStartedAt() != null ? dto.getStartedAt().format(fmt) : "");
-        session.setAttribute("transaction_" + transId + "_ended", dto.getEndedAt() != null ? dto.getEndedAt().format(fmt) : "");
-        
+        session.setAttribute("transaction_" + transId + "_started",
+                dto.getStartedAt() != null ? dto.getStartedAt().format(fmt) : "");
+        session.setAttribute("transaction_" + transId + "_ended",
+                dto.getEndedAt() != null ? dto.getEndedAt().format(fmt) : "");
+
         // Save membership for header display
         String membership = transactionsService.getMembershipFromPrice(dto.getPrice());
         session.setAttribute("transaction_" + transId + "_membership", membership);
@@ -285,11 +291,3 @@ public class PaymentCallbackController {
         return user != null ? user.getUserId() : 1;
     }
 }
-
-
-
-
-
-
-
-

@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import com.group1.mangaflowweb.dto.transaction.TransactionAdminDTO;
 import com.group1.mangaflowweb.dto.transaction.TransactionSummaryDTO;
-import com.group1.mangaflowweb.enums.ComicEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -219,9 +218,6 @@ public class TransactionsServiceImpl implements TransactionsService {
     public SubscriptionCheckDTO checkSubscription(Integer userId, Long newSubscriptionPrice,
             BigDecimal newSubscriptionPriceBigDecimal) {
         Long currentPrice = getCurrentMembershipPrice(userId);
-        boolean isUpgrade = newSubscriptionPrice > currentPrice;
-        boolean isDowngrade = newSubscriptionPrice < currentPrice;
-        long discountAmount = 0;
 
         // Nếu chưa có membership, có thể đăng kí
         if (currentPrice == null) {
@@ -233,6 +229,10 @@ public class TransactionsServiceImpl implements TransactionsService {
                     .isCurrent(false)
                     .build();
         }
+
+        boolean isUpgrade = newSubscriptionPrice > currentPrice;
+        boolean isDowngrade = newSubscriptionPrice < currentPrice;
+        long discountAmount = 0;
 
         // Nếu đăng kí cùng gói → BLOCK
         if (currentPrice.equals(newSubscriptionPrice)) {
@@ -372,7 +372,7 @@ public class TransactionsServiceImpl implements TransactionsService {
     }
     // ====================================
     @Override
-    public Page<TransactionAdminDTO> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter) {
+    public Page<TransactionAdminDTO> getTransactionsPage(Pageable pageable, TransactionEnum statusFilter, String usernameFilter) {
         boolean hasStatus = statusFilter != null;
         boolean hasUsername = usernameFilter != null && !usernameFilter.isBlank();
 
