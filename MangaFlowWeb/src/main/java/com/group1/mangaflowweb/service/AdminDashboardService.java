@@ -1,21 +1,22 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.response.admin.ComicSummaryResponse;
-import com.group1.mangaflowweb.dto.response.admin.DashboardStatsResponse;
-import com.group1.mangaflowweb.dto.response.admin.GenreComicCountResponse;
-import com.group1.mangaflowweb.dto.response.admin.RevenueDataPointResponse;
+import com.group1.mangaflowweb.dto.comic.ComicSummaryDTO;
+import com.group1.mangaflowweb.dto.admin.DashboardStatsDTO;
+import com.group1.mangaflowweb.dto.genre.GenreComicCountDTO;
+import com.group1.mangaflowweb.dto.admin.RevenueDataPointDTO;
 
 import java.util.List;
 
 public interface AdminDashboardService {
 
-    DashboardStatsResponse getDashboardStats();
+    DashboardStatsDTO getDashboardStats();
 
-    List<ComicSummaryResponse> getTop5MostViewedComics();
+    List<ComicSummaryDTO> getTop5MostViewedComics();
 
-    List<ComicSummaryResponse> getComicsSortedByViewCount();
+    List<ComicSummaryDTO> getComicsSortedByViewCount();
 
-    List<GenreComicCountResponse> getComicsPerGenre();
+    List<GenreComicCountDTO> getComicsPerGenre();
 
-    List<RevenueDataPointResponse> getRevenueByPeriod(String period);
+    List<RevenueDataPointDTO> getRevenueByPeriod(String period);
 }
+

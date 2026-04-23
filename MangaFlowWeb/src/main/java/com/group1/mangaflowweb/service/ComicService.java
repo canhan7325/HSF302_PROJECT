@@ -1,33 +1,31 @@
 package com.group1.mangaflowweb.service;
 
-
-import com.group1.mangaflowweb.dto.comic.ComicSearchDTO;
-import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
-import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
-import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
+import com.group1.mangaflowweb.dto.comic.ComicDTO;
+import com.group1.mangaflowweb.dto.comic.ComicAdminDTO;
+import com.group1.mangaflowweb.dto.comic.ComicSummaryDTO;
+import com.group1.mangaflowweb.dto.genre.GenreAdminDTO;
 import com.group1.mangaflowweb.entity.Comics;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.group1.mangaflowweb.dto.comic.ComicRequest;
-import com.group1.mangaflowweb.dto.comic.ComicResponse;
+
 import java.util.List;
 
 public interface ComicService {
 
     // Admin CRUD
-    Page<ComicAdminResponse> getComicsPage(Pageable pageable, String search);
+    Page<ComicAdminDTO> getComicsPage(Pageable pageable, String search);
 
-    ComicAdminResponse getComicById(Integer id);
+    ComicAdminDTO getComicById(Integer id);
 
-    void createComic(ComicAdRequest form);
+    void createComic(ComicAdminDTO form);
 
-    void updateComic(Integer id, ComicAdRequest form);
+    void updateComic(Integer id, ComicAdminDTO form);
 
     void softDeleteComic(Integer id);
 
     void hardDeleteComic(Integer id);
 
-    List<GenreAdminResponse> getAllGenresWithCount();
+    List<GenreAdminDTO> getAllGenresWithCount();
 
     // Legacy / other uses
     long getTotalComics();
@@ -39,19 +37,23 @@ public interface ComicService {
     List<Comics> getComicsWithSort(String sortBy, String sortOrder);
 
     List<Comics> getComicsWithFilter(String sortBy, String sortOrder, String filterBy);
-    ComicResponse create(ComicRequest request);
 
-    ComicResponse getById(Integer comicId);
+    ComicDTO create(ComicDTO request);
 
-    ComicResponse getBySlug(String slug);
+    ComicDTO getById(Integer comicId);
 
-    List<ComicResponse> getAll();
+    ComicDTO getBySlug(String slug);
 
-    List<ComicResponse> getByUserId(Integer userId);
+    List<ComicDTO> getAll();
 
-    ComicResponse update(Integer comicId, ComicRequest request);
+    List<ComicDTO> getByUserId(Integer userId);
+
+    ComicDTO update(Integer comicId, ComicDTO request);
 
     void delete(Integer comicId);
-    List<ComicSearchDTO> searchByTitle(String query);
-    List<ComicResponse> searchForPageByTitle(String query);
+
+    List<ComicSummaryDTO> searchByTitle(String query);
+
+    List<ComicDTO> searchForPageByTitle(String query);
 }
+

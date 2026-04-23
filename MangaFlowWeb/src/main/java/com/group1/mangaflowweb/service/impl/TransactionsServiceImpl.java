@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.SubscriptionCheckDTO;
-import com.group1.mangaflowweb.dto.TransactionsDTO;
+import com.group1.mangaflowweb.dto.subscription.SubscriptionCheckDTO;
+import com.group1.mangaflowweb.dto.transaction.TransactionsDTO;
 import com.group1.mangaflowweb.entity.Subscriptions;
 import com.group1.mangaflowweb.entity.Transactions;
 import com.group1.mangaflowweb.entity.Users;
@@ -16,12 +16,27 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import com.group1.mangaflowweb.dto.transaction.TransactionAdminDTO;
+import com.group1.mangaflowweb.dto.transaction.TransactionSummaryDTO;
+import com.group1.mangaflowweb.enums.ComicEnum;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Locale;
 import java.text.NumberFormat;
 
 @Service
 @RequiredArgsConstructor
 public class TransactionsServiceImpl implements TransactionsService {
+
+    // --- CLIENTS ---
 
     private final TransactionsRepository transactionsRepository;
     private final UsersRepository usersRepository;
@@ -39,6 +54,7 @@ public class TransactionsServiceImpl implements TransactionsService {
                 .subscription(subscription)
                 .price(price)
                 .status(TransactionEnum.PENDING)
+                .statusSubs("ACTIVE")
                 .startedAt(LocalDateTime.now())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -75,7 +91,7 @@ public class TransactionsServiceImpl implements TransactionsService {
         // Nếu upgrade từ Bạc → Vàng: lấy thời gian còn lại của bạc + cộng vào endedAt
         // của vàng
         if (isUpgrade && discountAmount == 60000) {
-            transaction.setStatus(TransactionEnum.UPDATED);
+            transaction.setStatus(TransactionEnum.SUCCESS);
 
             // Get remaining days from old silver subscription
             long remainingDaysFromOldSubscription = getRemainingDaysFromCurrentSubscription(
@@ -103,11 +119,12 @@ public class TransactionsServiceImpl implements TransactionsService {
      * Trả về số ngày còn lại từ hôm nay đến endedAt của subscription hiện tại
      */
     private long getRemainingDaysFromCurrentSubscription(Integer userId) {
-        java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        java.util.List<Transactions> transactions = transactionsRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
 
         for (Transactions trans : transactions) {
-            // Find the most recent active (SUCCESS or UPDATED status) subscription
-            if ((trans.getStatus() == TransactionEnum.SUCCESS || trans.getStatus() == TransactionEnum.UPDATED) &&
+            // Find the most recent active subscription
+            if (trans.getStatus() == TransactionEnum.SUCCESS &&
+                    "ACTIVE".equals(trans.getStatusSubs()) &&
                     trans.getSubscription() != null &&
                     (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
 
@@ -127,16 +144,17 @@ public class TransactionsServiceImpl implements TransactionsService {
      * Gói bạc cũ (SUCCESS) sẽ được đặt thành CANCELED
      */
     private void cancelPreviousSilverPackage(Integer userId) {
-        java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        java.util.List<Transactions> transactions = transactionsRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
 
         for (Transactions trans : transactions) {
-            // Find silver package transactions that are still active (SUCCESS or UPDATED status)
-            if ((trans.getStatus() == TransactionEnum.SUCCESS || trans.getStatus() == TransactionEnum.UPDATED) &&
+            // Find silver package transactions that are still active
+            if (trans.getStatus() == TransactionEnum.SUCCESS &&
+                    "ACTIVE".equals(trans.getStatusSubs()) &&
                     trans.getSubscription() != null &&
                     trans.getSubscription().getPrice().longValue() < 100000 &&
                     (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
-                // Cancel this transaction
-                trans.setStatus(TransactionEnum.CANCELED);
+                // Cancel this subscription
+                trans.setStatusSubs("CANCELED");
                 transactionsRepository.save(trans);
                 break; // Only cancel the most recent silver package
             }
@@ -147,6 +165,16 @@ public class TransactionsServiceImpl implements TransactionsService {
     public TransactionsDTO createAndCompleteTransaction(Integer userId, Integer subscriptionId, BigDecimal price) {
         TransactionsDTO dto = createTransaction(userId, subscriptionId, price);
         return completeTransaction(dto.getTransactionId());
+    }
+
+    @Override
+    public TransactionsDTO failTransaction(Integer transactionId) {
+        Transactions transaction = transactionsRepository.findById(transactionId)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+        transaction.setStatus(TransactionEnum.FAILED);
+        transaction.setStatusSubs("CANCELED");
+        Transactions saved = transactionsRepository.save(transaction);
+        return toDTO(saved);
     }
 
     @Override
@@ -163,7 +191,7 @@ public class TransactionsServiceImpl implements TransactionsService {
     @Override
     public Long getCurrentMembershipPrice(Integer userId) {
         // Get all transactions ordered by created date descending
-        java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        java.util.List<Transactions> transactions = transactionsRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
 
         if (transactions.isEmpty()) {
             return 0L;
@@ -174,7 +202,8 @@ public class TransactionsServiceImpl implements TransactionsService {
         for (Transactions transaction : transactions) {
             // Check if transaction status is active
             if (transaction.getStatus() != null &&
-                (transaction.getStatus().equals(TransactionEnum.SUCCESS) || transaction.getStatus().equals(TransactionEnum.UPDATED))) {
+                transaction.getStatus().equals(TransactionEnum.SUCCESS) &&
+                "ACTIVE".equals(transaction.getStatusSubs())) {
 
                 // Check if transaction is not expired
                 if (transaction.getEndedAt() == null || transaction.getEndedAt().isAfter(now)) {
@@ -207,7 +236,7 @@ public class TransactionsServiceImpl implements TransactionsService {
         // Nếu đăng kí cùng gói → BLOCK
         if (currentPrice.equals(newSubscriptionPrice)) {
             String membership = getMembershipFromPrice(BigDecimal.valueOf(currentPrice));
-            java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+            java.util.List<Transactions> transactions = transactionsRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
             if (!transactions.isEmpty()) {
                 Transactions current = transactions.get(0);
                 String startDate = current.getStartedAt() != null
@@ -278,6 +307,7 @@ public class TransactionsServiceImpl implements TransactionsService {
                 .transactionId(entity.getTransactionId())
                 .price(entity.getPrice())
                 .status(entity.getStatus() != null ? entity.getStatus().name() : null)
+                .statusSubs(entity.getStatusSubs())
                 .startedAt(entity.getStartedAt())
                 .endedAt(entity.getEndedAt())
                 .createdAt(entity.getCreatedAt())
@@ -297,6 +327,113 @@ public class TransactionsServiceImpl implements TransactionsService {
 
     @Override
     public java.util.List<Transactions> getTransactionsByUserId(Integer userId) {
-        return transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return transactionsRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
     }
+
+    // --- ADMIN ---
+    @Override
+    public BigDecimal getTotalRevenue() {
+        return transactionsRepository.getTotalRevenue();
+    }
+    
+    @Override
+    public List<Map<String, Object>> getRevenueBySubscription() {
+        List<Object[]> results = transactionsRepository.getRevenueBySubscription();
+        List<Map<String, Object>> revenueData = new ArrayList<>();
+        
+        for (Object[] row : results) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("subscriptionName", row[0]);
+            map.put("revenue", row[1]);
+            revenueData.add(map);
+        }
+        
+        return revenueData;
+    }
+    
+    @Override
+    public List<Transactions> getAllTransactions() {
+        return transactionsRepository.findAll();
+    }
+    
+    @Override
+    public List<Transactions> getActiveTransactions() {
+        return transactionsRepository.getActiveTransactions();
+    }
+    
+    @Override
+    public long getTotalTransactionCount() {
+        return transactionsRepository.count();
+    }
+    // ====================================
+    @Override
+    public Page<TransactionAdminDTO> getTransactionsPage(Pageable pageable, ComicEnum statusFilter, String usernameFilter) {
+        boolean hasStatus = statusFilter != null;
+        boolean hasUsername = usernameFilter != null && !usernameFilter.isBlank();
+
+        Page<Transactions> page;
+        if (hasStatus && hasUsername) {
+            page = transactionsRepository.findByStatusAndUserUsernameContaining(statusFilter, usernameFilter, pageable);
+        } else if (hasStatus) {
+            page = transactionsRepository.findByStatusOrderByCreatedAtDesc(statusFilter, pageable);
+        } else if (hasUsername) {
+            page = transactionsRepository.findByUserUsernameContainingOrderByCreatedAtDesc(usernameFilter, pageable);
+        } else {
+            page = transactionsRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+
+        return page.map(t -> TransactionAdminDTO.builder()
+                .transactionId(t.getTransactionId())
+                .username(t.getUser().getUsername())
+                .subscriptionName(t.getSubscription().getName())
+                .price(t.getPrice())
+                .status(t.getStatus())
+                .startedAt(t.getStartedAt())
+                .endedAt(t.getEndedAt())
+                .createdAt(t.getCreatedAt())
+                .build());
+    }
+
+    @Override
+    public TransactionSummaryDTO getTransactionSummary() {
+        long totalCount = transactionsRepository.count();
+        BigDecimal totalRevenue = transactionsRepository.sumAllPrices();
+        return TransactionSummaryDTO.builder()
+                .totalCount(totalCount)
+                .totalRevenue(totalRevenue)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    @Scheduled(cron = "0 * * * * *")  // Run every minute at second 0
+    // Cron format: second minute hour day-of-month month day-of-week
+    // 0 * * * * * = at second 0 of every minute (every 60 seconds)
+    public void cancelExpiredTransactionsAndDowngradeUsers() {
+        // Get all expired transactions that are not yet canceled
+        List<Transactions> expiredTransactions = transactionsRepository.getExpiredTransactions();
+
+        // Set to track which users need to be checked for downgrade
+        Set<Users> usersToCheck = new HashSet<>();
+
+        // Cancel all expired transactions
+        for (Transactions transaction : expiredTransactions) {
+            transaction.setStatusSubs("CANCELED");
+            transactionsRepository.save(transaction);
+            usersToCheck.add(transaction.getUser());
+        }
+
+        // For each affected user, check if they have any active non-canceled transactions
+        for (Users user : usersToCheck) {
+            List<Transactions> activeTransactions = transactionsRepository.getActiveTransactionsByUserId(user.getUserId());
+
+            // If no active transactions, downgrade user to regular user
+            if (activeTransactions.isEmpty()) {
+                user.setRole("user");
+                usersRepository.save(user);
+            }
+        }
+    }
+
 }
+

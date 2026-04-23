@@ -2,7 +2,7 @@ package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.entity.Users;
 import com.group1.mangaflowweb.enums.TransactionEnum;
-import com.group1.mangaflowweb.repository.TransactionRepository;
+import com.group1.mangaflowweb.repository.TransactionsRepository;
 import com.group1.mangaflowweb.service.AccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class AccessServiceImpl implements AccessService {
     private static final int DEFAULT_PREVIEW_COUNT = 2;
     private static final int SILVER_PREVIEW_COUNT = 10;
 
-    private final TransactionRepository transactionRepository;
+    private final TransactionsRepository TransactionsRepository;
 
     @Override
     @Deprecated
@@ -32,11 +32,11 @@ public class AccessServiceImpl implements AccessService {
 
         // Find a *valid* subscription: SUCCESS or UPDATED + not expired
         var now = LocalDateTime.now();
-        var transactions = transactionRepository.findByUser_UserIdOrderByCreatedAtDesc(user.getUserId());
+        var transactions = TransactionsRepository.findByUser_UserIdOrderByCreatedAtDesc(user.getUserId());
 
         com.group1.mangaflowweb.entity.Transactions activeTx = null;
         for (var tx : transactions) {
-            if ((tx.getStatus() == TransactionEnum.SUCCESS || tx.getStatus() == TransactionEnum.UPDATED) &&
+            if (tx.getStatus() == TransactionEnum.SUCCESS && "ACTIVE".equals(tx.getStatusSubs()) &&
                     (tx.getEndedAt() == null || tx.getEndedAt().isAfter(now))) {
                 activeTx = tx;
                 break;
@@ -66,3 +66,4 @@ public class AccessServiceImpl implements AccessService {
         return new ChapterAccess(false, DEFAULT_PREVIEW_COUNT);
     }
 }
+

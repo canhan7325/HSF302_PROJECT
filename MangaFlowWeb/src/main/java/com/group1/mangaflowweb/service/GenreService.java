@@ -1,25 +1,22 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.request.admin.GenreAdRequest;
-import com.group1.mangaflowweb.dto.response.GenreResponse;
-import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
+import com.group1.mangaflowweb.dto.genre.GenreDTO;
+import com.group1.mangaflowweb.dto.genre.GenreAdminDTO;
 
 import java.util.List;
 
-import com.group1.mangaflowweb.dto.request.GenreRequest;
-import com.group1.mangaflowweb.entity.Comics;
-
 public interface GenreService {
 
-    List<GenreAdminResponse> getAllGenresWithCount();
+    List<GenreAdminDTO> getAllGenresWithCount();
 
-    List<GenreAdminResponse> searchGenres(String name);
+    List<GenreAdminDTO> searchGenres(String name);
 
-    void createGenre(GenreAdRequest form);
+    void createGenre(GenreDTO form);
 
-    void updateGenre(Integer id, GenreAdRequest form);
+    void updateGenre(Integer id, GenreDTO form);
 
     void deleteGenre(Integer id);
 
-    List<GenreResponse> getAllGenres();
+    List<GenreDTO> getAllGenres();
 }
+

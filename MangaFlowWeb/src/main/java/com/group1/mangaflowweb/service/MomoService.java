@@ -1,7 +1,8 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.momo.MomoPaymentResponse;
+import com.group1.mangaflowweb.dto.payment.MomoPaymentDTO;
 
 public interface MomoService {
-    MomoPaymentResponse createPayment(String orderId, String amount, String orderInfo);
+    MomoPaymentDTO createPayment(String orderId, String amount, String orderInfo);
 }
+

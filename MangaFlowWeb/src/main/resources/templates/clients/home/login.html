@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng nhập - Editorial Manga</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        body.bg-dot-pattern {
+            background-color: #f9f9f9;
+            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .btn-brand {
+            background-color: #d96a00;
+            border-color: #d96a00;
+            color: white;
+        }
+
+        .btn-brand:hover {
+            background-color: #b55800;
+            border-color: #b55800;
+            color: white;
+        }
+
+        .text-brand {
+            color: #d96a00 !important;
+        }
+
+        .form-icon-wrap {
+            position: relative;
+        }
+
+        .form-icon-wrap .bi {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .form-icon-wrap .bi-left {
+            left: 15px;
+        }
+
+        .form-icon-wrap .bi-right {
+            right: 15px;
+            cursor: pointer;
+        }
+
+        .form-icon-wrap input {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+
+        /* Hide default edge password eye icon */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-dot-pattern">
+    <!-- Header -->
+    <div th:replace="~{clients/fragments/headers :: header}"></div>
+    <main class="container d-flex justify-content-center align-items-center min-vh-100 py-4">
+        <div class="card shadow-lg border-0 rounded-4"
+            style="width: 100%; max-width: 450px; background-color: #ffffff;">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-book-fill text-brand fs-1"></i>
+                    <h2 class="fw-bold mt-2" style="color: #212529;">Đăng nhập</h2>
+                    <p class="text-muted small">Chào mừng bạn trở lại với MangaCurator.</p>
+                </div>
+                <div th:if="${error}" class="alert alert-danger small" th:text="${error}"></div>
+                <form th:action="@{/login}" method="post">
+                    <div class="mb-3">
+                        <label for="username" class="form-label small mb-1" style="color: #212529;">Tên đăng
+                            nhập</label>
+                        <div class="form-icon-wrap">
+                            <i class="bi bi-person-fill bi-left"></i>
+                            <input type="text" class="form-control form-control-lg rounded-3 fs-6" id="username"
+                                name="username" placeholder="Nhập tên đăng nhập" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="password" class="form-label small mb-0" style="color: #212529;">Mật khẩu</label>
+                            <a href="#" class="text-decoration-none text-brand small">Quên mật khẩu?</a>
+                        </div>
+                        <div class="form-icon-wrap">
+                            <i class="bi bi-lock-fill bi-left"></i>
+                            <input type="password" class="form-control form-control-lg rounded-3 fs-6" id="password"
+                                name="password" placeholder="Nhập mật khẩu" required>
+                            <i class="bi bi-eye-slash-fill bi-right" id="togglePassword"></i>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 mb-4">
+                        <button type="submit" class="btn btn-brand btn-lg rounded-pill fw-bold py-2 fs-6 shadow-sm">Đăng
+                            nhập</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3 mb-4">
+                    <p class="mb-0 text-muted small">
+                        Bạn chưa có tài khoản?
+                        <a th:href="@{/register}" class="text-brand fw-bold text-decoration-none">Đăng ký ngay</a>
+                    </p>
+                </div>
+
+
+
+
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <div th:replace="~{clients/fragments/footers :: footer}"></div>
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            const password = document.getElementById('password');
+            if (password.type === 'password') {
+                password.type = 'text';
+                this.classList.remove('bi-eye-slash-fill');
+                this.classList.add('bi-eye-fill');
+            } else {
+                password.type = 'password';
+                this.classList.remove('bi-eye-fill');
+                this.classList.add('bi-eye-slash-fill');
+            }
+        });
+    </script>
+</body>
+
+</html>

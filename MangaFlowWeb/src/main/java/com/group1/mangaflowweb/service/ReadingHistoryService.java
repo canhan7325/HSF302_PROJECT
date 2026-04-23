@@ -1,13 +1,12 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.readinghistory.ReadingHistoryRequest;
-import com.group1.mangaflowweb.dto.readinghistory.ReadingHistoryResponse;
+import com.group1.mangaflowweb.dto.history.ReadingHistoryDTO;
 
 import com.group1.mangaflowweb.entity.ReadingHistories;
 import java.util.List;
 
 public interface ReadingHistoryService {
-    ReadingHistoryResponse readingHistory(ReadingHistoryRequest readingHistoryRequest);
+    ReadingHistoryDTO readingHistory(ReadingHistoryDTO readingHistoryRequest);
     void upsertForUserReadChapter(Integer userId, Integer chapterId);
     Integer resolveReadNowChapterId(Integer userId, Integer comicId);
     
@@ -15,3 +14,4 @@ public interface ReadingHistoryService {
 
     void incrementComicViewCount(Integer comicId);
 }
+

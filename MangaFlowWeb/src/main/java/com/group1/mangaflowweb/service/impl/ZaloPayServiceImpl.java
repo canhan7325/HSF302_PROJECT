@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.config.ZaloPayConfig;
-import com.group1.mangaflowweb.dto.zalopay.ZaloPayPaymentResponse;
+import com.group1.mangaflowweb.dto.payment.ZaloPayPaymentDTO;
 import com.group1.mangaflowweb.service.ZaloPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class ZaloPayServiceImpl implements ZaloPayService {
     private final ZaloPayConfig zaloPayConfig;
 
     @Override
-    public ZaloPayPaymentResponse createPayment(String orderId, String amount, String orderInfo) {
+    public ZaloPayPaymentDTO createPayment(String orderId, String amount, String orderInfo) {
         try {
             String embedDataString = "{\"redirecturl\":\"" + zaloPayConfig.getReturnUrl() + "\"}";
 
@@ -67,10 +67,10 @@ public class ZaloPayServiceImpl implements ZaloPayService {
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-            ResponseEntity<ZaloPayPaymentResponse> response = restTemplate.postForEntity(
+            ResponseEntity<ZaloPayPaymentDTO> response = restTemplate.postForEntity(
                     zaloPayConfig.getEndpoint(),
                     request,
-                    ZaloPayPaymentResponse.class
+                    ZaloPayPaymentDTO.class
             );
 
             return response.getBody();
@@ -98,3 +98,4 @@ public class ZaloPayServiceImpl implements ZaloPayService {
         }
     }
 }
+

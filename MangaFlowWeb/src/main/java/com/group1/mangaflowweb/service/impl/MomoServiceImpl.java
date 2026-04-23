@@ -1,8 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.config.MomoConfig;
-import com.group1.mangaflowweb.dto.momo.MomoPaymentRequest;
-import com.group1.mangaflowweb.dto.momo.MomoPaymentResponse;
+import com.group1.mangaflowweb.dto.payment.MomoPaymentDTO;
 import com.group1.mangaflowweb.service.MomoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,7 @@ public class MomoServiceImpl implements MomoService {
     private final MomoConfig momoConfig;
 
     @Override
-    public MomoPaymentResponse createPayment(String orderId, String amount, String orderInfo) {
+    public MomoPaymentDTO createPayment(String orderId, String amount, String orderInfo) {
         String requestId = UUID.randomUUID().toString();
         String extraData = "";
 
@@ -43,31 +42,31 @@ public class MomoServiceImpl implements MomoService {
 
         String signature = generateHmacSHA256(rawSignature, momoConfig.getSecretKey());
 
-        MomoPaymentRequest request = new MomoPaymentRequest(
-                momoConfig.getPartnerCode(),
-                momoConfig.getAccessKey(),
-                requestId,
-                amount,
-                orderId,
-                orderInfo,
-                momoConfig.getReturnUrl(),
-                momoConfig.getNotifyUrl(),
-                momoConfig.getRequestType(),
-                extraData,
-                "vi",
-                signature
-        );
+        MomoPaymentDTO request = MomoPaymentDTO.builder()
+                .partnerCode(momoConfig.getPartnerCode())
+                .accessKey(momoConfig.getAccessKey())
+                .requestId(requestId)
+                .amount(amount)
+                .orderId(orderId)
+                .orderInfo(orderInfo)
+                .redirectUrl(momoConfig.getReturnUrl())
+                .ipnUrl(momoConfig.getNotifyUrl())
+                .requestType(momoConfig.getRequestType())
+                .extraData(extraData)
+                .lang("vi")
+                .signature(signature)
+                .build();
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MomoPaymentRequest> entity = new HttpEntity<>(request, headers);
+        HttpEntity<MomoPaymentDTO> entity = new HttpEntity<>(request, headers);
 
         try {
-            ResponseEntity<MomoPaymentResponse> response = restTemplate.postForEntity(
+            ResponseEntity<MomoPaymentDTO> response = restTemplate.postForEntity(
                     momoConfig.getEndpoint(),
                     entity,
-                    MomoPaymentResponse.class
+                    MomoPaymentDTO.class
             );
             return response.getBody();
         } catch (Exception e) {
@@ -104,3 +103,4 @@ public class MomoServiceImpl implements MomoService {
         }
     }
 }
+

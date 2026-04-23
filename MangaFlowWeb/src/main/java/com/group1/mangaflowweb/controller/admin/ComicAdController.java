@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
+import com.group1.mangaflowweb.dto.comic.ComicAdminDTO;
 import com.group1.mangaflowweb.service.CloudinaryUploadService;
 import com.group1.mangaflowweb.service.ComicService;
 import jakarta.validation.Valid;
@@ -39,7 +39,7 @@ public class ComicAdController {
 
     @GetMapping("/manga/new")
     public String mangaNewForm(Model model) {
-        model.addAttribute("comic", new ComicAdRequest());
+        model.addAttribute("comic", new ComicAdminDTO());
         model.addAttribute("genres", comicService.getAllGenresWithCount());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
@@ -47,7 +47,7 @@ public class ComicAdController {
     }
 
     @PostMapping("/manga/new")
-    public String mangaCreate(@Valid ComicAdRequest comic, BindingResult result,
+    public String mangaCreate(@Valid ComicAdminDTO comic, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("genres", comicService.getAllGenresWithCount());
@@ -63,7 +63,7 @@ public class ComicAdController {
     @GetMapping("/manga/{id}/edit")
     public String mangaEditForm(@PathVariable Integer id, Model model) {
         var existing = comicService.getComicById(id);
-        ComicAdRequest form = new ComicAdRequest();
+        ComicAdminDTO form = new ComicAdminDTO();
         form.setTitle(existing.getTitle());
         form.setDescription(null);
         form.setCoverImg(null);
@@ -80,7 +80,7 @@ public class ComicAdController {
 
     @PostMapping("/manga/{id}/edit")
     public String mangaUpdate(@PathVariable Integer id,
-                              @Valid ComicAdRequest comic, BindingResult result,
+                              @Valid ComicAdminDTO comic, BindingResult result,
                               @RequestParam(required = false) MultipartFile coverFile,
                               Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
@@ -119,3 +119,4 @@ public class ComicAdController {
         return "redirect:/admin/manga";
     }
 }
+

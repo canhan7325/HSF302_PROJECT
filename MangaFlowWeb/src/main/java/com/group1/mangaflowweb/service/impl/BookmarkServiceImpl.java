@@ -1,8 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
-import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
-import com.group1.mangaflowweb.dto.view.BookmarkListItemView;
+import com.group1.mangaflowweb.dto.bookmark.BookmarkDTO;
+import com.group1.mangaflowweb.dto.bookmark.BookmarkListItemDTO;
 import com.group1.mangaflowweb.entity.*;
 import com.group1.mangaflowweb.repository.*;
 import com.group1.mangaflowweb.service.BookmarkService;
@@ -24,49 +23,49 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookmarkServiceImpl implements BookmarkService {
 
-	private final BookmarkRepository bookmarkRepository;
-	private final ComicRepository comicRepository;
-	private final UserRepository userRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final ComicRepository comicRepository;
+    private final UsersRepository usersRepository;
     private final ReadingHistoryRepository readingHistoryRepository;
     private final ChapterRepository chapterRepository;
     private final UserContextService userContextService;
     private final ComicService comicService;
 
-	@Override
-	public boolean isBookmarked(Integer userId, Integer comicId) {
-		return bookmarkRepository.existsByUser_UserIdAndComic_ComicId(userId, comicId);
-	}
-
-	@Override
-	public long countFollowers(Integer comicId) {
-		return bookmarkRepository.countByComic_ComicId(comicId);
-	}
-
-	@Override
-	@Transactional
-	public boolean toggleBookmark(Integer userId, Integer comicId) {
-		return bookmarkRepository.findByUser_UserIdAndComic_ComicId(userId, comicId)
-				.map(existing -> {
-					bookmarkRepository.delete(existing);
-					return false;
-				})
-				.orElseGet(() -> {
-					Users user = userRepository.findById(userId)
-							.orElseThrow(() -> new IllegalArgumentException("User not found"));
-					Comics comic = comicRepository.findById(comicId)
-							.orElseThrow(() -> new IllegalArgumentException("Comic not found"));
-
-					Bookmarks bookmark = Bookmarks.builder()
-							.user(user)
-							.comic(comic)
-							.build();
-					bookmarkRepository.save(bookmark);
-					return true;
-				});
-	}
     @Override
-    public BookmarkResponse create(BookmarkRequest request) {
-        Users user = userRepository.findById(request.getUserId())
+    public boolean isBookmarked(Integer userId, Integer comicId) {
+        return bookmarkRepository.existsByUser_UserIdAndComic_ComicId(userId, comicId);
+    }
+
+    @Override
+    public long countFollowers(Integer comicId) {
+        return bookmarkRepository.countByComic_ComicId(comicId);
+    }
+
+    @Override
+    @Transactional
+    public boolean toggleBookmark(Integer userId, Integer comicId) {
+        return bookmarkRepository.findByUser_UserIdAndComic_ComicId(userId, comicId)
+                .map(existing -> {
+                    bookmarkRepository.delete(existing);
+                    return false;
+                })
+                .orElseGet(() -> {
+                    Users user = usersRepository.findById(userId)
+                            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                    Comics comic = comicRepository.findById(comicId)
+                            .orElseThrow(() -> new IllegalArgumentException("Comic not found"));
+                    Bookmarks bookmark = Bookmarks.builder()
+                            .user(user)
+                            .comic(comic)
+                            .build();
+                    bookmarkRepository.save(bookmark);
+                    return true;
+                });
+    }
+
+    @Override
+    public BookmarkDTO create(BookmarkDTO request) {
+        Users user = usersRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         Comics comic = comicRepository.findById(request.getComicId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found"));
@@ -81,38 +80,38 @@ public class BookmarkServiceImpl implements BookmarkService {
                 .comic(comic)
                 .build();
 
-        return toResponse(bookmarkRepository.save(bookmark));
+        return toDTO(bookmarkRepository.save(bookmark));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public BookmarkResponse getById(Integer bookmarkId) {
-        return toResponse(findBookmarkOrThrow(bookmarkId));
+    public BookmarkDTO getById(Integer bookmarkId) {
+        return toDTO(findBookmarkOrThrow(bookmarkId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookmarkResponse> getAll() {
-        return bookmarkRepository.findAll().stream().map(this::toResponse).toList();
+    public List<BookmarkDTO> getAll() {
+        return bookmarkRepository.findAll().stream().map(this::toDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookmarkResponse> getByUserId(Integer userId) {
-        return bookmarkRepository.findByUser_UserId(userId).stream().map(this::toResponse).toList();
+    public List<BookmarkDTO> getByUserId(Integer userId) {
+        return bookmarkRepository.findByUser_UserId(userId).stream().map(this::toDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookmarkResponse> getByComicId(Integer comicId) {
-        return bookmarkRepository.findByComic_ComicId(comicId).stream().map(this::toResponse).toList();
+    public List<BookmarkDTO> getByComicId(Integer comicId) {
+        return bookmarkRepository.findByComic_ComicId(comicId).stream().map(this::toDTO).toList();
     }
 
     @Override
-    public BookmarkResponse update(Integer bookmarkId, BookmarkRequest request) {
+    public BookmarkDTO update(Integer bookmarkId, BookmarkDTO request) {
         Bookmarks bookmark = findBookmarkOrThrow(bookmarkId);
 
-        Users user = userRepository.findById(request.getUserId())
+        Users user = usersRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         Comics comic = comicRepository.findById(request.getComicId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found"));
@@ -125,7 +124,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         bookmark.setUser(user);
         bookmark.setComic(comic);
-        return toResponse(bookmarkRepository.save(bookmark));
+        return toDTO(bookmarkRepository.save(bookmark));
     }
 
     @Override
@@ -139,8 +138,8 @@ public class BookmarkServiceImpl implements BookmarkService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bookmark not found"));
     }
 
-    private BookmarkResponse toResponse(Bookmarks bookmark) {
-        return BookmarkResponse.builder()
+    private BookmarkDTO toDTO(Bookmarks bookmark) {
+        return BookmarkDTO.builder()
                 .bookmarkId(bookmark.getBookmarkId())
                 .userId(bookmark.getUser() != null ? bookmark.getUser().getUserId() : null)
                 .comicId(bookmark.getComic() != null ? bookmark.getComic().getComicId() : null)
@@ -150,17 +149,16 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookmarkListItemView> getUserBookmarkListView(Integer userId, Integer comicId) {
+    public List<BookmarkListItemDTO> getUserBookmarkListView(Integer userId, Integer comicId) {
 
-        List<BookmarkResponse> bookmarkResponses;
+        List<BookmarkDTO> bookmarkDTOs;
         if (userId != null) {
-            bookmarkResponses = getByUserId(userId);
+            bookmarkDTOs = getByUserId(userId);
         } else if (comicId != null) {
-            bookmarkResponses = getByComicId(comicId);
+            bookmarkDTOs = getByComicId(comicId);
         } else {
-            bookmarkResponses = getAll();
+            bookmarkDTOs = getAll();
         }
-
 
         final Map<Integer, ReadingHistories> latestByComic = (userId != null)
                 ? readingHistoryRepository.findByUser_UserIdOrderByReadAtDesc(userId).stream()
@@ -172,20 +170,16 @@ public class BookmarkServiceImpl implements BookmarkService {
                 ))
                 : Map.of();
 
-
-        return bookmarkResponses.stream()
+        return bookmarkDTOs.stream()
                 .map(br -> {
                     Integer bComicId = br.getComicId();
                     var comic = (bComicId != null) ? comicService.getById(bComicId) : null;
-
 
                     ReadingHistories rh = (bComicId != null) ? latestByComic.get(bComicId) : null;
                     Integer continueChapterId = (rh != null && rh.getChapter() != null) ? rh.getChapter().getChapterId() : null;
                     Integer continueChapterNumber = (rh != null && rh.getChapter() != null) ? rh.getChapter().getChapterNumber() : null;
 
-
                     Chapters first = null;
-
                     if (bComicId != null) {
                         first = chapterRepository
                                 .findFirstByComic_ComicIdOrderByChapterNumberAsc(bComicId)
@@ -195,7 +189,7 @@ public class BookmarkServiceImpl implements BookmarkService {
                     Integer firstChapterId = (first != null) ? first.getChapterId() : null;
                     Integer firstChapterNumber = (first != null) ? first.getChapterNumber() : null;
 
-                    return BookmarkListItemView.builder()
+                    return BookmarkListItemDTO.builder()
                             .bookmarkId(br.getBookmarkId())
                             .comicId(bComicId)
                             .comicName(comic != null ? comic.getTitle() : "")
@@ -208,7 +202,7 @@ public class BookmarkServiceImpl implements BookmarkService {
                             .bookmarked(true)
                             .build();
                 })
-                .sorted(Comparator.comparing(BookmarkListItemView::getBookmarkId, Comparator.nullsLast(Integer::compareTo)))
+                .sorted(Comparator.comparing(BookmarkListItemDTO::getBookmarkId, Comparator.nullsLast(Integer::compareTo)))
                 .toList();
     }
 
@@ -216,7 +210,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Transactional
     public Map<String, Object> toggleBookmarkStatus(Integer comicId) {
         Integer currentUserId = userContextService.getCurrentUser()
-                .map(com.group1.mangaflowweb.entity.Users::getUserId)
+                .map(Users::getUserId)
                 .orElse(null);
 
         if (currentUserId == null) {
@@ -231,3 +225,4 @@ public class BookmarkServiceImpl implements BookmarkService {
         );
     }
 }
+

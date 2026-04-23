@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.RegisterRequest;
+import com.group1.mangaflowweb.dto.user.UserDTO;
 import com.group1.mangaflowweb.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -23,13 +23,13 @@ public class RegisterController {
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("hideNav", true);
-        model.addAttribute("registerRequest", new RegisterRequest());
-        return "register";
+        model.addAttribute("registerRequest", new UserDTO());
+        return "clients/home/register";
     }
 
     @PostMapping("/register")
     public String registerUser(
-            @Valid @ModelAttribute RegisterRequest registerRequest,
+            @Valid @ModelAttribute UserDTO registerRequest,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -37,26 +37,29 @@ public class RegisterController {
         model.addAttribute("hideNav", true);
 
         if (bindingResult.hasErrors()) {
-            return "register";
+            return "clients/home/register";
         }
 
         try {
             userService.registerReader(registerRequest);
         } catch (IllegalArgumentException ex) {
             if ("USERNAME_EXISTS".equals(ex.getMessage())) {
-                bindingResult.rejectValue("username", "error.username", "Tên đăng nhập đã tồn tại!");
-                return "register";
+                bindingResult.rejectValue("username", "error.username", "TÃªn Ä‘Äƒng nháº­p Ä‘Ã£ tá»“n táº¡i!");
+                return "clients/home/register";
             }
             if ("EMAIL_EXISTS".equals(ex.getMessage())) {
-                bindingResult.rejectValue("email", "error.email", "Email đã được đăng ký!");
-                return "register";
+                bindingResult.rejectValue("email", "error.email", "Email Ä‘Ã£ Ä‘Æ°á»£c Ä‘Äƒng kÃ½!");
+                return "clients/home/register";
             }
-            bindingResult.reject("error.register", "Không thể đăng ký tài khoản, vui lòng thử lại.");
-            return "register";
+            bindingResult.reject("error.register", "KhÃ´ng thá»ƒ Ä‘Äƒng kÃ½ tÃ i khoáº£n, vui lÃ²ng thá»­ láº¡i.");
+            return "clients/home/register";
         }
 
-        redirectAttributes.addFlashAttribute("message", "Đăng ký thành công! Vui lòng đăng nhập.");
+        redirectAttributes.addFlashAttribute("message", "ÄÄƒng kÃ½ thÃ nh cÃ´ng! Vui lÃ²ng Ä‘Äƒng nháº­p.");
         return "redirect:/login";
     }
 }
+
+
+
 

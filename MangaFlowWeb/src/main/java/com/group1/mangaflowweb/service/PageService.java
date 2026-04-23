@@ -1,37 +1,36 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.response.admin.PageAdminResponse;
-
-import java.util.List;
-
-import com.group1.mangaflowweb.dto.page.PageRequest;
-import com.group1.mangaflowweb.dto.page.PageResponse;
+import com.group1.mangaflowweb.dto.page.PageDTO;
+import com.group1.mangaflowweb.dto.page.PageAdminDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PageService {
 
-    List<PageAdminResponse> getPagesByChapter(Integer chapterId);
+    List<PageAdminDTO> getPagesByChapter(Integer chapterId);
 
-    String uploadAndAddPage(Integer chapterId, org.springframework.web.multipart.MultipartFile file);
+    String uploadAndAddPage(Integer chapterId, MultipartFile file);
 
     void addPage(Integer chapterId, String imgPath);
 
     void deletePage(Integer pageId);
 
     void reorderPages(Integer chapterId, List<Integer> orderedPageIds);
-    PageResponse create(PageRequest request);
 
-    PageResponse getById(Integer pageId);
+    PageDTO create(PageDTO request);
 
-    List<PageResponse> getAll();
+    PageDTO getById(Integer pageId);
 
-    List<PageResponse> getByChapterId(Integer chapterId);
+    List<PageDTO> getAll();
+
+    List<PageDTO> getByChapterId(Integer chapterId);
 
     Optional<String> getFirstPageImagePath(Integer chapterId);
 
-    PageResponse update(Integer pageId, PageRequest request);
+    PageDTO update(Integer pageId, PageDTO request);
 
     void delete(Integer pageId);
 }
+

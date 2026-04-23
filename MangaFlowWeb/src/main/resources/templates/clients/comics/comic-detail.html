@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${comic.title} + ' - MangaFlow'">Comic Detail - MangaFlow</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Manrope:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=20260422_1)}">
+</head>
+<body class="mf-body">
+<div th:replace="~{clients/fragments/headers :: header}"></div>
+
+<main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
+    <div class="mf-detail-hero rounded-4 p-3 p-md-4 mb-4 mb-md-5">
+        <div class="mf-detail-hero-bg"
+             th:if="${!#strings.isEmpty(@imageUrlResolver.resolve(comic.coverImg))}"
+             th:style="'background-image: url(' + ${@imageUrlResolver.resolve(comic.coverImg)} + ');'"></div>
+        <div class="row g-4 align-items-end">
+            <div class="col-12 col-md-4 col-lg-3">
+                <div class="mf-detail-cover-wrap">
+                    <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}"
+                         th:alt="${comic.title}"
+                         class="img-fluid w-100 h-100 object-fit-cover rounded-3 shadow">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-8 col-lg-9">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge rounded-pill text-bg-light mf-detail-badge"
+                          th:each="genre : ${comic.genres}"
+                          th:text="${genre.name}">Action</span>
+                    <span class="badge rounded-pill text-bg-light mf-detail-badge" th:if="${#lists.isEmpty(comic.genres)}">Chưa có thể loại</span>
+                </div>
+
+                <h1 class="mf-heading mb-3" th:text="${comic.title}">Comic Title</h1>
+                <p class="mb-3 text-light-emphasis">Tác giả: <b th:text="${comic.authorName}">author</b></p>
+
+                <div class="d-flex flex-wrap gap-3 gap-md-4 mb-4">
+                    <div class="mf-metric-item">
+                        <span class="material-symbols-outlined">visibility</span>
+                        <span class="fw-semibold" th:text="${#numbers.formatInteger(comic.viewCount, 1, 'COMMA')}">0</span>
+                        <small>Lượt xem</small>
+                    </div>
+                    <div class="mf-metric-item">
+                        <span class="material-symbols-outlined">favorite</span>
+                        <span class="fw-semibold" th:text="${#numbers.formatInteger(comic.followerCount, 1, 'COMMA')}">0</span>
+                        <small>Lượt theo dõi</small>
+                    </div>
+                    <div class="mf-metric-item">
+                        <span class="material-symbols-outlined">menu_book</span>
+                        <span class="fw-semibold" th:text="${#lists.size(comic.chapters)}">0</span>
+                        <small>Chương</small>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 gap-md-3">
+                    <a class="btn btn-warning text-dark rounded-pill px-4 py-2"
+                            th:if="${hasChapters and comic.comicId != null}"
+                            th:href="@{/comic/{comicId}/read-now(comicId=${comic.comicId})}">
+                        <span class="material-symbols-outlined me-1">menu_book</span>
+                        Đọc ngay
+                    </a>
+
+                    <a class="btn btn-warning text-dark rounded-pill px-4 py-2 disabled"
+                            th:unless="${hasChapters and comic.comicId != null}"
+                            th:href="'#'"
+                            aria-disabled="true">
+                        <span class="material-symbols-outlined me-1">menu_book</span>
+                        Đọc ngay
+                    </a>
+
+                    <button type="button"
+                            class="btn btn-outline-light rounded-pill px-4 py-2 bookmark-btn"
+                            th:classappend="${comic.bookmarked} ? ' is-bookmarked' : ''"
+                            th:attr="data-comic-id=${comic.comicId}"
+                            sec:authorize="isAuthenticated()">
+
+                        <span class="material-symbols-outlined me-1">bookmark</span>
+                        <span>Bookmark</span>
+                    </button>
+
+                    <a th:href="@{/login}" sec:authorize="!isAuthenticated()" class="btn btn-outline-light rounded-pill px-4 py-2">
+                        <span class="material-symbols-outlined me-1">bookmark</span>
+                        Đăng nhập để Bookmark
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-success mb-4" role="alert" th:if="${bookmarkMessage != null}" th:text="${bookmarkMessage}">
+        Đã lưu truyện.
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <section class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="mf-section-title mb-3">
+                        <span class="material-symbols-outlined me-1">description</span>
+                        Giới Thiệu
+                    </h2>
+                    <p class="mb-0 text-secondary lh-lg" th:text="${comic.description}">Chưa có mô tả</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <section class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h3 class="mf-section-title fs-4 mb-3">
+                        <span class="material-symbols-outlined me-1">tag</span>
+                        Thể Loại
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge rounded-pill text-bg-secondary" th:each="genre : ${comic.genres}" th:text="${genre.name}">Action</span>
+                        <span class="text-muted small" th:if="${#lists.isEmpty(comic.genres)}">Chưa có dữ liệu thể loại</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="card border-0 shadow-sm rounded-4 mt-4 mt-md-5">
+        <div class="card-header bg-white border-0 p-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="mf-section-title mb-0">
+                <span class="material-symbols-outlined me-1">list_alt</span>
+                Danh Sách Chương
+            </h2>
+            <button id="chapterSortBtn" type="button" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <span class="material-symbols-outlined align-middle">swap_vert</span>
+                Sắp Xếp
+            </button>
+        </div>
+
+        <div class="table-responsive" id="chapterTableContainer" style="max-height: 620px; overflow-y: auto;">
+            <table class="table align-middle mb-0" id="chapterTable">
+                <thead>
+                <tr>
+                    <th class="px-4 py-3">Chương</th>
+                    <th class="px-4 py-3">Chủ đề</th>
+                    <th class="px-4 py-3">Ngày phát hành</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="chapter, iterStat : ${comic.chapters}"
+                    th:id="'chapter-' + ${chapter.chapterNumber}"
+                    th:style="${iterStat.index >= 10} ? 'display:none;' : ''">
+                    <td class="px-4 py-3 fw-semibold">
+                        <a class="text-decoration-none"
+                           th:href="@{/chapters/{chapterId}/read(chapterId=${chapter.chapterId})}"
+                           th:text="'Chương ' + ${chapter.chapterNumber}">Chương 1</a>
+                    </td>
+                    <td class="px-4 py-3">
+                        <a class="text-decoration-none"
+                           th:href="@{/chapters/{chapterId}/read(chapterId=${chapter.chapterId})}"
+                           th:text="${chapter.title != null and !#strings.isEmpty(chapter.title) ? chapter.title : 'Không có tiêu đề'}">Không có tiêu đề</a>
+                    </td>
+                    <td class="px-4 py-3 text-muted"
+                        th:text="${chapter.createdAt != null ? #temporals.format(chapter.createdAt, 'dd/MM/yyyy') : ''}">01/01/2026</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(comic.chapters)}">
+                    <td colspan="3" class="px-4 py-4 text-center text-muted">Chưa có chương nào.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{clients/fragments/footers :: footer}"></div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/comic-detail.js(v=20260422_3)}"></script>
+<script th:inline="javascript">
+    window.APP_IS_LOGGED_IN = /*[[${#authorization.expression('isAuthenticated()')}]]*/ false;
+</script>
+
+<script th:src="@{/js/bookmark.js}" defer></script>
+</body>
+</html>
+

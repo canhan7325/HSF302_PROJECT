@@ -1,33 +1,28 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.comic.ComicSearchDTO;
-import com.group1.mangaflowweb.dto.request.admin.ComicAdRequest;
-import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
-import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
-import com.group1.mangaflowweb.dto.comic.ComicRequest;
-import com.group1.mangaflowweb.dto.comic.ComicResponse;
+import com.group1.mangaflowweb.dto.comic.ComicAdminDTO;
+import com.group1.mangaflowweb.dto.comic.ComicDTO;
+import com.group1.mangaflowweb.dto.comic.ComicSummaryDTO;
+import com.group1.mangaflowweb.dto.genre.GenreAdminDTO;
 import com.group1.mangaflowweb.entity.*;
 import com.group1.mangaflowweb.enums.ComicEnum;
 import com.group1.mangaflowweb.repository.ComicRepository;
 import com.group1.mangaflowweb.repository.GenreRepository;
-import com.group1.mangaflowweb.repository.UserRepository;
+import com.group1.mangaflowweb.repository.UsersRepository;
 import com.group1.mangaflowweb.service.ComicService;
+import com.group1.mangaflowweb.util.ImageUrlResolver;
 import com.group1.mangaflowweb.util.SlugUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.group1.mangaflowweb.util.ImageUrlResolver;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,35 +30,40 @@ public class ComicServiceImpl implements ComicService {
 
     private final ComicRepository comicRepository;
     private final GenreRepository genreRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository usersRepository;
     private final ImageUrlResolver imageUrlResolver;
 
-    public ComicServiceImpl(ComicRepository comicRepository, GenreRepository genreRepository, UserRepository userRepository, ImageUrlResolver imageUrlResolver) {
+    public ComicServiceImpl(ComicRepository comicRepository,
+                            GenreRepository genreRepository,
+                            UsersRepository usersRepository,
+                            ImageUrlResolver imageUrlResolver) {
         this.comicRepository = comicRepository;
         this.genreRepository = genreRepository;
-        this.userRepository = userRepository;
+        this.usersRepository = usersRepository;
         this.imageUrlResolver = imageUrlResolver;
     }
 
+    // ── Admin CRUD ────────────────────────────────────────────────────────────
+
     @Override
-    public Page<ComicAdminResponse> getComicsPage(Pageable pageable, String search) {
+    public Page<ComicAdminDTO> getComicsPage(Pageable pageable, String search) {
         if (search != null && !search.isBlank()) {
             return comicRepository.findByTitleContainingIgnoreCase(search, pageable)
-                    .map(this::toComicAdminResponse);
+                    .map(this::toComicAdminDTO);
         }
-        return comicRepository.findAll(pageable).map(this::toComicAdminResponse);
+        return comicRepository.findAll(pageable).map(this::toComicAdminDTO);
     }
 
     @Override
-    public ComicAdminResponse getComicById(Integer id) {
+    public ComicAdminDTO getComicById(Integer id) {
         Comics comic = comicRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Comic not found with id: " + id));
-        return toComicAdminResponse(comic);
+        return toComicAdminDTO(comic);
     }
 
     @Override
     @Transactional
-    public void createComic(ComicAdRequest form) {
+    public void createComic(ComicAdminDTO form) {
         LocalDateTime now = LocalDateTime.now();
         Comics comic = new Comics();
         comic.setTitle(form.getTitle());
@@ -93,7 +93,7 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     @Transactional
-    public void updateComic(Integer id, ComicAdRequest form) {
+    public void updateComic(Integer id, ComicAdminDTO form) {
         Comics comic = comicRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Comic not found with id: " + id));
         comic.setTitle(form.getTitle());
@@ -105,7 +105,6 @@ public class ComicServiceImpl implements ComicService {
         }
         comic.setUpdatedAt(LocalDateTime.now());
 
-        // Update genres
         comic.getGenreComics().clear();
         if (form.getGenreIds() != null && !form.getGenreIds().isEmpty()) {
             for (Integer genreId : form.getGenreIds()) {
@@ -119,7 +118,6 @@ public class ComicServiceImpl implements ComicService {
                 comic.getGenreComics().add(gc);
             }
         }
-
         comicRepository.save(comic);
     }
 
@@ -141,16 +139,19 @@ public class ComicServiceImpl implements ComicService {
     }
 
     @Override
-    public List<GenreAdminResponse> getAllGenresWithCount() {
+    public List<GenreAdminDTO> getAllGenresWithCount() {
         return genreRepository.findAll().stream()
-                .map(g -> new GenreAdminResponse(
-                        g.getGenreId(),
-                        g.getName(),
-                        g.getSlug(),
-                        g.getGenreComics().size()))
-                .sorted(Comparator.comparingLong(GenreAdminResponse::getComicCount).reversed())
+                .map(g -> GenreAdminDTO.builder()
+                        .genreId(g.getGenreId())
+                        .name(g.getName())
+                        .slug(g.getSlug())
+                        .comicCount(g.getGenreComics().size())
+                        .build())
+                .sorted(Comparator.comparingLong(GenreAdminDTO::getComicCount).reversed())
                 .toList();
     }
+
+    // ── Legacy / other uses ──────────────────────────────────────────────────
 
     @Override
     public long getTotalComics() {
@@ -210,34 +211,11 @@ public class ComicServiceImpl implements ComicService {
         return comics;
     }
 
-    // --- helpers ---
+    // ── Client-facing CRUD ───────────────────────────────────────────────────
 
-    private ComicAdminResponse toComicAdminResponse(Comics comic) {
-        String uploaderUsername = comic.getUser() != null ? comic.getUser().getUsername() : null;
-        int chapterCount = comic.getChapters() != null ? comic.getChapters().size() : 0;
-        List<Integer> genreIds = comic.getGenreComics() != null
-                ? comic.getGenreComics().stream()
-                        .filter(gc -> gc.getGenre() != null)
-                        .map(gc -> gc.getGenre().getGenreId())
-                        .toList()
-                : List.of();
-        return new ComicAdminResponse(
-                comic.getComicId(),
-                comic.getTitle(),
-                comic.getSlug(),
-                comic.getStatus(),
-                comic.getViewCount(),
-                chapterCount,
-                uploaderUsername,
-                comic.getCoverImg(),
-                comic.getCreatedAt(),
-                comic.getUpdatedAt(),
-                genreIds
-        );
-    }
     @Override
-    public ComicResponse create(ComicRequest request) {
-        Users user = userRepository.findById(request.getUserId())
+    public ComicDTO create(ComicDTO request) {
+        Users user = usersRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         comicRepository.findBySlug(request.getSlug())
@@ -260,55 +238,51 @@ public class ComicServiceImpl implements ComicService {
         Comics savedComic = comicRepository.save(comic);
 
         if (request.getGenreIds() != null && !request.getGenreIds().isEmpty()) {
-
             for (Integer genreId : request.getGenreIds()) {
-
                 Genres genre = genreRepository.findById(genreId)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
-
                 GenreComics gc = GenreComics.builder()
                         .id(new GenreComicsId(savedComic.getComicId(), genreId))
                         .comic(savedComic)
                         .genre(genre)
                         .build();
-
                 savedComic.getGenreComics().add(gc);
             }
             comicRepository.save(savedComic);
         }
 
-        return toResponse(savedComic);
+        return toDTO(savedComic);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ComicResponse getById(Integer comicId) {
-        return toResponse(findComicOrThrow(comicId));
+    public ComicDTO getById(Integer comicId) {
+        return toDTO(findComicOrThrow(comicId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ComicResponse getBySlug(String slug) {
-        return toResponse(comicRepository.findBySlug(slug)
+    public ComicDTO getBySlug(String slug) {
+        return toDTO(comicRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found")));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComicResponse> getAll() {
-        return comicRepository.findAll().stream().map(this::toResponse).toList();
+    public List<ComicDTO> getAll() {
+        return comicRepository.findAll().stream().map(this::toDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComicResponse> getByUserId(Integer userId) {
-        return comicRepository.findByUser_UserId(userId).stream().map(this::toResponse).toList();
+    public List<ComicDTO> getByUserId(Integer userId) {
+        return comicRepository.findByUser_UserId(userId).stream().map(this::toDTO).toList();
     }
 
     @Override
-    public ComicResponse update(Integer comicId, ComicRequest request) {
+    public ComicDTO update(Integer comicId, ComicDTO request) {
         Comics comic = findComicOrThrow(comicId);
-        com.group1.mangaflowweb.entity.Users user = userRepository.findById(request.getUserId())
+        Users user = usersRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         comicRepository.findBySlug(request.getSlug())
@@ -325,7 +299,7 @@ public class ComicServiceImpl implements ComicService {
         comic.setUser(user);
         comic.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(comicRepository.save(comic));
+        return toDTO(comicRepository.save(comic));
     }
 
     @Override
@@ -336,7 +310,7 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComicSearchDTO> searchByTitle(String query) {
+    public List<ComicSummaryDTO> searchByTitle(String query) {
         String normalizedKeyword = query == null ? "" : query.trim();
         if (normalizedKeyword.isEmpty()) {
             return List.of();
@@ -355,18 +329,18 @@ public class ComicServiceImpl implements ComicService {
 
         return uniqueMatches.values().stream()
                 .limit(limit)
-                .map(comic -> ComicSearchDTO.builder()
-                        .id(comic.getComicId())
+                .map(comic -> ComicSummaryDTO.builder()
+                        .comicId(comic.getComicId())
                         .title(comic.getTitle())
-                        .slug(comic.getSlug())
-                        .coverImage(imageUrlResolver.resolve(comic.getCoverImg()))
+                        .viewCount(comic.getViewCount())
+                        .status(comic.getStatus())
                         .build())
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComicResponse> searchForPageByTitle(String query) {
+    public List<ComicDTO> searchForPageByTitle(String query) {
         String normalizedKeyword = query == null ? "" : query.trim();
         if (normalizedKeyword.isEmpty()) {
             return List.of();
@@ -377,17 +351,43 @@ public class ComicServiceImpl implements ComicService {
                         Comics::getUpdatedAt,
                         Comparator.nullsLast(Comparator.reverseOrder())
                 ))
-                .map(this::toResponse)
+                .map(this::toDTO)
                 .toList();
     }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
 
     private Comics findComicOrThrow(Integer comicId) {
         return comicRepository.findById(comicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found"));
     }
 
-    private ComicResponse toResponse(Comics comic) {
-        return ComicResponse.builder()
+    private ComicAdminDTO toComicAdminDTO(Comics comic) {
+        String uploaderUsername = comic.getUser() != null ? comic.getUser().getUsername() : null;
+        int chapterCount = comic.getChapters() != null ? comic.getChapters().size() : 0;
+        List<Integer> genreIds = comic.getGenreComics() != null
+                ? comic.getGenreComics().stream()
+                        .filter(gc -> gc.getGenre() != null)
+                        .map(gc -> gc.getGenre().getGenreId())
+                        .toList()
+                : List.of();
+        return ComicAdminDTO.builder()
+                .comicId(comic.getComicId())
+                .title(comic.getTitle())
+                .slug(comic.getSlug())
+                .status(comic.getStatus())
+                .viewCount(comic.getViewCount())
+                .chapterCount(chapterCount)
+                .uploaderUsername(uploaderUsername)
+                .coverImg(comic.getCoverImg())
+                .createdAt(comic.getCreatedAt())
+                .updatedAt(comic.getUpdatedAt())
+                .genreIds(genreIds)
+                .build();
+    }
+
+    private ComicDTO toDTO(Comics comic) {
+        return ComicDTO.builder()
                 .comicId(comic.getComicId())
                 .title(comic.getTitle())
                 .slug(comic.getSlug())
@@ -396,27 +396,32 @@ public class ComicServiceImpl implements ComicService {
                 .status(comic.getStatus())
                 .viewCount(comic.getViewCount())
                 .followerCount(comic.getBookmarks() != null ? comic.getBookmarks().size() : 0)
-                .bookmarked(false)  // Default to false - will be set by controller
+                .bookmarked(false)   // default false – controller sets the real value
                 .userId(comic.getUser() != null ? comic.getUser().getUserId() : null)
                 .authorName(comic.getUser() != null ? comic.getUser().getUsername() : null)
                 .createdAt(comic.getCreatedAt())
                 .updatedAt(comic.getUpdatedAt())
-                .chapters(comic.getChapters() != null ? comic.getChapters().stream()
-                                                        .sorted(Comparator.comparing(chapter -> chapter.getChapterNumber() == null ? 0 : chapter.getChapterNumber()))
-                                                        .map(chapter -> ComicResponse.ChapterSummary.builder()
-                                                                        .chapterId(chapter.getChapterId())
-                                                                        .chapterNumber(chapter.getChapterNumber())
-                                                                        .title(chapter.getTitle())
-                                                                        .createdAt(chapter.getCreatedAt())
-                                                                        .build())
-                                                        .toList() : new ArrayList<>())
-                .genres(comic.getGenreComics() != null ? comic.getGenreComics().stream()
-                                                         .filter(gc -> gc.getGenre() != null)
-                                                         .map(gc -> ComicResponse.GenreSummary.builder()
-                                                                    .genreId(gc.getGenre().getGenreId())
-                                                                    .name(gc.getGenre().getName())
-                                                                    .build())
-                                                         .toList() : new ArrayList<>())
+                .chapters(comic.getChapters() != null
+                        ? comic.getChapters().stream()
+                                .sorted(Comparator.comparing(ch -> ch.getChapterNumber() == null ? 0 : ch.getChapterNumber()))
+                                .map(ch -> ComicDTO.ChapterSummary.builder()
+                                        .chapterId(ch.getChapterId())
+                                        .chapterNumber(ch.getChapterNumber())
+                                        .title(ch.getTitle())
+                                        .createdAt(ch.getCreatedAt())
+                                        .build())
+                                .toList()
+                        : new ArrayList<>())
+                .genres(comic.getGenreComics() != null
+                        ? comic.getGenreComics().stream()
+                                .filter(gc -> gc.getGenre() != null)
+                                .map(gc -> ComicDTO.GenreSummary.builder()
+                                        .genreId(gc.getGenre().getGenreId())
+                                        .name(gc.getGenre().getName())
+                                        .build())
+                                .toList()
+                        : new ArrayList<>())
                 .build();
     }
 }
+

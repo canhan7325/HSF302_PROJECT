@@ -1,6 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.response.admin.PageAdminResponse;
+import com.group1.mangaflowweb.dto.page.PageAdminDTO;
 import com.group1.mangaflowweb.service.ChapterService;
 import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.service.PageService;
@@ -42,7 +42,7 @@ public class PageAdController {
 
     @GetMapping("/manga/{id}/chapters/{chId}/pages/json")
     @ResponseBody
-    public List<PageAdminResponse> getPagesJson(@PathVariable Integer id, @PathVariable Integer chId) {
+    public List<PageAdminDTO> getPagesJson(@PathVariable Integer id, @PathVariable Integer chId) {
         return pageService.getPagesByChapter(chId);
     }
 
@@ -76,3 +76,4 @@ public class PageAdController {
         return ResponseEntity.ok("ok");
     }
 }
+

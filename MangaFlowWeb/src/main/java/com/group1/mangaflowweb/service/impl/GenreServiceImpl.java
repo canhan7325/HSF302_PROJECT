@@ -1,8 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.request.admin.GenreAdRequest;
-import com.group1.mangaflowweb.dto.response.GenreResponse;
-import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
+import com.group1.mangaflowweb.dto.genre.GenreDTO;
+import com.group1.mangaflowweb.dto.genre.GenreAdminDTO;
 import com.group1.mangaflowweb.entity.Genres;
 import com.group1.mangaflowweb.repository.GenreRepository;
 import com.group1.mangaflowweb.service.GenreService;
@@ -10,6 +9,7 @@ import com.group1.mangaflowweb.util.SlugUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -23,28 +23,34 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public List<GenreAdminResponse> getAllGenresWithCount() {
+    public List<GenreAdminDTO> getAllGenresWithCount() {
         return genreRepository.findAll().stream()
-                .map(g -> new GenreAdminResponse(
-                        g.getGenreId(),
-                        g.getName(),
-                        g.getSlug(),
-                        g.getGenreComics().size()))
-                .sorted(Comparator.comparingLong(GenreAdminResponse::getComicCount).reversed())
+                .map(g -> GenreAdminDTO.builder()
+                        .genreId(g.getGenreId())
+                        .name(g.getName())
+                        .slug(g.getSlug())
+                        .comicCount(g.getGenreComics().size())
+                        .build())
+                .sorted(Comparator.comparingLong(GenreAdminDTO::getComicCount).reversed())
                 .toList();
     }
 
     @Override
-    public List<GenreAdminResponse> searchGenres(String name) {
+    public List<GenreAdminDTO> searchGenres(String name) {
         return genreRepository.findByNameContainingIgnoreCase(name).stream()
-                .map(g -> new GenreAdminResponse(g.getGenreId(), g.getName(), g.getSlug(), g.getGenreComics().size()))
-                .sorted(Comparator.comparingLong(GenreAdminResponse::getComicCount).reversed())
+                .map(g -> GenreAdminDTO.builder()
+                        .genreId(g.getGenreId())
+                        .name(g.getName())
+                        .slug(g.getSlug())
+                        .comicCount(g.getGenreComics().size())
+                        .build())
+                .sorted(Comparator.comparingLong(GenreAdminDTO::getComicCount).reversed())
                 .toList();
     }
 
     @Override
     @Transactional
-    public void createGenre(GenreAdRequest form) {
+    public void createGenre(GenreDTO form) {
         genreRepository.findByName(form.getName()).ifPresent(g -> {
             throw new IllegalArgumentException("Genre name already exists: " + form.getName());
         });
@@ -56,7 +62,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     @Transactional
-    public void updateGenre(Integer id, GenreAdRequest form) {
+    public void updateGenre(Integer id, GenreDTO form) {
         Genres genre = genreRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Genre not found with id: " + id));
         genre.setName(form.getName());
@@ -76,13 +82,14 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public List<GenreResponse> getAllGenres() {
+    public List<GenreDTO> getAllGenres() {
         return genreRepository.findAll()
                 .stream()
-                .map(g -> GenreResponse.builder()
+                .map(g -> GenreDTO.builder()
                         .genreId(g.getGenreId())
                         .name(g.getName())
                         .build())
                 .toList();
     }
 }
+

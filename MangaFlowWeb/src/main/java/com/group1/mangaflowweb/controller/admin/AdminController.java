@@ -1,9 +1,9 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.response.admin.RevenueDataPointResponse;
+import com.group1.mangaflowweb.dto.admin.RevenueDataPointDTO;
 import com.group1.mangaflowweb.service.AdminDashboardService;
 import com.group1.mangaflowweb.service.ComicService;
-import com.group1.mangaflowweb.service.TransactionService;
+import com.group1.mangaflowweb.service.TransactionsService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,14 +19,14 @@ import java.util.List;
 public class AdminController {
 
     private final AdminDashboardService dashboardService;
-    private final TransactionService transactionService;
+    private final TransactionsService transactionService;
     private final ComicService comicService;
 
     public AdminController(AdminDashboardService dashboardService,
-                           TransactionService transactionService,
+                           TransactionsService transactionService,
                            ComicService comicService) {
         this.dashboardService    = dashboardService;
-        this.transactionService  = transactionService;
+        this.transactionService = transactionService;
         this.comicService        = comicService;
     }
 
@@ -50,7 +50,7 @@ public class AdminController {
 
     @GetMapping("/dashboard/revenue")
     @ResponseBody
-    public List<RevenueDataPointResponse> getRevenue(
+    public List<RevenueDataPointDTO> getRevenue(
             @RequestParam(defaultValue = "month") String period) {
         return dashboardService.getRevenueByPeriod(period);
     }
@@ -91,3 +91,4 @@ public class AdminController {
         return "admin/view-tracking";
     }
 }
+

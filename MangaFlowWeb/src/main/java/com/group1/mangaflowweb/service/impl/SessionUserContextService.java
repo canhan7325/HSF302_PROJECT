@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.entity.Users;
-import com.group1.mangaflowweb.repository.UserRepository;
+import com.group1.mangaflowweb.repository.UsersRepository;
 import com.group1.mangaflowweb.service.UserContextService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class SessionUserContextService implements UserContextService {
 
     private final HttpSession httpSession;
-    private final UserRepository userRepository;
+    private final UsersRepository usersRepository;
 
     @Override
     public Optional<Users> getCurrentUser() {
@@ -25,7 +25,7 @@ public class SessionUserContextService implements UserContextService {
         if (authentication != null && authentication.isAuthenticated()
                 && authentication.getName() != null
                 && !"anonymousUser".equals(authentication.getName())) {
-            return userRepository.findByUsername(authentication.getName());
+            return usersRepository.findByUsername(authentication.getName());
         }
 
         return Optional.empty();

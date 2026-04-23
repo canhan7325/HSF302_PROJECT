@@ -1,7 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.readinghistory.ReadingHistoryRequest;
-import com.group1.mangaflowweb.dto.readinghistory.ReadingHistoryResponse;
+import com.group1.mangaflowweb.dto.history.ReadingHistoryDTO;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Comics;
 import com.group1.mangaflowweb.entity.ReadingHistories;
@@ -9,7 +8,7 @@ import com.group1.mangaflowweb.entity.Users;
 import com.group1.mangaflowweb.repository.ChapterRepository;
 import com.group1.mangaflowweb.repository.ComicRepository;
 import com.group1.mangaflowweb.repository.ReadingHistoryRepository;
-import com.group1.mangaflowweb.repository.UserRepository;
+import com.group1.mangaflowweb.repository.UsersRepository;
 import com.group1.mangaflowweb.service.ReadingHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,13 +23,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReadingHistoryServiceImpl implements ReadingHistoryService {
     private final ReadingHistoryRepository readingHistoryRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository usersRepository;
     private final ChapterRepository chapterRepository;
     private final ComicRepository comicRepository;
 
     @Override
-    public ReadingHistoryResponse readingHistory(ReadingHistoryRequest readingHistoryRequest) {
-        Users user = userRepository.findById(readingHistoryRequest.getUserId())
+    public ReadingHistoryDTO readingHistory(ReadingHistoryDTO readingHistoryRequest) {
+        Users user = usersRepository.findById(readingHistoryRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Chapters chapter = chapterRepository.findById(readingHistoryRequest.getChapterId())
@@ -41,11 +40,11 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
                 .chapter(chapter)
                 .readAt(LocalDateTime.now())
                 .build();
-        return toResponse(readingHistoryRepository.save(readingHistories));
+        return toDTO(readingHistoryRepository.save(readingHistories));
     }
 
-    private ReadingHistoryResponse toResponse(ReadingHistories readingHistories) {
-        return ReadingHistoryResponse.builder()
+    private ReadingHistoryDTO toDTO(ReadingHistories readingHistories) {
+        return ReadingHistoryDTO.builder()
                 .historyId(readingHistories.getReadingHistoryId())
                 .readingDate(readingHistories.getReadAt())
                 .userId(readingHistories.getUser().getUserId())
@@ -67,7 +66,7 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
         }
 
         Integer comicId = chapter.getComic().getComicId();
-        Users user = userRepository.findById(userId)
+        Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         ReadingHistories rh = readingHistoryRepository

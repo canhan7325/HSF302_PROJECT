@@ -1,7 +1,8 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.zalopay.ZaloPayPaymentResponse;
+import com.group1.mangaflowweb.dto.payment.ZaloPayPaymentDTO;
 
 public interface ZaloPayService {
-    ZaloPayPaymentResponse createPayment(String orderId, String amount, String orderInfo);
+    ZaloPayPaymentDTO createPayment(String orderId, String amount, String orderInfo);
 }
+

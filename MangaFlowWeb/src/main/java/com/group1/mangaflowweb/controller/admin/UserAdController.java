@@ -1,7 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.UserAdRequest;
-import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
+import com.group1.mangaflowweb.dto.user.UserAdminDTO;
 import com.group1.mangaflowweb.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,14 +40,14 @@ public class UserAdController {
 
     @GetMapping("/users/new")
     public String userNewForm(Model model) {
-        model.addAttribute("user", new UserAdRequest());
+        model.addAttribute("user", new UserAdminDTO());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/users";
     }
 
     @PostMapping("/users/new")
-    public String userCreate(@Valid UserAdRequest user, BindingResult result,
+    public String userCreate(@Valid UserAdminDTO user, BindingResult result,
             Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
@@ -75,7 +74,7 @@ public class UserAdController {
 
     @GetMapping("/users/{id}/edit")
     public String userEditForm(@PathVariable Integer id, Model model) {
-        UserAdminResponse existing = userService.getUserById(id);
+        UserAdminDTO existing = userService.getUserById(id);
         model.addAttribute("userInfo", existing);
         model.addAttribute("editMode", true);
         model.addAttribute("userId", id);
@@ -86,7 +85,7 @@ public class UserAdController {
 
     @PostMapping("/users/{id}/edit")
     public String userUpdate(@PathVariable Integer id,
-            @Valid UserAdRequest user, BindingResult result,
+            @Valid UserAdminDTO user, BindingResult result,
             Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
@@ -131,3 +130,4 @@ public class UserAdController {
         return "redirect:/admin/users";
     }
 }
+

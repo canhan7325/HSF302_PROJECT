@@ -1,32 +1,34 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
-import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
-import com.group1.mangaflowweb.dto.view.BookmarkListItemView;
+import com.group1.mangaflowweb.dto.bookmark.BookmarkDTO;
+import com.group1.mangaflowweb.dto.bookmark.BookmarkListItemDTO;
 
 import java.util.List;
 import java.util.Map;
 
 public interface BookmarkService {
-	boolean isBookmarked(Integer userId, Integer comicId);
+    boolean isBookmarked(Integer userId, Integer comicId);
 
-	long countFollowers(Integer comicId);
+    long countFollowers(Integer comicId);
 
-	boolean toggleBookmark(Integer userId, Integer comicId);
-    BookmarkResponse create(BookmarkRequest request);
+    boolean toggleBookmark(Integer userId, Integer comicId);
 
-    BookmarkResponse getById(Integer bookmarkId);
+    BookmarkDTO create(BookmarkDTO request);
 
-    List<BookmarkResponse> getAll();
+    BookmarkDTO getById(Integer bookmarkId);
 
-    List<BookmarkResponse> getByUserId(Integer userId);
+    List<BookmarkDTO> getAll();
 
-    List<BookmarkResponse> getByComicId(Integer comicId);
+    List<BookmarkDTO> getByUserId(Integer userId);
 
-    BookmarkResponse update(Integer bookmarkId, BookmarkRequest request);
+    List<BookmarkDTO> getByComicId(Integer comicId);
+
+    BookmarkDTO update(Integer bookmarkId, BookmarkDTO request);
 
     void delete(Integer bookmarkId);
 
-    List<BookmarkListItemView> getUserBookmarkListView(Integer userId, Integer comicId);
+    List<BookmarkListItemDTO> getUserBookmarkListView(Integer userId, Integer comicId);
+
     Map<String, Object> toggleBookmarkStatus(Integer comicId);
 }
+

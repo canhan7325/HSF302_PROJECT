@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.controller.admin;
 
-import com.group1.mangaflowweb.dto.request.admin.GenreAdRequest;
-import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
+import com.group1.mangaflowweb.dto.genre.GenreDTO;
+import com.group1.mangaflowweb.dto.genre.GenreAdminDTO;
 import com.group1.mangaflowweb.service.GenreService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -37,14 +37,14 @@ public class GenreAdController {
 
     @GetMapping("/genres/new")
     public String genreNewForm(Model model) {
-        model.addAttribute("genre", new GenreAdRequest());
+        model.addAttribute("genre", new GenreDTO());
         model.addAttribute("view", "form");
         model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/genres";
     }
 
     @PostMapping("/genres/new")
-    public String genreCreate(@Valid GenreAdRequest genre, BindingResult result,
+    public String genreCreate(@Valid GenreDTO genre, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
@@ -66,7 +66,7 @@ public class GenreAdController {
 
     @GetMapping("/genres/{id}/edit")
     public String genreEditForm(@PathVariable Integer id, Model model) {
-        GenreAdminResponse existing = genreService.getAllGenresWithCount().stream()
+        GenreAdminDTO existing = genreService.getAllGenresWithCount().stream()
                 .filter(g -> g.getGenreId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Genre not found with id: " + id));
@@ -80,7 +80,7 @@ public class GenreAdController {
 
     @PostMapping("/genres/{id}/edit")
     public String genreUpdate(@PathVariable Integer id,
-                              @Valid GenreAdRequest genre, BindingResult result,
+                              @Valid GenreDTO genre, BindingResult result,
                               Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
@@ -115,3 +115,4 @@ public class GenreAdController {
         return "redirect:/admin/genres";
     }
 }
+

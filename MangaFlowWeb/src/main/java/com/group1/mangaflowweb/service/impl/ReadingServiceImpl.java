@@ -1,8 +1,8 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.ChapterReadViewDTO;
-import com.group1.mangaflowweb.dto.chapter.ChapterResponse;
-import com.group1.mangaflowweb.dto.page.PageResponse;
+import com.group1.mangaflowweb.dto.chapter.ChapterReadViewDTO;
+import com.group1.mangaflowweb.dto.chapter.ChapterDTO;
+import com.group1.mangaflowweb.dto.page.PageDTO;
 import com.group1.mangaflowweb.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +25,10 @@ public class ReadingServiceImpl implements ReadingService{
     @Transactional
     public ChapterReadViewDTO getChapterReadDetails(Integer chapterId) {
 
-        ChapterResponse chapter = chapterService.getById(chapterId);
+        ChapterDTO chapter = chapterService.getById(chapterId);
         Integer comicId = chapter.getComicId();
         var comic = comicService.getById(comicId);
-        List<PageResponse> pages = chapterService.getAllPageByChapterId(chapterId);
+        List<PageDTO> pages = chapterService.getAllPageByChapterId(chapterId);
 
 
         readingHistoryService.incrementComicViewCount(comicId);
@@ -43,12 +43,12 @@ public class ReadingServiceImpl implements ReadingService{
         }
 
 
-        List<ChapterResponse> chaptersInComic = (comicId != null)
+        List<ChapterDTO> chaptersInComic = (comicId != null)
                 ? chapterService.getByComicId(comicId)
                 : List.of();
 
         chaptersInComic = chaptersInComic.stream()
-                .sorted(Comparator.comparing(ChapterResponse::getChapterNumber))
+                .sorted(Comparator.comparing(ChapterDTO::getChapterNumber))
                 .toList();
 
         Integer prevChapterId = null;
@@ -107,3 +107,5 @@ public class ReadingServiceImpl implements ReadingService{
                 .build();
     }
 }
+
+

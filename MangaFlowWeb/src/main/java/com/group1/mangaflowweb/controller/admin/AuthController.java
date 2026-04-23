@@ -28,7 +28,7 @@ public class AuthController {
     @GetMapping("/login")
     public String showLoginForm(Model model) {
         model.addAttribute("hideNav", true);
-        return "login";
+        return "clients/home/login";
     }
 
     @PostMapping("/login")
@@ -68,7 +68,9 @@ public class AuthController {
         } catch (AuthenticationException e) {
             model.addAttribute("error", "Invalid username or password");
             model.addAttribute("hideNav", true);
-            return "login";
+            return "clients/home/login";
         }
     }
 }
+
+

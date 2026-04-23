@@ -1,33 +1,35 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.request.admin.UserAdRequest;
-import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
+import com.group1.mangaflowweb.dto.user.UserDTO;
+import com.group1.mangaflowweb.dto.user.UserAdminDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import com.group1.mangaflowweb.dto.user.UserResponse;
-import com.group1.mangaflowweb.dto.request.RegisterRequest;
 
 public interface UserService {
     long getTotalUsers();
 
-    Page<UserAdminResponse> getUsersPage(Pageable pageable);
+    Page<UserAdminDTO> getUsersPage(Pageable pageable);
 
-    Page<UserAdminResponse> searchUsers(String query, Pageable pageable);
+    Page<UserAdminDTO> searchUsers(String query, Pageable pageable);
 
-    UserAdminResponse getUserById(Integer id);
+    UserAdminDTO getUserById(Integer id);
 
-    void createUser(UserAdRequest form);
+    void createUser(UserAdminDTO form);
 
-    void updateUser(Integer id, UserAdRequest form);
+    void updateUser(Integer id, UserAdminDTO form);
 
     void softDeleteUser(Integer id);
 
     void restoreUser(Integer id);
-    UserResponse findByUsername(String username);
-    boolean existsByUsername(String username);
-    boolean existsByEmail(String email);
-    void registerUser(com.group1.mangaflowweb.dto.request.RegisterRequest request);
 
-    void registerReader(RegisterRequest registerRequest);
+    UserDTO findByUsername(String username);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
+
+    void registerUser(UserDTO request);
+
+    void registerReader(UserDTO registerRequest);
 }
+

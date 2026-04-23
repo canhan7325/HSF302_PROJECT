@@ -1,39 +1,34 @@
 package com.group1.mangaflowweb.service;
 
-import com.group1.mangaflowweb.dto.request.admin.ChapterAdRequest;
-import com.group1.mangaflowweb.dto.response.admin.ChapterAdminResponse;
-
-import java.util.List;
-
-import com.group1.mangaflowweb.dto.chapter.ChapterRequest;
-import com.group1.mangaflowweb.dto.chapter.ChapterResponse;
-import com.group1.mangaflowweb.dto.page.PageResponse;
+import com.group1.mangaflowweb.dto.chapter.ChapterDTO;
+import com.group1.mangaflowweb.dto.chapter.ChapterAdminDTO;
+import com.group1.mangaflowweb.dto.page.PageDTO;
 
 import java.util.List;
 
 public interface ChapterService {
-    ChapterResponse create(ChapterRequest request);
+    ChapterDTO create(ChapterDTO request);
 
-    ChapterResponse getById(Integer chapterId);
+    ChapterDTO getById(Integer chapterId);
 
-    List<ChapterResponse> getAll();
+    List<ChapterDTO> getAll();
 
-    List<ChapterResponse> getByComicId(Integer comicId);
+    List<ChapterDTO> getByComicId(Integer comicId);
 
-    ChapterResponse update(Integer chapterId, ChapterRequest request);
+    ChapterDTO update(Integer chapterId, ChapterDTO request);
 
     void delete(Integer chapterId);
 
-    List<PageResponse> getAllPageByChapterId(Integer chapterId);
+    List<PageDTO> getAllPageByChapterId(Integer chapterId);
 
-    List<ChapterAdminResponse> getChaptersByComic(Integer comicId);
+    List<ChapterAdminDTO> getChaptersByComic(Integer comicId);
 
-    ChapterAdminResponse getChapterById(Integer chapterId);
+    ChapterAdminDTO getChapterById(Integer chapterId);
 
-    void createChapter(Integer comicId, ChapterAdRequest form);
+    void createChapter(Integer comicId, ChapterAdminDTO form);
 
-    void updateChapter(Integer chapterId, ChapterAdRequest form);
+    void updateChapter(Integer chapterId, ChapterAdminDTO form);
 
     void deleteChapter(Integer chapterId);
-
 }
+

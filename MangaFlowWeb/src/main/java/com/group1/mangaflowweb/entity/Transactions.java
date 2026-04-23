@@ -28,6 +28,10 @@ public class Transactions {
     @Column(name = "status")
     private TransactionEnum status;
 
+    @Column(name = "status_subs", nullable = false)
+    @Builder.Default
+    private String statusSubs = "ACTIVE";
+
     @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt;
 

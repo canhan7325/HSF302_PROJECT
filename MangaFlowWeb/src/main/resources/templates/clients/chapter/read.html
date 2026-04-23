@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Read Chapter</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/chapter-read.css}" />
+    <script th:src="@{/js/chapter-read.js}" defer></script>
+</head>
+
+<body class="chapter-read-page">
+
+    <!-- Header -->
+    <div th:replace="~{clients/fragments/headers :: header}"></div>
+
+    <main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content" style="padding-bottom: 220px;">
+
+        <div class="chapter-start-nav">
+
+            <!-- Breadcrumb -->
+            <th:block
+                th:replace="~{clients/fragments/chapter-read :: breadcrumbToChapter(${comicSlug}, ${comicTitle}, ${chapter})}">
+            </th:block>
+
+            <th:block th:replace="~{clients/fragments/chapter-read :: chapterTitle(${comicTitle}, ${chapter})}"></th:block>
+
+            <!-- Nút dưới breadcrumb -->
+            <th:block th:replace="~{clients/fragments/chapter-read :: prevNextButtons(${prevChapterId}, ${nextChapterId})}">
+            </th:block>
+
+        </div>
+
+        <div class="content">
+
+            <!-- Nếu có quyền đọc -->
+            <th:block th:if="${canReadFull}">
+                <div th:each="p,iter : ${pages}" class="page-wrap">
+                    <img th:src="${@imageUrlResolver.resolve(p.imgPath)}" class="comic-img"
+                        th:alt="|Page ${p.pageNumber}|" />
+                </div>
+            </th:block>
+
+            <!-- Nếu không có quyền đọc -->
+            <div th:if="${!canReadFull}" class="page-wrap locked" style="height: 60vh; display: flex; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border-radius: 16px; margin: 2rem auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-width: 900px; padding: 2rem;">
+                <div class="lock-overlay" style="position: relative; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; background: none; backdrop-filter: none;">
+                    <div style="text-align: center;">
+                        <h3 style="color: #fff; margin-bottom: 20px;">Chương này yêu cầu gói hội viên</h3>
+                        <div th:if="${!isLoggedIn}" style="color: #ccc; font-size: 1.1rem;">
+                            Bạn cần <a href="/login" style="color: #ffc107; text-decoration: underline;">đăng nhập</a> để tiếp tục.
+                        </div>
+                        <div th:if="${isLoggedIn}" style="color: #ccc; font-size: 1.1rem;">
+                            Bạn cần nâng cấp gói hội viên để đọc chương này.
+                            <div style="margin-top: 25px;">
+                                <a href="/pricing" class="btn btn-warning" style="font-weight: 600; padding: 10px 24px; border-radius: 8px;">Nâng cấp Hội viên</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="page-slider">
+            <div class="slider-track" id="sliderTrack">
+                <div th:each="p, iter : ${pages}" class="slider-item" th:attr="data-index=${iter.index}"
+                    th:onclick="|scrollToPage(${iter.index})|">
+                </div>
+            </div>
+        </div>
+
+        <div class="chapter-end-nav">
+
+            <!-- Nút chuyển chapter nằm giữa -->
+            <th:block th:replace="~{clients/fragments/chapter-read :: prevNextButtons(${prevChapterId}, ${nextChapterId})}">
+            </th:block>
+
+            <!-- Breadcrumb nằm dưới, căn trái, không có Thể loại -->
+            <th:block th:replace="~{clients/fragments/chapter-read :: breadcrumbEnd(${comicSlug}, ${comicTitle}, ${chapter})}">
+            </th:block>
+
+        </div>
+
+        <!-- Right side quick actions - Floating Bar -->
+        <div class="right-actions">
+            <button onclick="toggleReadingMode()" class="action-item" data-tooltip="Chuyển chế độ đọc">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5 0 .7-.14 1.37-.39 1.97l1.46 1.46A6.96 6.96 0 0 0 19 13c0-3.87-3.13-7-7-7zm-5.61.03L4.93 7.49A6.96 6.96 0 0 0 5 11c0 3.87 3.13 7 7 7v3l4-4-4-4v3c-2.76 0-5-2.24-5-5 0-.7.14-1.37.39-1.97z" />
+                </svg>
+            </button>
+
+            <!-- Nút Danh sách chương (Back to comic detail) -->
+            <a th:href="@{/comic/{slug}(slug=${comicSlug})}" class="action-item" data-tooltip="Danh sách chương">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v-2zM7 7v2h14V7H7z" />
+                </svg>
+            </a>
+
+            <!-- Nút Bookmark (same logic as bookmark list: AJAX toggle, stay on page) -->
+            <th:block th:if="${isLoggedIn}">
+                <button type="button" class="action-item bookmark-btn"
+                    th:classappend="${isBookmarked} ? ' is-bookmarked' : ''" th:attr="data-comic-id=${comicId}"
+                    data-tooltip="Lưu Bookmark">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z" />
+                    </svg>
+                </button>
+            </th:block>
+
+            <a th:if="${!isLoggedIn}" href="/login" class="action-item" data-tooltip="Đăng nhập để Bookmark">
+                <svg viewBox="0 0 24 24">
+                    <path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3M17,18L12,15.82L7,18V5H17V18Z" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Bottom navigation like the screenshot -->
+        <input id="chapterMenuToggle" type="checkbox" hidden />
+
+        <div class="bottom-bar">
+            <a th:if="${prevChapterId != null}" th:href="@{/chapters/{id}/read(id=${prevChapterId})}" class="nav-btn">
+                &lt; Previous
+            </a>
+            <a th:unless="${prevChapterId != null}" class="nav-btn disabled" href="#">
+                &lt; Previous
+            </a>
+
+            <label for="chapterMenuToggle" class="chapter-toggle">
+                <span th:text="'Chapter ' + ${chapter.chapterNumber} + ' – ' + ${chapter.title}">Current Chapter</span>
+            </label>
+
+            <a th:if="${nextChapterId != null}" th:href="@{/chapters/{id}/read(id=${nextChapterId})}" class="nav-btn">
+                Next &gt;
+            </a>
+            <a th:unless="${nextChapterId != null}" class="nav-btn disabled" href="#">
+                Next &gt;
+            </a>
+        </div>
+
+        <div class="chapter-dropdown" style="z-index: 3000;">
+            <a th:each="c : ${chaptersInComic}" th:href="@{/chapters/{id}/read(id=${c.chapterId})}" class="chapter-item"
+                th:classappend="${c.chapterId == chapter.chapterId} ? ' active' : ''">
+                <span th:text="'Chapter ' + ${c.chapterNumber}">Chapter</span>
+                <span th:text="${c.title}">Title</span>
+            </a>
+        </div>
+
+        <div id="nav-overlay">
+            <div class="nav-zone left" onclick="prevPage()"></div>
+            <div class="nav-zone right" onclick="nextPage()"></div>
+        </div>
+
+        <button id="scrollTopBtn" onclick="scrollToTop()">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="white" d="M7 14l5-5 5 5H7z" />
+            </svg>
+        </button>
+
+        <!-- Footer -->
+        <div th:replace="~{clients/fragments/footers :: footer}"></div>
+
+    </main>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Inject login state -->
+    <script th:inline="javascript">
+        window.APP_IS_LOGGED_IN = /*[[${isLoggedIn}]]*/ false;
+    </script>
+
+    <!-- Shared bookmark script -->
+    <script th:src="@{/js/bookmark.js}" defer></script>
+</body>
+
+</html>

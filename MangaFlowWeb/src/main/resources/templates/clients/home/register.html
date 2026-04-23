@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng ký - Manga Curator</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        body.bg-register {
+            background: radial-gradient(circle at top right, #fff5e6, #ffffff 40%),
+                        radial-gradient(circle at bottom left, #e6f2ff, #ffffff 40%);
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .register-card {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: none;
+            width: 100%;
+            max-width: 480px;
+        }
+        .btn-brand {
+            background-color: #d96a00;
+            border-color: #d96a00;
+            color: white;
+            border-radius: 50px;
+            padding: 0.75rem;
+            font-weight: bold;
+        }
+        .btn-brand:hover {
+            background-color: #b55800;
+            border-color: #b55800;
+            color: white;
+        }
+        .text-brand {
+            color: #d96a00 !important;
+        }
+        .form-control {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #eee;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(217, 106, 0, 0.1);
+            border-color: #d96a00;
+        }
+        .brand-title {
+            font-weight: 800;
+            font-size: 2.5rem;
+            color: #212529;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Register page fullscreen */
+        .register-main {
+            min-height: 100vh;
+            padding-top: 8rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .register-main {
+                padding-top: 10rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-register">
+    <!-- Header -->
+    <div th:replace="~{clients/fragments/headers :: header}"></div>
+
+    <main class="register-main container d-flex flex-column align-items-center justify-content-center py-5">
+        <div class="text-center mb-5">
+            <h1 class="brand-title">MangaCurator</h1>
+            <p class="text-muted">The Digital Curator Experience.</p>
+        </div>
+
+        <div class="card register-card">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="fw-bold mb-4" style="color: #212529;">Tạo tài khoản</h2>
+
+                <div th:if="${error}" class="alert alert-danger small" th:text="${error}"></div>
+                <div th:if="${message}" class="alert alert-success small" th:text="${message}"></div>
+
+                <form th:action="@{/register}" method="post" th:object="${registerRequest}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label small text-muted">Email</label>
+                        <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="name@example.com">
+                        <small class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label small text-muted">Tên đăng nhập</label>
+                        <input type="text" class="form-control" id="username" th:field="*{username}" placeholder="manga_fan_99">
+                        <small class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label small text-muted">Mật khẩu</label>
+                        <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="••••••••">
+                        <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                        <div class="small text-muted mt-2">
+                            <p style="margin-bottom: 0.3rem;">Yêu cầu mật khẩu:</p>
+                            <ul style="margin-bottom: 0; padding-left: 1.2rem;">
+                                <li>Tối thiểu 6 ký tự</li>
+                                <li>Ít nhất 1 ký tự đặc biệt (!@#$%^&*()...)</li>
+                                <li>Ít nhất 1 ký tự in hoa (A-Z)</li>
+                                <li>Ít nhất 1 ký tự thường (a-z)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" required>
+                        <label class="form-check-label small text-muted" for="terms">
+                            Tôi đồng ý với <a href="#" class="text-brand text-decoration-underline">Điều khoản & Chính sách</a>
+                        </label>
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-brand shadow-sm">Đăng ký</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p class="mb-0 text-muted small">
+                        Đã có tài khoản? 
+                        <a th:href="@{/login}" class="text-brand fw-bold text-decoration-none">Đăng nhập</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <div th:replace="~{clients/fragments/footers :: footer}"></div>
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

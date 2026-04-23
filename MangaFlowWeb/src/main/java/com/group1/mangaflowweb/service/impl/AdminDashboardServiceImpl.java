@@ -1,14 +1,14 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.response.admin.ComicSummaryResponse;
-import com.group1.mangaflowweb.dto.response.admin.DashboardStatsResponse;
-import com.group1.mangaflowweb.dto.response.admin.GenreComicCountResponse;
-import com.group1.mangaflowweb.dto.response.admin.RevenueDataPointResponse;
+import com.group1.mangaflowweb.dto.comic.ComicSummaryDTO;
+import com.group1.mangaflowweb.dto.admin.DashboardStatsDTO;
+import com.group1.mangaflowweb.dto.genre.GenreComicCountDTO;
+import com.group1.mangaflowweb.dto.admin.RevenueDataPointDTO;
 import com.group1.mangaflowweb.enums.ComicEnum;
 import com.group1.mangaflowweb.repository.ComicRepository;
 import com.group1.mangaflowweb.repository.GenreRepository;
-import com.group1.mangaflowweb.repository.TransactionRepository;
-import com.group1.mangaflowweb.repository.UserRepository;
+import com.group1.mangaflowweb.repository.TransactionsRepository;
+import com.group1.mangaflowweb.repository.UsersRepository;
 import com.group1.mangaflowweb.service.AdminDashboardService;
 import org.springframework.stereotype.Service;
 
@@ -20,73 +20,93 @@ import java.util.List;
 @Service
 public class AdminDashboardServiceImpl implements AdminDashboardService {
 
-    private final UserRepository userRepository;
+    private final UsersRepository usersRepository;
     private final ComicRepository comicRepository;
     private final GenreRepository genreRepository;
-    private final TransactionRepository transactionRepository;
+    private final TransactionsRepository TransactionsRepository;
 
-    public AdminDashboardServiceImpl(UserRepository userRepository,
+    public AdminDashboardServiceImpl(UsersRepository usersRepository,
                                      ComicRepository comicRepository,
                                      GenreRepository genreRepository,
-                                     TransactionRepository transactionRepository) {
-        this.userRepository = userRepository;
+                                     TransactionsRepository TransactionsRepository) {
+        this.usersRepository = usersRepository;
         this.comicRepository = comicRepository;
         this.genreRepository = genreRepository;
-        this.transactionRepository = transactionRepository;
+        this.TransactionsRepository = TransactionsRepository;
     }
 
     @Override
-    public DashboardStatsResponse getDashboardStats() {
-        long activeUsers = userRepository.countByEnabledTrue();
+    public DashboardStatsDTO getDashboardStats() {
+        long activeUsers = usersRepository.countByEnabledTrue();
         long activeComics = comicRepository.countByStatusNot(ComicEnum.CANCELED);
         long totalViewCount = comicRepository.findAll().stream()
                 .mapToLong(c -> c.getViewCount() != null ? c.getViewCount() : 0L)
                 .sum();
         long activeGenres = genreRepository.count();
-        return new DashboardStatsResponse(activeUsers, activeComics, totalViewCount, activeGenres);
+        return DashboardStatsDTO.builder()
+                .totalActiveUsers(activeUsers)
+                .totalActiveComics(activeComics)
+                .totalViewCount(totalViewCount)
+                .totalActiveGenres(activeGenres)
+                .build();
     }
 
     @Override
-    public List<ComicSummaryResponse> getTop5MostViewedComics() {
+    public List<ComicSummaryDTO> getTop5MostViewedComics() {
         return comicRepository.findTop5ByStatusNotOrderByViewCountDesc(ComicEnum.CANCELED)
                 .stream()
-                .map(c -> new ComicSummaryResponse(c.getComicId(), c.getTitle(), c.getViewCount(), c.getStatus()))
+                .map(c -> ComicSummaryDTO.builder()
+                        .comicId(c.getComicId())
+                        .title(c.getTitle())
+                        .viewCount(c.getViewCount())
+                        .status(c.getStatus())
+                        .build())
                 .toList();
     }
 
     @Override
-    public List<ComicSummaryResponse> getComicsSortedByViewCount() {
+    public List<ComicSummaryDTO> getComicsSortedByViewCount() {
         return comicRepository.findByStatusNotOrderByViewCountDesc(ComicEnum.CANCELED)
                 .stream()
-                .map(c -> new ComicSummaryResponse(c.getComicId(), c.getTitle(), c.getViewCount(), c.getStatus()))
+                .map(c -> ComicSummaryDTO.builder()
+                        .comicId(c.getComicId())
+                        .title(c.getTitle())
+                        .viewCount(c.getViewCount())
+                        .status(c.getStatus())
+                        .build())
                 .toList();
     }
 
     @Override
-    public List<GenreComicCountResponse> getComicsPerGenre() {
+    public List<GenreComicCountDTO> getComicsPerGenre() {
         return genreRepository.findAll().stream()
-                .map(g -> new GenreComicCountResponse(g.getGenreId(), g.getName(), g.getGenreComics().size()))
-                .sorted(Comparator.comparingLong(GenreComicCountResponse::getComicCount).reversed())
+                .map(g -> GenreComicCountDTO.builder()
+                        .genreId(g.getGenreId())
+                        .genreName(g.getName())
+                        .comicCount(g.getGenreComics().size())
+                        .build())
+                .sorted(Comparator.comparingLong(GenreComicCountDTO::getComicCount).reversed())
                 .toList();
     }
 
     @Override
-    public List<RevenueDataPointResponse> getRevenueByPeriod(String period) {
+    public List<RevenueDataPointDTO> getRevenueByPeriod(String period) {
         List<Object[]> rows;
         if ("week".equals(period)) {
             LocalDateTime since = LocalDateTime.now().minusWeeks(12);
-            rows = transactionRepository.findRevenueByWeek(since);
+            rows = TransactionsRepository.findRevenueByWeek(since);
         } else if ("year".equals(period)) {
-            rows = transactionRepository.findRevenueByYear();
+            rows = TransactionsRepository.findRevenueByYear();
         } else {
-            // "month" — show all months across all years so historical data is visible
             LocalDateTime since = LocalDateTime.of(2000, 1, 1, 0, 0);
-            rows = transactionRepository.findRevenueByMonth(since);
+            rows = TransactionsRepository.findRevenueByMonth(since);
         }
         return rows.stream()
-                .map(row -> new RevenueDataPointResponse(
-                        (String) row[0],
-                        row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO))
+                .map(row -> RevenueDataPointDTO.builder()
+                        .period((String) row[0])
+                        .revenue(row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO)
+                        .build())
                 .toList();
     }
 }
+

@@ -1,6 +1,7 @@
 package com.group1.mangaflowweb.service.impl;
 
-import com.group1.mangaflowweb.dto.response.admin.PageAdminResponse;
+import com.group1.mangaflowweb.dto.page.PageAdminDTO;
+import com.group1.mangaflowweb.dto.page.PageDTO;
 import com.group1.mangaflowweb.entity.Chapters;
 import com.group1.mangaflowweb.entity.Pages;
 import com.group1.mangaflowweb.repository.ChapterRepository;
@@ -13,23 +14,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import lombok.RequiredArgsConstructor;
-import com.group1.mangaflowweb.util.ImageUrlResolver;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-import com.group1.mangaflowweb.dto.page.PageRequest;
-import com.group1.mangaflowweb.dto.page.PageResponse;
 @Service
 public class PageServiceImpl implements PageService {
+
     private final ImageUrlResolver imageUrlResolver;
     private final PageRepository pageRepository;
     private final ChapterRepository chapterRepository;
@@ -46,10 +39,14 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public List<PageAdminResponse> getPagesByChapter(Integer chapterId) {
+    public List<PageAdminDTO> getPagesByChapter(Integer chapterId) {
         return pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId)
                 .stream()
-                .map(p -> new PageAdminResponse(p.getPageId(), p.getPageNumber(), imageUrlResolver.resolve(p.getImgPath())))
+                .map(p -> PageAdminDTO.builder()
+                        .pageId(p.getPageId())
+                        .pageNumber(p.getPageNumber())
+                        .imgPath(imageUrlResolver.resolve(p.getImgPath()))
+                        .build())
                 .toList();
     }
 
@@ -76,7 +73,6 @@ public class PageServiceImpl implements PageService {
         Pages page = new Pages();
         page.setChapter(chapter);
         page.setPageNumber(nextNum);
-
         page.setImgPath(imageUrlResolver.normalizeForStorage(storedId));
         pageRepository.save(page);
 
@@ -116,7 +112,7 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public PageResponse create(PageRequest request) {
+    public PageDTO create(PageDTO request) {
         Chapters chapter = chapterRepository.findById(request.getChapterId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
 
@@ -131,25 +127,25 @@ public class PageServiceImpl implements PageService {
                 .imgPath(imageUrlResolver.normalizeForStorage(request.getImgPath()))
                 .build();
 
-        return toResponse(pageRepository.save(page));
+        return toDTO(pageRepository.save(page));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse getById(Integer pageId) {
-        return toResponse(findPageOrThrow(pageId));
+    public PageDTO getById(Integer pageId) {
+        return toDTO(findPageOrThrow(pageId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PageResponse> getAll() {
-        return pageRepository.findAll().stream().map(this::toResponse).toList();
+    public List<PageDTO> getAll() {
+        return pageRepository.findAll().stream().map(this::toDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PageResponse> getByChapterId(Integer chapterId) {
-        return pageRepository.findByChapter_ChapterId(chapterId).stream().map(this::toResponse).toList();
+    public List<PageDTO> getByChapterId(Integer chapterId) {
+        return pageRepository.findByChapter_ChapterId(chapterId).stream().map(this::toDTO).toList();
     }
 
     @Override
@@ -158,7 +154,6 @@ public class PageServiceImpl implements PageService {
         if (chapterId == null) {
             return Optional.empty();
         }
-
         return pageRepository.findByChapterChapterIdOrderByPageNumberAsc(chapterId)
                 .stream()
                 .map(Pages::getImgPath)
@@ -167,7 +162,7 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public PageResponse update(Integer pageId, PageRequest request) {
+    public PageDTO update(Integer pageId, PageDTO request) {
         Pages page = findPageOrThrow(pageId);
         Chapters chapter = chapterRepository.findById(request.getChapterId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
@@ -181,7 +176,7 @@ public class PageServiceImpl implements PageService {
         page.setChapter(chapter);
         page.setPageNumber(request.getPageNumber());
         page.setImgPath(imageUrlResolver.normalizeForStorage(request.getImgPath()));
-        return toResponse(pageRepository.save(page));
+        return toDTO(pageRepository.save(page));
     }
 
     @Override
@@ -195,8 +190,8 @@ public class PageServiceImpl implements PageService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found"));
     }
 
-    private PageResponse toResponse(Pages page) {
-        return PageResponse.builder()
+    private PageDTO toDTO(Pages page) {
+        return PageDTO.builder()
                 .pageId(page.getPageId())
                 .chapterId(page.getChapter() != null ? page.getChapter().getChapterId() : null)
                 .pageNumber(page.getPageNumber())

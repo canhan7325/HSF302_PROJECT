@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Chapter</title>
+    <link rel="icon" href="data:,">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=20260422_1)}">
+    <link rel="stylesheet" th:href="@{/css/author-upload-chapter.css(v=20260422_1)}">
+</head>
+<body class="mf-body">
+
+<div th:replace="~{clients/fragments/headers :: header}"></div>
+
+<main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
+    <div class="row g-4">
+        <div class="col-12 col-lg-3">
+            <div th:replace="~{clients/fragments/author-dashboard :: authorSidebar('upload-chapter')}"></div>
+        </div>
+
+        <div class="col-12 col-lg-9">
+            <div class="mf-panel p-3 p-md-4 mb-4">
+                <h1 class="mb-1 mf-page-heading">Upload Chapter</h1>
+                <p class="mb-0 mf-page-subtitle">Publish the next instalment of your story for readers worldwide.</p>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+            <form class="row g-4" th:action="@{/author/upload-chapter}" method="post" enctype="multipart/form-data">
+                <!-- userId is resolved server-side from the current session; do not send it from the client -->
+
+                <!-- Left column -->
+                <div class="col-12 col-xl-8">
+                    <section class="mf-panel p-3 p-md-4 mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="material-symbols-outlined mf-uc-icon">info</span>
+                            <h3 class="mb-0 mf-section-title">Chapter Details</h3>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label mf-form-label" for="comicId">Select Manga Series</label>
+                            <select id="comicId" name="comicId" class="form-select mf-form-control" required>
+                                <option value="" selected>Select a series...</option>
+                                <option th:each="comic : ${myComics}" th:value="${comic.comicId}" th:text="${comic.title}">Series</option>
+                            </select>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label mf-form-label" for="chapterNumber">Number</label>
+                                <input id="chapterNumber" name="chapterNumber" type="number" min="0" step="1"
+                                       class="form-control mf-form-control" placeholder="00" required>
+                            </div>
+
+                            <div class="col-12 col-md-8">
+                                <label class="form-label mf-form-label" for="chapterTitle">Chapter Title (Optional)</label>
+                                <input id="chapterTitle" name="chapterTitle" type="text" maxlength="120"
+                                       class="form-control mf-form-control" placeholder="e.g. The Beginning of the End">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="mf-panel p-3 p-md-4">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined mf-uc-icon">menu_book</span>
+                                <h3 class="mb-0 mf-section-title">Manuscript Pages</h3>
+                            </div>
+                            <span class="mf-uc-filetypes">JPG/PNG/WEBP</span>
+                        </div>
+
+                        <div class="mf-uc-dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload manuscript pages">
+                            <input class="visually-hidden" id="pages" name="pages" type="file" accept="image/*" multiple="multiple" required>
+
+                            <div class="mf-uc-dropzone__inner">
+                                <div class="mf-uc-dropzone__icon">
+                                    <span class="material-symbols-outlined">cloud_upload</span>
+                                </div>
+                                <div class="mf-uc-dropzone__title">Drag and drop your manga pages here</div>
+                                <div class="mf-uc-dropzone__hint">Minimum 1200px width. Maximum 20MB per file.</div>
+                                <button class="btn mf-uc-secondary-btn" type="button" id="selectFilesBtn">Select Files from Computer</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-3" id="previewWrap" hidden>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="mf-uc-preview-title">Pages Preview</div>
+                                <button class="btn btn-sm btn-outline-secondary" type="button" id="clearFilesBtn">Clear</button>
+                            </div>
+                            <div class="mf-uc-preview-grid" id="previewGrid"></div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right column -->
+                <div class="col-12 col-xl-4">
+                    <aside class="mf-panel p-3 p-md-4 mf-uc-sticky">
+                        <h3 class="mb-3 mf-section-title">Publishing Options</h3>
+
+                        <div class="mf-uc-toggle-row mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined">visibility</span>
+                                <span class="fw-bold">Public Access</span>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <label class="visually-hidden" for="isPublic">Public Access</label>
+                                <input class="form-check-input" type="checkbox" role="switch" id="isPublic" name="isPublic" checked>
+                            </div>
+                        </div>
+
+                        <button class="mf-uc-action-row" type="button" id="scheduleBtn">
+                            <span class="d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined">schedule</span>
+                                <span class="fw-bold">Schedule Post</span>
+                            </span>
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+
+                        <div class="mt-3" id="scheduleWrap" hidden>
+                            <label class="form-label mf-form-label" for="publishAt">Publish at</label>
+                            <input id="publishAt" name="publishAt" type="datetime-local" class="form-control mf-form-control">
+                        </div>
+
+                        <div class="mf-uc-toggle-row mt-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">verified_user</span>
+                                <span class="fw-bold">Subscribers Early Access</span>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <label class="visually-hidden" for="earlyAccess">Subscribers Early Access</label>
+                                <input class="form-check-input" type="checkbox" role="switch" id="earlyAccess" name="earlyAccess">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-grid gap-2">
+                            <button class="btn mf-uc-primary-btn" type="submit" name="action" value="publish">
+                                <span class="material-symbols-outlined me-1">rocket_launch</span>
+                                Publish Chapter
+                            </button>
+                            <button class="btn mf-uc-ghost-btn" type="submit" name="action" value="draft">Save Draft</button>
+                        </div>
+
+                        <p class="mf-uc-editorial mt-3 mb-0">EDITORIAL PREVIEW AVAILABLE</p>
+                    </aside>
+
+                    <aside class="mf-panel p-3 p-md-4 mt-4">
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="material-symbols-outlined">help</span>
+                            <div>
+                                <div class="fw-bold mb-1">Need help?</div>
+                                <div class="text-muted" style="font-size: 0.92rem;">Check our formatting guide to ensure your pages look great on all devices.</div>
+                                <a class="d-inline-block mt-2" href="#" style="font-weight: 800; color: #0b5ed7; text-decoration: none;">Read the Formatting Guide</a>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{clients/fragments/footers :: footer}"></div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/author-upload-chapter.js(v=20260422_1)}"></script>
+</body>
+</html>

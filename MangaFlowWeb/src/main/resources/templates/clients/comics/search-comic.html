@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${query != null and !#strings.isEmpty(query)} ? 'Tìm kiếm: ' + query : 'Kết quả tìm kiếm'">Kết quả tìm kiếm</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=20260422_1)}">
+</head>
+<body class="mf-body">
+
+<div th:replace="~{clients/fragments/headers :: header}"></div>
+
+<main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
+    <section>
+        <div class="d-flex align-items-center justify-content-between mb-3 mb-md-4">
+            <h3 class="mb-0 mf-section-title">
+                <span class="material-symbols-outlined me-1">search</span>
+                Kết quả tìm kiếm
+            </h3>
+            <small class="text-muted" th:if="${query != null and !#strings.isEmpty(query)}"
+                   th:text="'Từ khóa: ' + ${query}">Từ khóa</small>
+        </div>
+
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-3 g-md-4 mf-six-cols-grid"
+             th:if="${searchResults != null and !#lists.isEmpty(searchResults)}">
+            <div class="col" th:each="comic : ${searchResults}">
+                <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
+                    <article class="mf-comic-card h-100">
+                        <div class="position-relative mf-cover-wrap mb-2 mb-md-3">
+                            <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}" class="w-100 h-100 object-fit-cover mf-comic-cover"
+                                 th:alt="${comic.title}">
+                            <div class="mf-cover-overlay"></div>
+                        </div>
+
+                        <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>
+                        <small class="d-block mf-comic-chapter"
+                               th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chương ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
+                        <small class="mf-comic-time"
+                               th:text="${comic.updatedAt != null ? #temporals.format(comic.updatedAt, 'dd/MM/yyyy HH:mm') : 'Không có thời gian cập nhật'}"></small>
+                    </article>
+                </a>
+            </div>
+        </div>
+
+        <div class="mf-empty-state text-center py-5"
+             th:if="${searchResults == null or #lists.isEmpty(searchResults)}">
+            <p class="mb-2">Không có kết quả tìm kiếm.</p>
+            <small class="text-muted" th:if="${query != null and !#strings.isEmpty(query)}"
+                   th:text="'Không tìm thấy truyện phù hợp với: ' + ${query}">Không tìm thấy truyện</small>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{clients/fragments/footers :: footer}"></div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
