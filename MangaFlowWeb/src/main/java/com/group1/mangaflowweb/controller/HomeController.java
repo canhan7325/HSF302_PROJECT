@@ -22,7 +22,7 @@ public class HomeController {
 
     private final ComicService comicService;
 
-    @GetMapping({"/", "/index"})
+    @GetMapping({ "/", "/index" })
     public String index(
             @RequestParam(name = "latestPage", defaultValue = "0") int latestPage,
             Model model) {
@@ -34,9 +34,17 @@ public class HomeController {
                 .collect(Collectors.toList());
         model.addAttribute("topComics", topComics);
 
-        // Fetch all comics and sort by updatedAt (latest) with pagination
+        // Fetch all comics and sort by latest chapter's createdAt, falling back to comic's updatedAt with pagination
         var allComics = comicService.getAll().stream()
-                .sorted(Comparator.comparing(ComicResponse::getUpdatedAt).reversed())
+                .sorted(Comparator.comparing((ComicResponse comic) -> {
+                    if (comic.getChapters() != null && !comic.getChapters().isEmpty()) {
+                        java.time.LocalDateTime latestChapterTime = comic.getChapters().get(comic.getChapters().size() - 1).getCreatedAt();
+                        if (latestChapterTime != null) {
+                            return latestChapterTime;
+                        }
+                    }
+                    return comic.getUpdatedAt() != null ? comic.getUpdatedAt() : java.time.LocalDateTime.MIN;
+                }).reversed())
                 .collect(Collectors.toList());
 
         int pageSize = 6;
@@ -61,8 +69,3 @@ public class HomeController {
         return "search-comic";
     }
 }
-
-
-
-
-

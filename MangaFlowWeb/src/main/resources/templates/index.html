@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,13 @@
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" th:href="@{/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/style.css(v=20260420_2)}">
 </head>
+
 <body class="mf-body">
 
     <!-- Include Header -->
@@ -31,20 +35,23 @@
                 </h3>
             </div>
 
-            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-3 g-md-4 mf-six-cols-grid">
+            <div
+                class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-3 g-md-4 mf-six-cols-grid">
                 <div class="col" th:each="comic : ${topComics}">
                     <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
                         <article class="mf-comic-card h-100">
                             <div class="position-relative mf-cover-wrap mb-2 mb-md-3">
-                                <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}" class="w-100 h-100 object-fit-cover mf-comic-cover"
-                                     th:alt="${comic.title}">
+                                <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}"
+                                    class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
                                 <div class="mf-cover-overlay"></div>
-                                <div class="position-absolute top-0 start-0 m-2 badge rounded-pill text-uppercase mf-badge-hot">Nổi bật</div>
+                                <div
+                                    class="position-absolute top-0 start-0 m-2 badge rounded-pill text-uppercase mf-badge-hot">
+                                    Nổi bật</div>
                             </div>
 
                             <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>
                             <small class="mf-comic-chapter"
-                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chương ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
+                                th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chương ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
                         </article>
                     </a>
                 </div>
@@ -65,21 +72,22 @@
                 </h3>
             </div>
 
-            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-3 g-md-4 mf-six-cols-grid">
+            <div
+                class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-3 g-md-4 mf-six-cols-grid">
                 <div class="col" th:each="comic : ${latestComicPage.content}">
                     <a th:href="@{/comic/{slug}(slug=${comic.slug})}" class="text-decoration-none">
                         <article class="mf-comic-card h-100">
                             <div class="position-relative mf-cover-wrap mb-2 mb-md-3">
-                                <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}" class="w-100 h-100 object-fit-cover mf-comic-cover"
-                                     th:alt="${comic.title}">
+                                <img th:src="${@imageUrlResolver.resolve(comic.coverImg)}"
+                                    class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
                                 <div class="mf-cover-overlay"></div>
                             </div>
 
                             <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Manga Title</h6>
                             <small class="d-block mf-comic-chapter"
-                                   th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chương ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
+                                th:text="${#lists.isEmpty(comic.chapters) ? 'Chưa có chương' : 'Chương ' + comic.chapters[comic.chapters.size() - 1].chapterNumber}"></small>
                             <small class="mf-comic-time"
-                                   th:text="${comic.updatedAt != null ? #temporals.format(comic.updatedAt, 'dd/MM/yyyy HH:mm') : 'Không có thời gian cập nhật'}"></small>
+                                th:text="${not #lists.isEmpty(comic.chapters) ? #temporals.format(comic.chapters[comic.chapters.size() - 1].createdAt, 'dd/MM/yyyy HH:mm') : (comic.updatedAt != null ? #temporals.format(comic.updatedAt, 'dd/MM/yyyy HH:mm') : 'Không có thời gian cập nhật')}"></small>
                         </article>
                     </a>
                 </div>
@@ -96,18 +104,18 @@
                 <ul class="pagination justify-content-center flex-wrap gap-2 mf-pagination">
                     <li class="page-item" th:classappend="${latestComicPage.first} ? 'disabled'">
                         <a class="page-link rounded-pill px-3 px-md-4"
-                           th:href="@{/index(latestPage=${latestComicPage.number - 1})}">Previous</a>
+                            th:href="@{/index(latestPage=${latestComicPage.number - 1})}">Previous</a>
                     </li>
 
                     <li class="page-item" th:each="i : ${#numbers.sequence(0, latestComicPage.totalPages - 1)}"
                         th:classappend="${latestComicPage.number == i} ? 'active'">
                         <a class="page-link rounded-circle d-flex align-items-center justify-content-center mf-page-number"
-                           th:href="@{/index(latestPage=${i})}" th:text="${i + 1}">1</a>
+                            th:href="@{/index(latestPage=${i})}" th:text="${i + 1}">1</a>
                     </li>
 
                     <li class="page-item" th:classappend="${latestComicPage.last} ? 'disabled'">
                         <a class="page-link rounded-pill px-3 px-md-4"
-                           th:href="@{/index(latestPage=${latestComicPage.number + 1})}">Next</a>
+                            th:href="@{/index(latestPage=${latestComicPage.number + 1})}">Next</a>
                     </li>
                 </ul>
             </nav>
@@ -121,4 +129,5 @@
     <script th:src="@{/bootstrap.bundle.min.js}"></script>
 
 </body>
+
 </html>
