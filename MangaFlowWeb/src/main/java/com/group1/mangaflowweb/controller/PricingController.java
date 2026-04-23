@@ -118,9 +118,9 @@ public class PricingController {
             }
 
             String username = authentication.getName();
-            Optional<Users> userOptional = userRepository.findByUsername(username);
+            com.group1.mangaflowweb.dto.user.UserResponse user = userService.findByUsername(username);
 
-            if (!userOptional.isPresent()) {
+            if (user == null) {
                 return ResponseEntity.ok(
                         SubscriptionCheckDTO.builder()
                                 .canSubscribe(true)
@@ -131,7 +131,6 @@ public class PricingController {
             }
 
             // Check subscription
-            Users user = userOptional.get();
             SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
                     user.getUserId(),
                     subscription.getPrice().longValue(),
