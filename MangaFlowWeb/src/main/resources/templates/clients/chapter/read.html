@@ -188,6 +188,11 @@
         window.APP_CAN_USE_DEVTOOLS = /*[[${#authorization.expression('hasRole(''ADMIN'')') or readView.isOwner}]]*/ false;
     </script>
 
+    <script th:inline="javascript">
+        window.APP_IS_LOGGED_IN = /*[[${isLoggedIn}]]*/ false;
+        window.APP_TIER = /*[[${tier}]]*/ 'none';
+    </script>
+
     <!-- Shared bookmark script -->
     <script th:src="@{/js/bookmark.js}" defer></script>
 </body>

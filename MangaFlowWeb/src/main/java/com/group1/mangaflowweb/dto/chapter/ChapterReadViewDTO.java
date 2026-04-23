@@ -29,5 +29,6 @@ public class ChapterReadViewDTO {
     private boolean isOwner;
 
     private boolean isBookmarked;
+    private String tier;
 }
 

@@ -207,5 +207,11 @@ public class UserServiceImpl implements UserService {
                 .build();
         usersRepository.save(newUser);
     }
+
+    @Override
+    public Users findEntityByUsername(String username) {
+        return usersRepository.findByUsername(username)
+                .orElse(null);
+    }
 }
 

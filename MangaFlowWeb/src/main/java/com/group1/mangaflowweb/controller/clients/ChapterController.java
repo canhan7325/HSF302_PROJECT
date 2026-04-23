@@ -123,6 +123,7 @@ public class ChapterController {
         model.addAttribute("canReadFull", readView.isCanReadFull());
         model.addAttribute("previewCount", readView.getPreviewCount());
         model.addAttribute("isBookmarked", readView.isBookmarked());
+        model.addAttribute("tier", readView.getTier());
 
         boolean isLoggedIn = userContextService.getCurrentUser().isPresent();
         model.addAttribute("isLoggedIn", isLoggedIn);

@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.service;
 
 import com.group1.mangaflowweb.dto.user.UserDTO;
 import com.group1.mangaflowweb.dto.user.UserAdminDTO;
+import com.group1.mangaflowweb.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,5 +32,7 @@ public interface UserService {
     void registerUser(UserDTO request);
 
     void registerReader(UserDTO registerRequest);
+
+    Users findEntityByUsername(String username);
 }
 

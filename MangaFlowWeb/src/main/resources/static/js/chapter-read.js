@@ -9,6 +9,48 @@
         }
     }
 
+    function showToast(message, type = "error") {
+        let toast = document.getElementById("mf-toast");
+
+        if (!toast) {
+            toast = document.createElement("div");
+            toast.id = "mf-toast";
+            document.body.appendChild(toast);
+        }
+
+        toast.className = `mf-toast ${type}`;
+        toast.innerText = message;
+
+        requestAnimationFrame(() => {
+            toast.classList.add("show");
+        });
+
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2500);
+    }
+
+    function ajaxGet(url) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.responseType = 'blob';
+
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject(new Error('DOWNLOAD_FAILED'));
+                }
+            };
+
+            xhr.onerror = () => reject(new Error('NETWORK_ERROR'));
+
+            xhr.send();
+        });
+    }
+
     window.toggleReadingMode = function () {
         const isHorizontal = document.body.classList.toggle("horizontal-mode");
         localStorage.setItem("readingMode", isHorizontal ? "horizontal" : "vertical");
@@ -230,24 +272,42 @@
         if (!btn) return;
 
         btn.addEventListener("click", async function () {
+
+            const isLoggedIn = window.APP_IS_LOGGED_IN;
+            const tier = window.APP_TIER;
             const chapterId = btn.getAttribute("data-chapter-id");
+
             if (!chapterId) return;
+
+            if (!isLoggedIn) {
+                showToast("Bạn cần đăng nhập để tải PDF. Bấm Đăng nhập ở góc trên để tiếp tục", "info");
+                return;
+            }
+
+            if (tier !== "silver" && tier !== "gold") {
+                showToast("Bạn cần gói Silver hoặc Gold. Vào Gói Hội Viên để nâng cấp", "info");
+                return;
+            }
 
             btn.classList.add("is-loading");
 
             try {
                 const url = `/api/chapters/${encodeURIComponent(chapterId)}/pdf`;
-                const res = await fetch(url, { method: "GET", credentials: "same-origin" });
-                if (!res.ok) return;
 
-                const blob = await res.blob();
+                const blob = await ajaxGet(url);
+
                 const a = document.createElement("a");
                 a.href = URL.createObjectURL(blob);
                 a.download = `chapter-${chapterId}.pdf`;
+
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
+
                 URL.revokeObjectURL(a.href);
+
+            } catch (err) {
+                showToast("Tải PDF thất bại (kiểm tra quyền hoặc mạng)", "error");
             } finally {
                 btn.classList.remove("is-loading");
             }

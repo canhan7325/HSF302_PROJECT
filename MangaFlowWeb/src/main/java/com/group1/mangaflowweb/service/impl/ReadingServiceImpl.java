@@ -104,6 +104,7 @@ public class ReadingServiceImpl implements ReadingService{
                 .previewCount(previewCount)
                 .isOwner(isOwner)
                 .isBookmarked(isBookmarked)
+                .tier(tier)
                 .build();
     }
 }
