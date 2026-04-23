@@ -20,7 +20,33 @@ body {
 
 .content { padding-bottom: 20px; }
 
-.page-wrap { position: relative; margin-bottom: 0; line-height: 0; }
+.page-wrap { position: relative; min-height: 60vh; margin-bottom: 0; line-height: 0; }
+
+.lazy-comic {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.lazy-comic.loaded {
+    opacity: 1;
+}
+
+/* Hiệu ứng xoay lúc đang load */
+.page-loader-spinner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(0,0,0,0.1);
+    border-top: 3px solid #e67e22;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 .locked img { filter: blur(8px); }
 .lock-overlay {
     position: absolute;
@@ -164,10 +190,10 @@ body {
     white-space: nowrap;
 }
 
-.page-wrap { 
-    position: relative; 
-    margin-bottom: 0; 
-    line-height: 0; 
+.page-wrap {
+    position: relative;
+    margin-bottom: 0;
+    line-height: 0;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -178,17 +204,18 @@ body {
     max-width: 700px;
     margin: 0 auto;
     display: block;
-    pointer-events: none; /* Ngăn chặn click chuột phải trực tiếp lên ảnh */
-    -webkit-touch-callout: none; /* Chặn menu ngữ cảnh trên mobile */
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
 }
 .locked img { filter: blur(8px); }
 .horizontal-mode .content {
-    display: flex !important;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding: 0 !important;
-    margin: 0 !important;
+    display: block !important; /* Đổi từ flex sang block để điều khiển layer */
+    position: relative;
+    perspective: 2000px; /* Tạo độ sâu cho hiệu ứng 3D */
+    overflow: hidden;
     width: 100vw;
+    height: 100vh;
 }
 
 .horizontal-mode .mf-main-content {
@@ -203,17 +230,90 @@ body {
 }
 
 .horizontal-mode .page-wrap {
-    min-width: 100vw !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    flex-shrink: 0;
-    scroll-snap-align: start;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    /* Tăng thời gian và độ mượt */
+    transition: transform 0.8s cubic-bezier(0.15, 0, 0.15, 1), opacity 0.4s, visibility 0s 0.8s;
+    transform-origin: left center;
+    backface-visibility: hidden;
+    background-color: #dbbf86;
+    opacity: 0;
+    z-index: 1;
+    visibility: hidden;
+    transform: rotateY(0deg);
+}
 
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    position: relative; /* Tạo môi trường cho nav-zone nếu nó nằm trong này */
-    overflow: hidden;
+.horizontal-mode .page-wrap:first-child {
+    opacity: 1;
+    z-index: 10;
+}
+
+.horizontal-mode .page-wrap.active ~ .page-wrap:first-child {
+    opacity: 0;
+    z-index: 1;
+}
+
+.horizontal-mode .page-wrap.flipped {
+    opacity: 1; /* Giữ opacity để thấy nó đang lật đi */
+    z-index: 150; /* Khi lật đi, nó phải nằm TRÊN trang active để tạo hiệu ứng che trang cũ */
+    transform: rotateY(-180deg);
+    visibility: hidden;
+    /* Khi lật xong mới ẩn hẳn */
+    transition: transform 0.8s cubic-bezier(0.15, 0, 0.15, 1), opacity 0.4s 0.4s, visibility 0s 0.8s;
+}
+
+.horizontal-mode .page-wrap:first-child:not(.flipped):not(.active) {
+    opacity: 1;
+    z-index: 10;
+    visibility: visible;
+}
+
+.horizontal-mode .page-wrap:first-child:not(.flipped) {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Trang đang hiển thị */
+.horizontal-mode .page-wrap.active {
+    opacity: 1;
+    z-index: 100;
+    visibility: visible;
+    transform: rotateY(0deg);
+    transition: transform 0.8s cubic-bezier(0.15, 0, 0.15, 1), opacity 0.4s, visibility 0s;
+}
+
+/* Trang sắp tới (nằm đợi bên dưới) */
+.horizontal-mode .page-wrap.upcoming {
+    opacity: 1;
+    z-index: 50; /* Thấp hơn active nhưng cao hơn flipped */
+    visibility: visible;
+    /* Ép nó ở một góc cực nhỏ để khi sang active nó luôn thực hiện transition */
+    transform: rotateY(0.01deg);
+    transition: transform 0.8s, opacity 0.4s, visibility 0s;
+}
+
+/* Đổ bóng để tạo cảm giác trang giấy */
+.horizontal-mode .page-wrap::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 20px 0 30px rgba(0,0,0,0.2);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s;
+}
+
+.horizontal-mode .page-wrap.flipped::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.1);
+    opacity: 1;
+    transition: opacity 0.8s;
 }
 
 .horizontal-mode .comic-img {
@@ -226,8 +326,10 @@ body {
 
 
 .horizontal-mode .content {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    perspective: 2000px;
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
 }
 .horizontal-mode .content::-webkit-scrollbar {
     display: none;
@@ -334,6 +436,10 @@ body {
     transition: all 0.3s ease;
 }
 
+html, body, .mf-body, .mf-main-content, .content {
+    background-color: #dbbf86 !important;
+}
+
 #scrollTopBtn:hover {
     background-color: #cf711f;
     transform: translateY(-3px);
@@ -437,3 +543,5 @@ body {
     display: block;
     height: 60px; /* đủ để vượt qua slider */
 }
+.right-actions .download-pdf-btn { color: #e67e22; }
+

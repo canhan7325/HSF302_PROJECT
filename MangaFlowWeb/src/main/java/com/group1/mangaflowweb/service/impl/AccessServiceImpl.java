@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class AccessServiceImpl implements AccessService {
 
     private static final int DEFAULT_PREVIEW_COUNT = 2;
-    private static final int SILVER_PREVIEW_COUNT = 10;
+    private static final int SILVER_PREVIEW_COUNT = 30;
 
     private final TransactionsRepository TransactionsRepository;
 

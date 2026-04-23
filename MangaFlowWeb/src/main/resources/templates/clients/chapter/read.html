@@ -40,9 +40,13 @@
 
             <!-- Nếu có quyền đọc -->
             <th:block th:if="${canReadFull}">
-                <div th:each="p,iter : ${pages}" class="page-wrap">
-                    <img th:src="${@imageUrlResolver.resolve(p.imgPath)}" class="comic-img"
-                        th:alt="|Page ${p.pageNumber}|" />
+                <div th:each="p,iter : ${pages}" class="page-wrap" th:attr="data-index=${iter.index}">
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                         th:attr="data-src=${@imageUrlResolver.resolve(p.imgPath)}"
+                         class="comic-img lazy-comic"
+                         th:alt="|Page ${p.pageNumber}|" />
+
+                    <div class="page-loader-spinner"></div>
                 </div>
             </th:block>
 
@@ -88,6 +92,14 @@
 
         <!-- Right side quick actions - Floating Bar -->
         <div class="right-actions">
+            <button type="button"
+                    class="action-item download-pdf-btn"
+                    th:attr="data-chapter-id=${chapter.chapterId}"
+                    data-tooltip="Download PDF">
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 20h14v-2H5v2zM11 4h2v9h3l-4 4-4-4h3z"/>
+                </svg>
+            </button>
             <button onclick="toggleReadingMode()" class="action-item" data-tooltip="Chuyển chế độ đọc">
                 <svg viewBox="0 0 24 24">
                     <path

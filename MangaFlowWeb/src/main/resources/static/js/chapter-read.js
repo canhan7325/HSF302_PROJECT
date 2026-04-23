@@ -1,4 +1,6 @@
 (function () {
+    let currentPageIndex = 0;
+
     function setMode(mode) {
         if (mode === "horizontal") {
             document.body.classList.add("horizontal-mode");
@@ -8,25 +10,62 @@
     }
 
     window.toggleReadingMode = function () {
-        document.body.classList.toggle("horizontal-mode");
-        localStorage.setItem(
-            "readingMode",
-            document.body.classList.contains("horizontal-mode") ? "horizontal" : "vertical"
-        );
+        const isHorizontal = document.body.classList.toggle("horizontal-mode");
+        localStorage.setItem("readingMode", isHorizontal ? "horizontal" : "vertical");
+
+        if (isHorizontal) {
+            initBookMode(); // <--- THÊM DÒNG NÀY ĐỂ RESET CLASS KHI BẬT NGANG
+        }
     };
 
     window.nextPage = function () {
         if (!document.body.classList.contains("horizontal-mode")) return;
-        const container = document.querySelector(".content");
-        if (!container) return;
-        container.scrollBy({ left: window.innerWidth, behavior: "smooth" });
+
+        const pages = document.querySelectorAll(".page-wrap");
+        if (currentPageIndex < pages.length - 1) {
+            const current = pages[currentPageIndex];
+
+            current.classList.remove("active");
+            current.classList.add("flipped");
+
+            currentPageIndex++;
+
+            const next = pages[currentPageIndex];
+            next.classList.add("active");
+            next.classList.remove("upcoming");
+
+            if (pages[currentPageIndex + 1]) {
+                pages[currentPageIndex + 1].classList.add("upcoming");
+            }
+
+            if (typeof preloadBuffer === 'function') preloadBuffer(currentPageIndex, 2);
+            updateSliderUI(currentPageIndex);
+        }
     };
 
     window.prevPage = function () {
         if (!document.body.classList.contains("horizontal-mode")) return;
-        const container = document.querySelector(".content");
-        if (!container) return;
-        container.scrollBy({ left: -window.innerWidth, behavior: "smooth" });
+
+        const pages = document.querySelectorAll(".page-wrap");
+        if (currentPageIndex > 0) {
+            const current = pages[currentPageIndex];
+            const prev = pages[currentPageIndex - 1];
+
+            // Trang hiện tại lùi về trạng thái chờ
+            current.classList.remove("active");
+            current.classList.add("upcoming");
+
+            currentPageIndex--;
+
+            // Trang cũ lật ngược lại
+            prev.classList.remove("flipped");
+            prev.classList.add("active");
+
+            if (pages[currentPageIndex + 2]) {
+                pages[currentPageIndex + 2].classList.remove("upcoming");
+            }
+            updateSliderUI(currentPageIndex);
+        }
     };
 
     window.scrollToTop = function () {
@@ -35,41 +74,48 @@
 
     // Jump to a specific page index (used by slider tiles)
     window.scrollToPage = function (index) {
-        const container = document.querySelector(".content");
-        if (!container) return;
-
-        const pages = Array.from(container.querySelectorAll(".page-wrap"));
-        const target = pages[index];
-        if (!target) return;
-
-        if (document.body.classList.contains("horizontal-mode")) {
-            container.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
-        } else {
-            target.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (!document.body.classList.contains("horizontal-mode")) {
+            // Chế độ dọc: Vẫn dùng scrollIntoView
+            const pages = document.querySelectorAll(".page-wrap");
+            if (pages[index]) pages[index].scrollIntoView({ behavior: "smooth" });
+            return;
         }
+
+        const pages = document.querySelectorAll(".page-wrap");
+        if (index < 0 || index >= pages.length) return;
+
+        // Cập nhật biến chỉ mục toàn cục
+        currentPageIndex = index;
+
+        // Cập nhật class cho tất cả các trang dựa trên chỉ mục mới
+        pages.forEach((page, i) => {
+            page.classList.remove("active", "flipped", "upcoming");
+            page.style.zIndex = ""; // Xóa các z-index inline cũ nếu có
+
+            if (i < index) {
+                page.classList.add("flipped");
+            } else if (i === index) {
+                page.classList.add("active");
+            } else if (i === index + 1) {
+                page.classList.add("upcoming");
+            }
+        });
+
+        // Cập nhật giao diện thanh slide ngay lập tức
+        updateSliderUI(currentPageIndex);
+
+        // Tải ảnh cho trang mới
+        if (typeof preloadBuffer === 'function') preloadBuffer(currentPageIndex, 2);
     };
 
     function getCurrentPageIndex() {
+        if (document.body.classList.contains("horizontal-mode")) {
+            return currentPageIndex;
+        }
+        // Chế độ dọc: Giữ nguyên logic cũ
         const container = document.querySelector(".content");
         if (!container) return 0;
         const pages = Array.from(container.querySelectorAll(".page-wrap"));
-        if (pages.length === 0) return 0;
-
-        if (document.body.classList.contains("horizontal-mode")) {
-            const x = container.scrollLeft;
-            let bestIndex = 0;
-            let bestDist = Infinity;
-            for (let i = 0; i < pages.length; i++) {
-                const dist = Math.abs(pages[i].offsetLeft - x);
-                if (dist < bestDist) {
-                    bestDist = dist;
-                    bestIndex = i;
-                }
-            }
-            return bestIndex;
-        }
-
-        // Vertical fallback
         let bestIndex = 0;
         let bestDist = Infinity;
         for (let i = 0; i < pages.length; i++) {
@@ -88,10 +134,10 @@
         if (!track) return;
 
         const items = Array.from(track.querySelectorAll(".slider-item"));
-        for (let i = 0; i < items.length; i++) {
-            items[i].classList.toggle("active", i === currentIndex);
-            items[i].classList.toggle("read", i < currentIndex);
-        }
+        items.forEach((item, i) => {
+            item.classList.toggle("active", i === currentIndex);
+            item.classList.toggle("read", i < currentIndex);
+        });
     }
 
     function initSliderInteractions() {
@@ -179,6 +225,107 @@
         }
     }
 
+    function initDownloadPdf() {
+        const btn = document.querySelector(".right-actions .download-pdf-btn");
+        if (!btn) return;
+
+        btn.addEventListener("click", async function () {
+            const chapterId = btn.getAttribute("data-chapter-id");
+            if (!chapterId) return;
+
+            btn.classList.add("is-loading");
+
+            try {
+                const url = `/api/chapters/${encodeURIComponent(chapterId)}/pdf`;
+                const res = await fetch(url, { method: "GET", credentials: "same-origin" });
+                if (!res.ok) return;
+
+                const blob = await res.blob();
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = `chapter-${chapterId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(a.href);
+            } finally {
+                btn.classList.remove("is-loading");
+            }
+        });
+    }
+
+    function initLazyLoading() {
+        const lazyImages = document.querySelectorAll('.lazy-comic');
+        const allPageWraps = document.querySelectorAll('.page-wrap');
+
+        // Hàm thực hiện việc tải ảnh thực tế
+        const loadImage = (img) => {
+            const src = img.getAttribute('data-src');
+            if (!src || img.src === src) return;
+
+            img.src = src;
+            img.onload = () => {
+                img.classList.add('loaded');
+                const loader = img.parentElement.querySelector('.page-loader-spinner');
+                if (loader) loader.remove();
+            };
+        };
+
+        // Hàm tải trước (Buffer): Tải trang hiện tại và n trang tiếp theo
+        const preloadBuffer = (currentIndex, bufferCount = 2) => {
+            for (let i = 0; i <= bufferCount; i++) {
+                const targetIndex = currentIndex + i;
+                if (targetIndex < allPageWraps.length) {
+                    const nextImg = allPageWraps[targetIndex].querySelector('.lazy-comic');
+                    if (nextImg) loadImage(nextImg);
+                }
+            }
+        };
+
+        // Khởi tạo Intersection Observer
+        const observerOptions = {
+            root: null, // null là quan sát theo viewport
+            rootMargin: '500px 0px', // Tải trước khi người dùng cuộn tới 500px (cho dọc)
+            threshold: 0.01
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const wrap = entry.target;
+                    const index = parseInt(wrap.getAttribute('data-index'));
+
+                    // Khi thấy trang X, tải trang X và n trang tiếp theo (Buffer)
+                    preloadBuffer(index, 2);
+
+                    // Nếu muốn tối ưu tuyệt đối, có thể ngừng quan sát trang này sau khi đã load
+                    // observer.unobserve(wrap);
+                }
+            });
+        }, observerOptions);
+
+        allPageWraps.forEach(wrap => observer.observe(wrap));
+    }
+
+    function initBookMode() {
+        const pages = document.querySelectorAll(".page-wrap");
+        if (pages.length === 0) return;
+
+        currentPageIndex = 0;
+        pages.forEach((page, index) => {
+            // Reset sạch sẽ tất cả style inline và class cũ
+            page.style.zIndex = "";
+            page.style.opacity = "";
+            page.classList.remove("active", "flipped", "upcoming");
+
+            if (index === 0) {
+                page.classList.add("active");
+            } else if (index === 1) {
+                page.classList.add("upcoming");
+            }
+        });
+    }
+
     function initSecurity() {
         // Kiểm tra quyền (Chỉ chạy cho người dùng thường)
         if (window.APP_CAN_USE_DEVTOOLS) {
@@ -197,7 +344,7 @@
         document.addEventListener('keydown', function(e) {
             // Chặn F12, Ctrl+Shift+I/C/J, Ctrl+U, Ctrl+P, Ctrl+S, PrintScreen
             const blockedKeys = [123, 44]; // F12, PrintScreen
-            if (blockedKeys.includes(e.keyCode) || 
+            if (blockedKeys.includes(e.keyCode) ||
                 (e.ctrlKey && (e.shiftKey && [73, 67, 74].includes(e.keyCode))) || // Ctrl+Shift+I/C/J
                 (e.ctrlKey && [85, 80, 83].includes(e.keyCode)) || // Ctrl+U/P/S
                 ((e.metaKey || e.osKey) && e.shiftKey && e.keyCode === 83) // Win+Shift+S
@@ -233,7 +380,7 @@
                 const overlay = document.getElementById('security-blur-overlay');
                 if (overlay) overlay.remove();
                 securityTimeout = null;
-            }, 1000); 
+            }, 1000);
         };
 
         const showSecurityOverlayImmediate = () => {
@@ -288,7 +435,10 @@
 
         // Restore reading mode
         const saved = localStorage.getItem("readingMode");
-        if (saved === "horizontal") setMode("horizontal");
+        if (saved === "horizontal") {
+            document.body.classList.add("horizontal-mode");
+            initBookMode(); // <--- THÊM DÒNG NÀY VÀO ĐÂY
+        }
 
         // Scroll top button
         const scrollBtn = document.getElementById("scrollTopBtn");
@@ -301,6 +451,8 @@
 
         initSliderInteractions();
         bindScrollTracking();
+        initDownloadPdf();
+        initLazyLoading();
     }
 
     if (document.readyState === "loading") {
