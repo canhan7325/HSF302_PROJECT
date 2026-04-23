@@ -1,10 +1,10 @@
 package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.dto.TransactionsDTO;
-import com.group1.mangaflowweb.entity.Users;
-import com.group1.mangaflowweb.service.UserService;
 import com.group1.mangaflowweb.service.SubcriptionsService;
 import com.group1.mangaflowweb.service.TransactionsService;
+import com.group1.mangaflowweb.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,12 +13,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.view.RedirectView;
 
-import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/payment")

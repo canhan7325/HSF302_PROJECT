@@ -4,12 +4,8 @@ import com.group1.mangaflowweb.dto.SubscriptionCheckDTO;
 import com.group1.mangaflowweb.dto.SubscriptionsDTO;
 import com.group1.mangaflowweb.dto.momo.MomoPaymentResponse;
 import com.group1.mangaflowweb.dto.zalopay.ZaloPayPaymentResponse;
-import com.group1.mangaflowweb.entity.Users;
-import com.group1.mangaflowweb.service.UserService;
-import com.group1.mangaflowweb.service.MomoService;
-import com.group1.mangaflowweb.service.SubcriptionsService;
-import com.group1.mangaflowweb.service.TransactionsService;
-import com.group1.mangaflowweb.service.ZaloPayService;
+import com.group1.mangaflowweb.service.*;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,9 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
 
-import jakarta.servlet.http.HttpSession;
-import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 @Controller

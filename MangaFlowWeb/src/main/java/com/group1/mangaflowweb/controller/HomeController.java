@@ -1,13 +1,11 @@
 package com.group1.mangaflowweb.controller;
 
-import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.dto.comic.ComicResponse;
+import com.group1.mangaflowweb.service.ComicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

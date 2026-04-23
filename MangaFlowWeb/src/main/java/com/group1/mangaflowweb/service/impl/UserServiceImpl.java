@@ -1,5 +1,6 @@
 package com.group1.mangaflowweb.service.impl;
 
+import com.group1.mangaflowweb.dto.request.RegisterRequest;
 import com.group1.mangaflowweb.dto.request.admin.UserAdRequest;
 import com.group1.mangaflowweb.dto.response.admin.UserAdminResponse;
 import com.group1.mangaflowweb.dto.user.UserResponse;
@@ -130,6 +131,31 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username)
                 .map(this::toResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    @Override
+    @Transactional
+    public void registerReader(RegisterRequest registerRequest) {
+        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("USERNAME_EXISTS");
+        }
+        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("EMAIL_EXISTS");
+        }
+
+        Users newUser = Users.builder()
+                .email(registerRequest.getEmail())
+                .username(registerRequest.getUsername())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .role("READER")
+                .enabled(true)
+                .build();
+
+        try {
+            userRepository.save(newUser);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("USERNAME_OR_EMAIL_EXISTS", e);
+        }
     }
 
     private UserResponse toResponse(Users user) {

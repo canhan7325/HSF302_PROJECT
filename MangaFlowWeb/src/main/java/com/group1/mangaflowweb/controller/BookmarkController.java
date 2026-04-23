@@ -1,13 +1,8 @@
 package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.dto.bookmark.BookmarkRequest;
-import com.group1.mangaflowweb.dto.bookmark.BookmarkResponse;
 import com.group1.mangaflowweb.dto.view.BookmarkListItemView;
-import com.group1.mangaflowweb.entity.ReadingHistories;
-import com.group1.mangaflowweb.repository.ChapterRepository;
-import com.group1.mangaflowweb.repository.ReadingHistoryRepository;
 import com.group1.mangaflowweb.service.BookmarkService;
-import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.service.UserContextService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/bookmarks")
@@ -28,9 +20,6 @@ public class BookmarkController {
 
     private final BookmarkService bookmarkService;
     private final UserContextService userContextService;
-    private final ComicService comicService;
-    private final ReadingHistoryRepository readingHistoryRepository;
-    private final ChapterRepository chapterRepository;
 
     @GetMapping
     public String getAll(

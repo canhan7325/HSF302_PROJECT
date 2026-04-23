@@ -3,9 +3,9 @@ package com.group1.mangaflowweb.dto;
 import com.group1.mangaflowweb.dto.chapter.ChapterResponse;
 import com.group1.mangaflowweb.dto.page.PageResponse;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Builder;
 
 import java.util.List;
 
