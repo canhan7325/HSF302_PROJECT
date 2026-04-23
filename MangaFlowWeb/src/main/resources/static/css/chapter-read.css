@@ -422,3 +422,8 @@ body {
     opacity: 0.6;
     pointer-events: none;
 }
+.horizontal-mode .mf-footer::after {
+    content: "";
+    display: block;
+    height: 60px; /* đủ để vượt qua slider */
+}
