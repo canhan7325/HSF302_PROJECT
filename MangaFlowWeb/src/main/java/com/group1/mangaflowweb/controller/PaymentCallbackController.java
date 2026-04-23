@@ -2,7 +2,7 @@ package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.dto.TransactionsDTO;
 import com.group1.mangaflowweb.entity.Users;
-import com.group1.mangaflowweb.repository.UserRepository;
+import com.group1.mangaflowweb.service.UserService;
 import com.group1.mangaflowweb.service.SubcriptionsService;
 import com.group1.mangaflowweb.service.TransactionsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class PaymentCallbackController {
     private SubcriptionsService subscriptionsService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     /**
      * ZaloPay callback - user is redirected here after payment
@@ -264,8 +264,8 @@ public class PaymentCallbackController {
         }
 
         String username = authentication.getName();
-        Optional<Users> userOptional = userRepository.findByUsername(username);
-        return userOptional.map(Users::getUserId).orElse(1);
+        com.group1.mangaflowweb.dto.user.UserResponse user = userService.findByUsername(username);
+        return user != null ? user.getUserId() : 1;
     }
 }
 

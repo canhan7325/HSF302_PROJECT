@@ -5,7 +5,7 @@ import com.group1.mangaflowweb.dto.SubscriptionsDTO;
 import com.group1.mangaflowweb.dto.momo.MomoPaymentResponse;
 import com.group1.mangaflowweb.dto.zalopay.ZaloPayPaymentResponse;
 import com.group1.mangaflowweb.entity.Users;
-import com.group1.mangaflowweb.repository.UserRepository;
+import com.group1.mangaflowweb.service.UserService;
 import com.group1.mangaflowweb.service.MomoService;
 import com.group1.mangaflowweb.service.SubcriptionsService;
 import com.group1.mangaflowweb.service.TransactionsService;
@@ -44,7 +44,7 @@ public class PricingController {
     private TransactionsService transactionsService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @GetMapping
     public String getPricingPage(Model model) {
@@ -60,9 +60,8 @@ public class PricingController {
 
             if (isLoggedIn) {
                 String username = authentication.getName();
-                Optional<Users> userOpt = userRepository.findByUsername(username);
-                if (userOpt.isPresent()) {
-                    Users user = userOpt.get();
+                com.group1.mangaflowweb.dto.user.UserResponse user = userService.findByUsername(username);
+                if (user != null) {
                     for (SubscriptionsDTO sub : subscriptions) {
                         SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
                                 user.getUserId(),
@@ -170,11 +169,10 @@ public class PricingController {
         if (authentication != null && authentication.isAuthenticated()
                 && !"anonymousUser".equals(authentication.getName())) {
             String username = authentication.getName();
-            Optional<Users> userOptional = userRepository.findByUsername(username);
+            com.group1.mangaflowweb.dto.user.UserResponse user = userService.findByUsername(username);
 
-            if (userOptional.isPresent()) {
+            if (user != null) {
                 // ✅ CHECK: Kiểm tra xem user có được phép downgrade không
-                Users user = userOptional.get();
                 SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
                         user.getUserId(),
                         subscription.getPrice().longValue(),
@@ -256,8 +254,10 @@ public class PricingController {
             }
 
             // Get user from database using username
-            Users user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            com.group1.mangaflowweb.dto.user.UserResponse user = userService.findByUsername(username);
+            if (user == null) {
+                throw new RuntimeException("User not found");
+            }
 
             // ✅ CHECK: Không cho phép hạ cấp xuống FREE (subscription.getPrice() = 0)
             SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(

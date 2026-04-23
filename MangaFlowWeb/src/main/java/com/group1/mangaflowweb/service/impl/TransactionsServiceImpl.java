@@ -294,4 +294,9 @@ public class TransactionsServiceImpl implements TransactionsService {
         return usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    @Override
+    public java.util.List<Transactions> getTransactionsByUserId(Integer userId) {
+        return transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
 }
