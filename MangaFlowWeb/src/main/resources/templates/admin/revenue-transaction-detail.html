@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chi Tiết Giao Dịch — Trang Quản Trị</title>
+<th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
+</head>
+<body class="bg-background text-on-surface flex min-h-screen">
+
+<th:block th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar(activeSection='revenue')}"></th:block>
+
+<main class="ml-72 flex-1 p-8 bg-background">
+  <header class="mb-8 flex items-center justify-between">
+    <div>
+      <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Tài Chính</p>
+      <h2 class="text-4xl font-extrabold tracking-tighter">Chi Tiết Giao Dịch</h2>
+    </div>
+    <a th:href="@{/admin/revenue}" class="px-4 py-2 rounded-lg border border-outline-variant text-sm font-bold hover:bg-surface-container">
+      Quay Lại
+    </a>
+  </header>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+      <h3 class="text-lg font-bold mb-4">Thông Tin Giao Dịch</h3>
+      <dl class="space-y-3 text-sm">
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Mã giao dịch</dt>
+          <dd class="font-mono font-bold" th:text="'#' + ${transaction.transactionId}">#1</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Trạng thái</dt>
+          <dd class="font-bold" th:text="${transaction.status}">SUCCESS</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Trạng thái gói</dt>
+          <dd class="font-bold" th:text="${transaction.statusSubs}">ACTIVE</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Số tiền</dt>
+          <dd class="font-bold text-green-600" th:text="${#numbers.formatDecimal(transaction.price, 0, 'POINT', 0, 'NONE')} + '₫'">0₫</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Ngày tạo</dt>
+          <dd th:text="${transaction.createdAt != null ? #temporals.format(transaction.createdAt, 'dd/MM/yyyy HH:mm') : '—'}">—</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Bắt đầu hiệu lực</dt>
+          <dd th:text="${transaction.startedAt != null ? #temporals.format(transaction.startedAt, 'dd/MM/yyyy HH:mm') : '—'}">—</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Kết thúc hiệu lực</dt>
+          <dd th:text="${transaction.endedAt != null ? #temporals.format(transaction.endedAt, 'dd/MM/yyyy HH:mm') : '—'}">—</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+      <h3 class="text-lg font-bold mb-4">Người Dùng Thực Hiện</h3>
+      <dl class="space-y-3 text-sm">
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">User ID</dt>
+          <dd class="font-mono font-bold" th:text="${transaction.user != null ? transaction.user.userId : '—'}">—</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Username</dt>
+          <dd class="font-bold" th:text="${transaction.user != null ? transaction.user.username : '—'}">—</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Email</dt>
+          <dd th:text="${transaction.user != null ? transaction.user.email : '—'}">—</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Vai trò</dt>
+          <dd th:text="${transaction.user != null ? transaction.user.role : '—'}">—</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Trạng thái tài khoản</dt>
+          <dd th:text="${transaction.user != null and transaction.user.enabled ? 'Hoạt động' : 'Đã vô hiệu'}">—</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-on-surface-variant font-medium">Ngày tạo tài khoản</dt>
+          <dd th:text="${transaction.user != null and transaction.user.createdAt != null ? #temporals.format(transaction.user.createdAt, 'dd/MM/yyyy HH:mm') : '—'}">—</dd>
+        </div>
+      </dl>
+
+      <div class="mt-6 pt-4 border-t border-surface-container-high">
+        <h4 class="text-base font-bold mb-3">Thông Tin Gói Đăng Ký</h4>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between gap-4">
+            <dt class="text-on-surface-variant font-medium">Tên gói</dt>
+            <dd class="font-bold" th:text="${transaction.subscription != null ? transaction.subscription.name : '—'}">—</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-on-surface-variant font-medium">Giá gói</dt>
+            <dd th:text="${transaction.subscription != null and transaction.subscription.price != null ? #numbers.formatDecimal(transaction.subscription.price, 0, 'POINT', 0, 'NONE') + '₫' : '—'}">—</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-on-surface-variant font-medium">Thời hạn</dt>
+            <dd th:text="${transaction.subscription != null and transaction.subscription.durationDays != null ? transaction.subscription.durationDays + ' ngày' : '—'}">—</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
