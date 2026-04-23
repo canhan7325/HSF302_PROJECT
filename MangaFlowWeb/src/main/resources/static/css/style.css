@@ -197,6 +197,18 @@ body.mf-body {
 	font-size: 0.65rem;
 	letter-spacing: 0.06em;
 	padding: 0.35rem 0.6rem;
+
+	/* Thêm thuộc tính animation: tên_hiệu_ứng | thời_gian | lặp_lại_vô_hạn */
+	animation: nhapNhay 2s infinite;
+}
+
+@keyframes nhapNhay {
+	0%, 100% {
+		opacity: 1; /* Hiển thị rõ hoàn toàn ở đầu và cuối chu kỳ */
+	}
+	50% {
+		opacity: 0.2; /* Mờ đi ở giữa chu kỳ (bạn có thể đổi thành 0 nếu muốn chớp tắt hẳn) */
+	}
 }
 
 .mf-bookmark-icon {

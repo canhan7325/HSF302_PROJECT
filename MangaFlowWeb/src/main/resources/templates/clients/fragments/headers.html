@@ -30,8 +30,8 @@
                     <div class="mf-search-suggestions d-none" id="comicSearchSuggestions"></div>
                 </div>
 
-                <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item"><a th:href="@{/}" class="nav-link active">Trang chủ</a></li>
+                <ul class="navbar-nav mb-2 mb-lg-0" id="mainNavLinks">
+                    <li class="nav-item"><a th:href="@{/}" class="nav-link">Trang chủ</a></li>
                     <li class="nav-item" sec:authorize="hasRole('AUTHOR')">
                         <a th:href="@{/author/dashboard}" class="nav-link">Đăng truyện</a>
                     </li>
@@ -75,6 +75,34 @@
         </div>
     </nav>
     <script th:src="@{/js/header-search.js(v=20260422_4)}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Lấy đường dẫn URL hiện tại của trình duyệt (VD: /bookmarks)
+            const currentPath = window.location.pathname;
+
+            // Chọn tất cả các thẻ a bên trong menu
+            const navLinks = document.querySelectorAll('#mainNavLinks .nav-link');
+
+            navLinks.forEach(link => {
+                try {
+                    // Lấy đường dẫn từ thuộc tính href của thẻ a
+                    const linkUrl = new URL(link.href, window.location.origin);
+                    const linkPath = linkUrl.pathname;
+
+                    // So sánh URL hiện tại với href của thẻ a
+                    if (linkPath === '/' && currentPath === '/') {
+                        // Xử lý riêng cho trang chủ để tránh nó luôn sáng
+                        link.classList.add('active');
+                    } else if (linkPath !== '/' && currentPath.startsWith(linkPath)) {
+                        // Dùng startsWith để các trang con (VD: /bookmarks/page/2) vẫn sáng tab Thư viện
+                        link.classList.add('active');
+                    }
+                } catch (e) {
+                    console.error("Lỗi parse URL: ", e);
+                }
+            });
+        });
+    </script>
 </header>
 </body>
 </html>

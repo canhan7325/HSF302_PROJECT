@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.service.impl;
 
 import com.group1.mangaflowweb.dto.comic.ComicAdminDTO;
 import com.group1.mangaflowweb.dto.comic.ComicDTO;
+import com.group1.mangaflowweb.dto.comic.ComicSearchDTO;
 import com.group1.mangaflowweb.dto.comic.ComicSummaryDTO;
 import com.group1.mangaflowweb.dto.genre.GenreAdminDTO;
 import com.group1.mangaflowweb.entity.*;
@@ -336,7 +337,7 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComicSummaryDTO> searchByTitle(String query) {
+    public List<ComicSearchDTO> searchByTitle(String query) {
         String normalizedKeyword = query == null ? "" : query.trim();
         if (normalizedKeyword.isEmpty()) {
             return List.of();
@@ -355,11 +356,11 @@ public class ComicServiceImpl implements ComicService {
 
         return uniqueMatches.values().stream()
                 .limit(limit)
-                .map(comic -> ComicSummaryDTO.builder()
-                        .comicId(comic.getComicId())
+                .map(comic -> ComicSearchDTO.builder()
+                        .id(comic.getComicId())
                         .title(comic.getTitle())
-                        .viewCount(comic.getViewCount())
-                        .status(comic.getStatus())
+                        .slug(comic.getSlug())
+                        .coverImage(imageUrlResolver.resolve(comic.getCoverImg()))
                         .build())
                 .toList();
     }

@@ -2,6 +2,7 @@ package com.group1.mangaflowweb.service;
 
 import com.group1.mangaflowweb.dto.comic.ComicDTO;
 import com.group1.mangaflowweb.dto.comic.ComicAdminDTO;
+import com.group1.mangaflowweb.dto.comic.ComicSearchDTO;
 import com.group1.mangaflowweb.dto.comic.ComicSummaryDTO;
 import com.group1.mangaflowweb.dto.genre.GenreAdminDTO;
 import com.group1.mangaflowweb.entity.Comics;
@@ -52,7 +53,7 @@ public interface ComicService {
 
     void delete(Integer comicId);
 
-    List<ComicSummaryDTO> searchByTitle(String query);
+    List<ComicSearchDTO> searchByTitle(String query);
 
     List<ComicDTO> searchForPageByTitle(String query);
 }
