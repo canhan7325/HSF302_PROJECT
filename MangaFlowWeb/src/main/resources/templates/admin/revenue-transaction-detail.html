@@ -31,11 +31,33 @@
         </div>
         <div class="flex justify-between gap-4">
           <dt class="text-on-surface-variant font-medium">Trạng thái</dt>
-          <dd class="font-bold" th:text="${transaction.status}">SUCCESS</dd>
+          <dd>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+              th:classappend="
+                ${transaction.status.name() == 'SUCCESS'} ? 'text-green-700 bg-green-100' :
+                (${transaction.status.name() == 'PENDING'} ? 'text-blue-700 bg-blue-100' :
+                (${transaction.status.name() == 'FAILED'} ? 'text-red-700 bg-red-100' :
+                (${transaction.status.name() == 'CANCELED'} ? 'text-gray-700 bg-gray-100' :
+                (${transaction.status.name() == 'UPDATED'} ? 'text-yellow-700 bg-yellow-100' :
+                'text-stone-500 bg-stone-100'))))"
+              th:text="
+                ${transaction.status.name() == 'SUCCESS'} ? 'Thành công' :
+                (${transaction.status.name() == 'PENDING'} ? 'Đang xử lý' :
+                (${transaction.status.name() == 'FAILED'} ? 'Thất bại' :
+                (${transaction.status.name() == 'CANCELED'} ? 'Đã hủy' :
+                (${transaction.status.name() == 'UPDATED'} ? 'Đã nâng cấp' :
+                ${transaction.status}))))">
+            </span>
+          </dd>
         </div>
         <div class="flex justify-between gap-4">
           <dt class="text-on-surface-variant font-medium">Trạng thái gói</dt>
-          <dd class="font-bold" th:text="${transaction.statusSubs}">ACTIVE</dd>
+          <dd>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+              th:classappend="${transaction.statusSubs == 'ACTIVE'} ? 'text-emerald-700 bg-emerald-100' : 'text-stone-500 bg-stone-100'"
+              th:text="${transaction.statusSubs == 'ACTIVE'} ? 'Đang hoạt động' : 'Đã hủy'">
+            </span>
+          </dd>
         </div>
         <div class="flex justify-between gap-4">
           <dt class="text-on-surface-variant font-medium">Số tiền</dt>
@@ -90,7 +112,12 @@
         <dl class="space-y-3 text-sm">
           <div class="flex justify-between gap-4">
             <dt class="text-on-surface-variant font-medium">Tên gói</dt>
-            <dd class="font-bold" th:text="${transaction.subscription != null ? transaction.subscription.name : '—'}">—</dd>
+            <dd class="font-bold"
+                th:text="${transaction.subscription != null} ?
+                  (${transaction.subscription.name == 'Gold'} ? 'Gói Vàng' :
+                  (${transaction.subscription.name == 'Silver'} ? 'Gói Bạc' :
+                  (${transaction.subscription.name == 'Free'} ? 'Gói Miễn Phí' :
+                  ${transaction.subscription.name}))) : '—'">—</dd>
           </div>
           <div class="flex justify-between gap-4">
             <dt class="text-on-surface-variant font-medium">Giá gói</dt>

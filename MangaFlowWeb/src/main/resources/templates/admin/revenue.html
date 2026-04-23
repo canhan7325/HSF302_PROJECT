@@ -50,7 +50,8 @@
       <div th:each="item : ${revenueBySubscription}"
            th:if="${item.revenue != null and item.revenue > 0}"
            class="bg-surface-container-low rounded-lg p-4 border-l-4 border-primary">
-        <p class="text-sm font-bold text-on-surface mb-1" th:text="${item.subscriptionName}">Plan</p>
+        <p class="text-sm font-bold text-on-surface mb-1"
+           th:text="${item.subscriptionName == 'Gold'} ? 'Gói Vàng' : (${item.subscriptionName == 'Silver'} ? 'Gói Bạc' : (${item.subscriptionName == 'Free'} ? 'Gói Miễn Phí' : ${item.subscriptionName}))">Plan</p>
         <p class="text-xl font-extrabold text-green-600">
           <span th:text="${#numbers.formatDecimal(item.revenue, 0, 'POINT', 0, 'NONE')}">0.00</span>₫
         </p>
@@ -72,21 +73,23 @@
                  class="w-full pl-9 pr-3 py-2 text-sm border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-surface-container-lowest"/>
         </div>
         <div>
-          <label class="block text-xs font-bold text-on-surface-variant mb-1">Trạng thái</label>
+          <label class="block text-xs font-bold text-on-surface-variant mb-1">Trạng thái thanh toán</label>
           <select name="status" class="border border-outline-variant rounded-lg px-3 py-2 text-sm bg-surface-container-lowest">
             <option value="">Tất cả</option>
-            <option value="SUCCESS" th:selected="${status == 'SUCCESS'}">SUCCESS</option>
-            <option value="PENDING" th:selected="${status == 'PENDING'}">PENDING</option>
-            <option value="FAILED" th:selected="${status == 'FAILED'}">FAILED</option>
-            <option value="CANCELED" th:selected="${status == 'CANCELED'}">CANCELED</option>
-            <option value="UPDATED" th:selected="${status == 'UPDATED'}">UPDATED</option>
+            <option value="SUCCESS"  th:selected="${status == 'SUCCESS'}">Thành công</option>
+            <option value="PENDING"  th:selected="${status == 'PENDING'}">Đang xử lý</option>
+            <option value="FAILED"   th:selected="${status == 'FAILED'}">Thất bại</option>
+            <option value="CANCELED" th:selected="${status == 'CANCELED'}">Đã hủy</option>
+            <option value="UPDATED"  th:selected="${status == 'UPDATED'}">Đã nâng cấp</option>
           </select>
         </div>
         <div>
           <label class="block text-xs font-bold text-on-surface-variant mb-1">Gói đăng ký</label>
           <select name="subscription" class="border border-outline-variant rounded-lg px-3 py-2 text-sm bg-surface-container-lowest">
             <option value="">Tất cả</option>
-            <option th:each="subName : ${subscriptionNames}" th:value="${subName}" th:text="${subName}" th:selected="${subscription == subName}"></option>
+            <option th:each="subName : ${subscriptionNames}" th:value="${subName}"
+                    th:text="${subName == 'Gold'} ? 'Gói Vàng' : (${subName == 'Silver'} ? 'Gói Bạc' : (${subName == 'Free'} ? 'Gói Miễn Phí' : ${subName}))"
+                    th:selected="${subscription == subName}"></option>
           </select>
         </div>
         <div>
@@ -118,24 +121,31 @@
         <tr th:each="t : ${transactions}" class="hover:bg-surface-container-low transition-colors">
           <td class="px-6 py-3 text-sm font-mono text-on-surface-variant" th:text="'#' + ${t.transactionId}"></td>
           <td class="px-6 py-3 text-sm font-medium" th:text="${t.user != null ? t.user.username : '—'}"></td>
-          <td class="px-6 py-3 text-sm font-medium" th:text="${t.subscription != null ? t.subscription.name : '—'}"></td>
+          <td class="px-6 py-3 text-sm font-medium"
+              th:text="${t.subscription != null} ? (${t.subscription.name == 'Gold'} ? 'Gói Vàng' : (${t.subscription.name == 'Silver'} ? 'Gói Bạc' : (${t.subscription.name == 'Free'} ? 'Gói Miễn Phí' : ${t.subscription.name}))) : '—'"></td>
           <td class="px-6 py-3 text-sm font-bold text-green-600" th:text="${#numbers.formatDecimal(t.price, 0, 'POINT', 0, 'NONE')} + '₫'"></td>
           <td class="px-6 py-3">
-            <span th:text="${t.status}"
-              class="text-xs font-bold px-2 py-0.5 rounded-full"
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full"
               th:classappend="
                 ${t.status.name() == 'SUCCESS'} ? 'text-green-700 bg-green-100' :
                 (${t.status.name() == 'PENDING'} ? 'text-blue-700 bg-blue-100' :
                 (${t.status.name() == 'FAILED'} ? 'text-red-700 bg-red-100' :
                 (${t.status.name() == 'CANCELED'} ? 'text-gray-700 bg-gray-100' :
                 (${t.status.name() == 'UPDATED'} ? 'text-yellow-700 bg-yellow-100' :
-                'text-stone-500 bg-stone-100'))))">
+                'text-stone-500 bg-stone-100'))))"
+              th:text="
+                ${t.status.name() == 'SUCCESS'} ? 'Thành công' :
+                (${t.status.name() == 'PENDING'} ? 'Đang xử lý' :
+                (${t.status.name() == 'FAILED'} ? 'Thất bại' :
+                (${t.status.name() == 'CANCELED'} ? 'Đã hủy' :
+                (${t.status.name() == 'UPDATED'} ? 'Đã nâng cấp' :
+                ${t.status}))))">
             </span>
           </td>
           <td class="px-6 py-3">
-            <span th:text="${t.statusSubs}"
-              class="text-xs font-bold px-2 py-0.5 rounded-full"
-              th:classappend="${t.statusSubs == 'ACTIVE'} ? 'text-emerald-700 bg-emerald-100' : 'text-stone-500 bg-stone-100'">
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+              th:classappend="${t.statusSubs == 'ACTIVE'} ? 'text-emerald-700 bg-emerald-100' : 'text-stone-500 bg-stone-100'"
+              th:text="${t.statusSubs == 'ACTIVE'} ? 'Đang hoạt động' : 'Đã hủy'">
             </span>
           </td>
           <td class="px-6 py-3 text-sm text-on-surface-variant" th:text="${#temporals.format(t.createdAt, 'dd/MM/yyyy')}"></td>
