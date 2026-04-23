@@ -56,7 +56,7 @@ public class ComicDetailController {
         return "comic-detail";
     }
 
-    @GetMapping("/upload-comic")
+    @GetMapping("/author/upload-comic")
     public String showCreateComicForm(Model model) {
         model.addAttribute("comic", new ComicRequest()); // Thêm một đối tượng trống để form binding
         model.addAttribute("genres", genreService.getAllGenres());
@@ -76,7 +76,7 @@ public class ComicDetailController {
         return "redirect:/chapters/" + chapterId + "/read";
     }
 
-    @PostMapping("/upload-comic")
+    @PostMapping("/author/upload-comic")
     public String createComic(@Valid @ModelAttribute("comic") ComicRequest comicRequest,
                               BindingResult bindingResult,
                               @RequestParam(required = false, name = "coverFile") MultipartFile coverFile,
