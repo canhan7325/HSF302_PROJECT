@@ -50,7 +50,14 @@ public class UserAdController {
     public String userCreate(@Valid UserAdminDTO user, BindingResult result,
             Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        // Manual validation for password (required for create)
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            result.rejectValue("password", "NotBlank", "Mật khẩu không được để trống");
+        }
+        
         if (result.hasErrors()) {
+            model.addAttribute("user", user);
             model.addAttribute("view", "form");
             model.addAttribute("username", usernameCtx);
             return "admin/users";
@@ -58,11 +65,13 @@ public class UserAdController {
         try {
             userService.createUser(user);
         } catch (DataIntegrityViolationException e) {
+            model.addAttribute("user", user);
             model.addAttribute("duplicateError", "Username or email already exists.");
             model.addAttribute("view", "form");
             model.addAttribute("username", usernameCtx);
             return "admin/users";
         } catch (IllegalArgumentException e) {
+            model.addAttribute("user", user);
             model.addAttribute("duplicateError", e.getMessage());
             model.addAttribute("view", "form");
             model.addAttribute("username", usernameCtx);
@@ -90,6 +99,7 @@ public class UserAdController {
             Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         if (result.hasErrors()) {
+            model.addAttribute("user", user);
             model.addAttribute("editMode", true);
             model.addAttribute("userId", id);
             model.addAttribute("view", "form");
@@ -99,6 +109,7 @@ public class UserAdController {
         try {
             userService.updateUser(id, user);
         } catch (DataIntegrityViolationException e) {
+            model.addAttribute("user", user);
             model.addAttribute("duplicateError", "Username or email already exists.");
             model.addAttribute("editMode", true);
             model.addAttribute("userId", id);
@@ -106,6 +117,7 @@ public class UserAdController {
             model.addAttribute("username", usernameCtx);
             return "admin/users";
         } catch (IllegalArgumentException e) {
+            model.addAttribute("user", user);
             model.addAttribute("duplicateError", e.getMessage());
             model.addAttribute("editMode", true);
             model.addAttribute("userId", id);
