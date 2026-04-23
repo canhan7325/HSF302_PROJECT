@@ -19,14 +19,14 @@
 <main class="container-fluid container-xxl px-3 px-md-4 pb-5 mf-main-content">
     <!-- Page header -->
     <header class="mb-4 mb-md-5">
-        <h1 class="mb-2 mf-page-heading">Reading History</h1>
-        <p class="mb-0 mf-page-subtitle">Picking up right where you left off in your journey.</p>
+        <h1 class="mb-2 mf-page-heading">Lịch sử đọc</h1>
+        <p class="mb-0 mf-page-subtitle">Tiếp tục ngay tại điểm bạn đã dừng.</p>
     </header>
 
     <!-- ONE LIST (newest first) -->
     <section>
         <div class="d-flex align-items-center gap-3 mb-3 mb-md-4">
-            <div class="mf-history-section-label">Recent</div>
+            <div class="mf-history-section-label">Gần đây</div>
             <div class="mf-divider-line"></div>
         </div>
 
@@ -42,12 +42,12 @@
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between gap-3">
                             <div>
-                                <h6 class="mb-1" style="font-weight: 900;" th:text="${h.comicTitle}">Comic title</h6>
+                                <h6 class="mb-1" style="font-weight: 900;" th:text="${h.comicTitle}">Truyện</h6>
                                 <div class="text-muted" style="font-size: 0.9rem;" th:text="${h.chapterText}">Chapter ...</div>
                             </div>
                             <div class="text-end">
-                                <div class="mf-comic-time" th:text="${h.timestampText != null ? h.timestampText : h.timeAgo}">JUST NOW</div>
-                                <a class="mf-history-continue mt-2 d-inline-block" th:href="${h.continueUrl != null ? h.continueUrl : '#'}">Continue</a>
+                                <div class="mf-comic-time" th:text="${h.timestampText != null ? h.timestampText : h.timeAgo}">Vừa xong</div>
+                                <a class="mf-history-continue mt-2 d-inline-block" th:href="${h.continueUrl != null ? h.continueUrl : '#'}">Tiếp tục</a>
                             </div>
                         </div>
                     </div>

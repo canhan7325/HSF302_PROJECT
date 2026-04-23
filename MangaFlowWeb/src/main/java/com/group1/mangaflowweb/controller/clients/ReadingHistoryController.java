@@ -90,12 +90,12 @@ public class ReadingHistoryController {
     private String formatTimeAgo(LocalDateTime readAt) {
         if (readAt == null) return "";
         long minutes = ChronoUnit.MINUTES.between(readAt, LocalDateTime.now());
-        if (minutes < 1) return "JUST NOW";
-        if (minutes < 60) return minutes + " MINUTES AGO";
+        if (minutes < 1) return "Vừa rồi";
+        if (minutes < 60) return minutes + " phút trước";
         long hours = ChronoUnit.HOURS.between(readAt, LocalDateTime.now());
-        if (hours < 24) return hours + " HOURS AGO";
+        if (hours < 24) return hours + " giờ trước";
         long days = ChronoUnit.DAYS.between(readAt, LocalDateTime.now());
-        return days + " DAYS AGO";
+        return days + " ngày trước";
     }
 
     private String formatTimestamp(LocalDateTime readAt) {
@@ -103,11 +103,11 @@ public class ReadingHistoryController {
         LocalDate date = readAt.toLocalDate();
         LocalDate today = LocalDate.now();
         if (date.equals(today.minusDays(1))) {
-            return "YESTERDAY, " + readAt.format(DateTimeFormatter.ofPattern("h:mma")).toUpperCase();
+            return "Hôm qua, " + readAt.format(DateTimeFormatter.ofPattern("h:mma")).toUpperCase();
         }
         long days = ChronoUnit.DAYS.between(date, today);
         if (days >= 2) {
-            return days + " DAYS AGO";
+            return days + " Ngày trước, " + readAt.format(DateTimeFormatter.ofPattern("h:mma")).toUpperCase();
         }
         return readAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
