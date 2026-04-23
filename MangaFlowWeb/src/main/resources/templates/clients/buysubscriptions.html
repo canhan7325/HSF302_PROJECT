@@ -1,527 +1,480 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>MangaCurator - Gói Hội Viên</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" th:href="@{/style.css}"/>
-    <link rel="stylesheet" th:href="@{/clients/buysubscriptions.css}"/>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" th:href="@{/style.css}" />
+    <link rel="stylesheet" th:href="@{/clients/buysubscriptions.css}" />
 </head>
+
 <body>
 
-<!-- Header -->
-<div th:replace="~{fragments/headers :: header}"></div>
+    <!-- Header -->
+    <div th:replace="~{fragments/headers :: header}"></div>
 
-<main>
-    <!-- Hero -->
-    <section class="hero">
-        <h1>
-            Nâng Tầm Trải Nghiệm <br/>
-            <span class="accent">Đọc Manga</span>
-        </h1>
-        <p>Chọn gói hội viên phù hợp để mở khóa những chương truyện mới nhất và ủng hộ trực tiếp cho các tác giả bạn yêu thích.</p>
-    </section>
+    <main>
+        <!-- Hero -->
+        <section class="hero">
+            <h1>
+                Nâng Tầm Trải Nghiệm <br />
+                <span class="accent">Đọc Manga</span>
+            </h1>
+            <p>Chọn gói hội viên phù hợp để mở khóa những chương truyện mới nhất và ủng hộ trực tiếp cho các tác giả bạn
+                yêu thích.</p>
+        </section>
 
-    <!-- Pricing Grid -->
-    <div class="pricing-grid">
-        <div class="card"
-             th:each="subscription : ${subscriptions}"
-             th:with="isFree=${subscription.price < 1000}, isSilver=${subscription.price >= 1000 and subscription.price < 100000}, isGold=${subscription.price >= 100000}"
-             th:classappend="${isGold} ? 'card-gold' : (${isSilver} ? 'card-silver' : 'card-free')">
+        <!-- Pricing Grid -->
+        <div class="pricing-grid">
+            <div class="card" th:each="subscription : ${subscriptions}"
+                th:with="isFree=${subscription.price < 1000}, isSilver=${subscription.price >= 1000 and subscription.price < 100000}, isGold=${subscription.price >= 100000}"
+                th:classappend="${isGold} ? 'card-gold' : (${isSilver} ? 'card-silver' : 'card-free')">
 
-            <span th:if="${isGold}" class="card-badge">Phổ Biến Nhất</span>
-            <span class="card-label" th:text="${isFree ? 'ENTRY' : (isSilver ? 'PRO' : 'ULTIMATE')}">Tier</span>
-            <h3 class="card-title" th:text="${isFree ? 'Gói Miễn Phí' : (isSilver ? 'Gói Bạc' : 'Gói Vàng')}">Tên Gói</h3>
-            <p class="card-desc">
-                <span th:if="${isFree}">Đọc miễn phí các nội dung cơ bản.</span>
-                <span th:if="${isSilver}">Đọc thêm nhiều chương truyện đặc sắc.</span>
-                <span th:if="${isGold}">Đọc không giới hạn toàn bộ kho truyện.</span>
-            </p>
+                <span th:if="${isGold}" class="card-badge">Phổ Biến Nhất</span>
+                <span class="card-label" th:text="${isFree ? 'ENTRY' : (isSilver ? 'PRO' : 'ULTIMATE')}">Tier</span>
+                <h3 class="card-title" th:text="${isFree ? 'Gói Miễn Phí' : (isSilver ? 'Gói Bạc' : 'Gói Vàng')}">Tên
+                    Gói</h3>
+                <p class="card-desc">
+                    <span th:if="${isFree}">Đọc miễn phí các nội dung cơ bản.</span>
+                    <span th:if="${isSilver}">Đọc thêm nhiều chương truyện đặc sắc.</span>
+                    <span th:if="${isGold}">Đọc không giới hạn toàn bộ kho truyện.</span>
+                </p>
 
-            <div class="card-price">
-                <div class="price-row">
-                    <span class="price-amount"
-                          th:text="${#numbers.formatDecimal(subscription.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">
-</span>
-                    <span class="price-period" th:text="'/ ' + ${subscription.durationDays} + ' ngày'">/ 30 ngày</span>
+                <div class="card-price">
+                    <div class="price-row">
+                        <span class="price-amount"
+                            th:text="${#numbers.formatDecimal(subscription.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                        </span>
+                        <span class="price-period" th:text="'/ ' + ${subscription.durationDays} + ' ngày'">/ 30
+                            ngày</span>
+                    </div>
+                    <div th:if="${isGold}" class="price-savings">TIẾT KIỆM ĐẾN 40%</div>
                 </div>
-                <div th:if="${isGold}" class="price-savings">TIẾT KIỆM ĐẾN 40%</div>
-            </div>
 
-            <!-- Features cho gói Free -->
-            <ul class="features" th:if="${isFree}">
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active">check_circle</span>
-                    <span class="feature-text">Truy cập hơn 10+ đầu truyện</span>
-                </li>
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active">check_circle</span>
-                    <span class="feature-text">Đọc nội dung cơ bản</span>
-                </li>
-            </ul>
+                <!-- Features cho gói Free -->
+                <ul class="features" th:if="${isFree}">
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active">check_circle</span>
+                        <span class="feature-text">Truy cập cơ bản chương đầu truyện</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active">check_circle</span>
+                        <span class="feature-text">Đọc nội dung cơ bản</span>
+                    </li>
+                </ul>
 
-            <!-- Features cho gói Silver -->
-            <ul class="features" th:if="${isSilver}">
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #914700;">check_circle</span>
-                    <span class="feature-text">Toàn bộ quyền lợi Gói Miễn Phí</span>
-                </li>
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #914700;">menu_book</span>
-                    <span class="feature-text">Mở khóa nhiều chương truyện đặc sắc</span>
-                </li>
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #914700;">ad_off</span>
-                    <span class="feature-text">Truy cập được nhiều truyện hơn</span>
-                </li>
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #914700;">download</span>
-                    <span class="feature-text">Tải xuống đọc offline (10 tập)</span>
-                </li>
-            </ul>
+                <!-- Features cho gói Silver -->
+                <ul class="features" th:if="${isSilver}">
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active" style="color: #914700;">check_circle</span>
+                        <span class="feature-text">Toàn bộ quyền lợi Gói Miễn Phí</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active" style="color: #914700;">menu_book</span>
+                        <span class="feature-text">Mở khóa 10 chương truyện đặc sắc</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active" style="color: #914700;">ad_off</span>
+                        <span class="feature-text">Truy cập được nhiều truyện hơn</span>
+                    </li>
 
-            <!-- Features cho gói Gold -->
-            <ul class="features" th:if="${isGold}">
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #f97f06;">star</span>
-                    <span class="feature-text feature-bold" style="color: #fff; font-weight: bold;">Giảm giá tới 60,000đ khi đã đăng kí Gói Bạc</span>
-                </li>
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #f97f06;">all_inclusive</span>
-                    <span class="feature-text">Đọc không giới hạn kho truyện VIP</span>
-                </li>
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #f97f06;">library_add_check</span>
-                    <span class="feature-text">Truy cập sớm các chương mới nhất</span>
-                </li>
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #f97f06;">cloud_download</span>
-                    <span class="feature-text">Không giới hạn tải offline</span>
-                </li>
-                <li class="feature-item">
-                    <span class="material-symbols-outlined icon-active" style="color: #f97f06;">military_tech</span>
-                    <span class="feature-text">Huy hiệu độc quyền trên Community</span>
-                </li>
-            </ul>
+                </ul>
 
-            <!-- Authenticated users -->
-            <!-- Authenticated users -->
-            <a sec:authorize="isAuthenticated()" class="btn-card btn-purchase btn-subscribe"
+                <!-- Features cho gói Gold -->
+                <ul class="features" th:if="${isGold}">
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active" style="color: #f97f06;">star</span>
+                        <span class="feature-text feature-bold" style="color: #fff; font-weight: bold;">Giảm giá tới
+                            60,000đ khi đã đăng kí Gói Bạc</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active" style="color: #f97f06;">all_inclusive</span>
+                        <span class="feature-text">Đọc không giới hạn kho truyện VIP</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active"
+                            style="color: #f97f06;">library_add_check</span>
+                        <span class="feature-text">Truy cập sớm các chương mới nhất</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <span class="material-symbols-outlined icon-active" style="color: #f97f06;">military_tech</span>
+                        <span class="feature-text">Huy hiệu độc quyền trên Community</span>
+                    </li>
+                </ul>
+
+                <!-- Authenticated users -->
+                <button sec:authorize="isAuthenticated()" class="btn-card btn-purchase btn-subscribe"
                     th:classappend="${isGold} ? 'btn-gold' : (${isSilver} ? 'btn-silver' : 'btn-free')"
-                    th:href="${isFree} ? @{/pricing/free-start(subscriptionId=${subscription.subscriptionId})} : '#'"
-                    th:data-subscription-id="${subscription.subscriptionId}"
-                    th:data-is-free="${isFree}"
-                    th:text="${isFree ? 'Bắt Đầu Ngay' : (isSilver ? 'Đăng Ký ' : 'Đăng Ký ')}">
-            </a>
-
-            <!-- Unauthenticated users - Show same button but trigger login modal -->
-            <button sec:authorize="!isAuthenticated()" class="btn-card btn-purchase btn-subscribe"
-                    th:classappend="${isGold} ? 'btn-gold' : (${isSilver} ? 'btn-silver' : 'btn-free')"
-                    onclick="openLoginModal()"
+                    th:if="${isFree}"
+                    th:onclick="|window.location.href='/pricing/free-start?subscriptionId=${subscription.subscriptionId}'|"
                     style="border: none; cursor: pointer; font-family: inherit;"
+                    th:text="'Bắt Đầu Ngay'">
+                </button>
+                <button sec:authorize="isAuthenticated()" class="btn-card btn-purchase btn-subscribe"
+                    th:classappend="${isGold} ? 'btn-gold' : (${isSilver} ? 'btn-silver' : 'btn-free')"
+                    th:unless="${isFree}"
+                    th:data-can-subscribe="${subChecks != null and subChecks[subscription.subscriptionId] != null ? subChecks[subscription.subscriptionId].canSubscribe : false}"
+                    th:data-sub-id="${subscription.subscriptionId}"
+                    th:data-message="${subChecks != null and subChecks[subscription.subscriptionId] != null ? subChecks[subscription.subscriptionId].message : ''}"
+                    onclick="handleSubscribeClick(this)"
+                    style="border: none; cursor: pointer; font-family: inherit;"
+                    th:text="'Đăng Ký'">
+                </button>
+
+                <!-- Unauthenticated users - Show same button but trigger login modal -->
+                <button sec:authorize="!isAuthenticated()" class="btn-card btn-purchase btn-subscribe"
+                    th:classappend="${isGold} ? 'btn-gold' : (${isSilver} ? 'btn-silver' : 'btn-free')"
+                    onclick="openLoginModal()" style="border: none; cursor: pointer; font-family: inherit;"
                     th:text="${isFree ? 'Bắt Đầu Ngay' : (isSilver ? 'Đăng Ký ' : 'Đăng Ký ')}">
-            </button>
-        </div>
-
-    </div>
-
-    <!-- Editorial Section -->
-    <section class="editorial-section">
-        <div class="editorial-text-box">
-            <h4>Tại sao nên chọn <br/>MangaCurator Editorial?</h4>
-            <p>Chúng tôi không chỉ cung cấp bản dịch. Chúng tôi mang đến một trải nghiệm nghệ thuật. Mỗi khung hình đều được tối ưu hóa cho màn hình chất lượng cao, giữ nguyên vẹn từng nét vẽ của họa sĩ.</p>
-            <div class="editorial-feature">
-                <div class="editorial-icon">
-                    <span class="material-symbols-outlined">high_quality</span>
-                </div>
-                <div class="editorial-feature-body">
-                    <span class="label">4K Rendering</span>
-                    <span class="sublabel">Hình ảnh sắc nét từng chi tiết nhỏ nhất.</span>
-                </div>
+                </button>
             </div>
+
         </div>
 
-        <div class="editorial-image-box">
-            <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNixR1pBeTsLVPTY872hwWTLyXfwtiuBsQCCe_KJbibgl2t1is4YSzhbiM2KCnThQnjOtWsjKvcBlqr55h7zKPXmDQSLN7Kh_g0E8VtzQSoEFK1_6Rccxx71GDhwlkez0gNBQWWddtrw3KfVFx8bc4lcyYMb6bKNxxWNwV3WW139PdFo_IK-ymtIoRYWTwev5RJFrO4IuZuEc7MC3wMfE1Lx5KgiIIMhTpD3R27SKVB0tDOSmhGMKdOLWhrppfigmLvUiWJQJG7r8"
-                    alt="Manga Art Experience"
-            />
-            <div class="editorial-image-overlay">
-                <div>
-                    <h5>Giao diện Độc quyền</h5>
-                    <p>Đọc truyện theo phong cách tạp chí cao cấp, không bị gián đoạn.</p>
+        <!-- Editorial Section -->
+        <section class="editorial-section">
+            <div class="editorial-text-box">
+                <h4>Tại sao nên chọn <br />MangaCurator Editorial?</h4>
+                <p>Chúng tôi không chỉ cung cấp bản dịch. Chúng tôi mang đến một trải nghiệm nghệ thuật. Mỗi khung hình
+                    đều được tối ưu hóa cho màn hình chất lượng cao, giữ nguyên vẹn từng nét vẽ của họa sĩ.</p>
+                <div class="editorial-feature">
+                    <div class="editorial-icon">
+                        <span class="material-symbols-outlined">high_quality</span>
+                    </div>
+                    <div class="editorial-feature-body">
+                        <span class="label">4K Rendering</span>
+                        <span class="sublabel">Hình ảnh sắc nét từng chi tiết nhỏ nhất.</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
-</main>
 
-<!-- Footer -->
-<div th:replace="~{fragments/footers :: footer}"></div>
-
-<!-- Login Confirm Modal -->
-<div id="loginModal" class="modal-overlay">
-    <div class="modal-backdrop"></div>
-    <main class="modal-main" style="max-width: 400px;">
-        <!-- Header -->
-        <header class="modal-header" style="justify-content: center;">
-            <h1>Yêu Cầu Đăng Nhập</h1>
-        </header>
-
-        <!-- Body -->
-        <div class="modal-body" style="padding: 2rem; text-align: center;">
-            <div style="margin-bottom: 1.5rem;">
-                <span class="material-symbols-outlined" style="font-size: 3rem; color: var(--primary);">lock</span>
+            <div class="editorial-image-box">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNixR1pBeTsLVPTY872hwWTLyXfwtiuBsQCCe_KJbibgl2t1is4YSzhbiM2KCnThQnjOtWsjKvcBlqr55h7zKPXmDQSLN7Kh_g0E8VtzQSoEFK1_6Rccxx71GDhwlkez0gNBQWWddtrw3KfVFx8bc4lcyYMb6bKNxxWNwV3WW139PdFo_IK-ymtIoRYWTwev5RJFrO4IuZuEc7MC3wMfE1Lx5KgiIIMhTpD3R27SKVB0tDOSmhGMKdOLWhrppfigmLvUiWJQJG7r8"
+                    alt="Manga Art Experience" />
+                <div class="editorial-image-overlay">
+                    <div>
+                        <h5>Giao diện Độc quyền</h5>
+                        <p>Đọc truyện theo phong cách tạp chí cao cấp, không bị gián đoạn.</p>
+                    </div>
+                </div>
             </div>
-            <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--on-surface);">
-                Vui lòng đăng nhập
-            </h2>
-            <p style="color: var(--on-surface-variant); line-height: 1.6;">
-                Để đăng ký trở thành hội viên của cộng đồng MangaCurator, bạn cần phải đăng nhập hoặc tạo tài khoản trước.
-            </p>
-        </div>
+        </section>
+    </main>
 
-        <!-- Action Footer -->
-        <footer class="modal-footer" style="flex-direction: column; gap: 0.75rem;">
-            <a class="btn-primary-action" th:href="@{/login}"
-               style="display: block; width: 100%; padding: 0.9rem 1.5rem; border-radius: 9999px;
+    <!-- Footer -->
+    <div th:replace="~{fragments/footers :: footer}"></div>
+
+    <!-- Login Confirm Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-backdrop"></div>
+        <main class="modal-main" style="max-width: 400px;">
+            <!-- Header -->
+            <header class="modal-header" style="justify-content: center;">
+                <h1>Yêu Cầu Đăng Nhập</h1>
+            </header>
+
+            <!-- Body -->
+            <div class="modal-body" style="padding: 2rem; text-align: center;">
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="material-symbols-outlined" style="font-size: 3rem; color: var(--primary);">lock</span>
+                </div>
+                <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--on-surface);">
+                    Vui lòng đăng nhập
+                </h2>
+                <p style="color: var(--on-surface-variant); line-height: 1.6;">
+                    Để đăng ký trở thành hội viên của cộng đồng MangaCurator, bạn cần phải đăng nhập hoặc tạo tài khoản
+                    trước.
+                </p>
+            </div>
+
+            <!-- Action Footer -->
+            <footer class="modal-footer" style="flex-direction: column; gap: 0.75rem;">
+                <a class="btn-primary-action" th:href="@{/login}" style="display: block; width: 100%; padding: 0.9rem 1.5rem; border-radius: 9999px;
                       font-family: var(--font-headline); font-weight: 700; font-size: 0.95rem;
                       text-align: center; background: linear-gradient(135deg, #914700 0%, #f97f06 100%);
                       color: var(--on-primary); text-decoration: none; transition: all 0.2s;">
-                Đăng Nhập
-            </a>
-            <button onclick="closeLoginModal()" class="btn-secondary-action"
-                    style="width: 100%; padding: 0.9rem 1.5rem; border: none; border-radius: 9999px;
+                    Đăng Nhập
+                </a>
+                <button onclick="closeLoginModal()" class="btn-secondary-action" style="width: 100%; padding: 0.9rem 1.5rem; border: none; border-radius: 9999px;
                            font-family: var(--font-headline); font-weight: 700; font-size: 0.95rem;
                            text-align: center; background: var(--surface-container-high);
                            color: var(--on-surface); cursor: pointer; transition: all 0.2s;">
-                Hủy bỏ
-            </button>
-        </footer>
-    </main>
-</div>
+                    Hủy bỏ
+                </button>
+            </footer>
+        </main>
+    </div>
 
-<!-- Message Modal (Info/Warning) -->
-<div id="messageModal" class="modal-overlay">
-    <div class="modal-backdrop"></div>
-    <main class="modal-main" style="max-width: 450px;">
-        <!-- Header -->
-        <header class="modal-header" style="justify-content: center;">
-            <h1 id="messageModalTitle">Thông báo</h1>
-        </header>
+    <!-- Message Modal (Info/Warning) -->
+    <div id="messageModal" class="modal-overlay">
+        <div class="modal-backdrop"></div>
+        <main class="modal-main" style="max-width: 450px;">
+            <!-- Header -->
+            <header class="modal-header" style="justify-content: center;">
+                <h1 id="messageModalTitle">Thông báo</h1>
+            </header>
 
-        <!-- Body -->
-        <div class="modal-body" style="padding: 2rem; text-align: center;">
-            <div style="margin-bottom: 1.5rem;">
-                <span id="messageModalIcon" class="material-symbols-outlined" style="font-size: 3rem; color: #f97f06;">info</span>
+            <!-- Body -->
+            <div class="modal-body" style="padding: 2rem; text-align: center;">
+                <div style="margin-bottom: 1.5rem;">
+                    <span id="messageModalIcon" class="material-symbols-outlined"
+                        style="font-size: 3rem; color: #f97f06;">info</span>
+                </div>
+                <p id="messageModalContent" style="color: var(--on-surface); line-height: 1.6; font-size: 1rem;">
+                </p>
             </div>
-            <p id="messageModalContent" style="color: var(--on-surface); line-height: 1.6; font-size: 1rem;">
-            </p>
-        </div>
 
-        <!-- Action Footer -->
-        <footer class="modal-footer" style="flex-direction: column; gap: 0.75rem;">
-            <button onclick="closeMessageModal()" class="btn-confirm"
-                    style="width: 100%; padding: 0.9rem 1.5rem; border: none; border-radius: 9999px;
+            <!-- Action Footer -->
+            <footer class="modal-footer" style="flex-direction: column; gap: 0.75rem;">
+                <button onclick="closeMessageModal()" class="btn-confirm" style="width: 100%; padding: 0.9rem 1.5rem; border: none; border-radius: 9999px;
                            font-family: var(--font-headline); font-weight: 700; font-size: 0.95rem;
                            text-align: center; background: linear-gradient(135deg, #914700 0%, #f97f06 100%);
                            color: var(--on-primary); cursor: pointer; transition: all 0.2s;">
-                OK
-            </button>
-        </footer>
-    </main>
-</div>
-
-<!-- Confirm Modals -->
-<div th:each="subscription : ${subscriptions}" th:id="'confirmModal-' + ${subscription.subscriptionId}" class="modal-overlay">
-    <div class="modal-backdrop"></div>
-    <main class="modal-main">
-        <!-- Header -->
-        <header class="modal-header" style="justify-content: center;">
-            <h1>Xác Nhận Đăng Ký</h1>
-        </header>
-
-        <form th:action="@{/pricing/pay}" method="post">
-            <input type="hidden" name="subscriptionId" th:value="${subscription.subscriptionId}" />
-            <input type="hidden" name="discountAmount" value="0" />
-
-            <!-- Content Body -->
-            <div class="modal-body">
-                <!-- Package Summary -->
-                <section class="package-summary">
-                    <div class="package-icon">
-                        <span th:if="${subscription.price < 1000}" class="material-symbols-outlined" style="font-size: 2.5rem;">star</span>
-                        <span th:if="${subscription.price >= 1000 and subscription.price < 100000}" class="material-symbols-outlined" style="font-size: 2.5rem; color: #C0C0C0;">star_outline</span>
-                        <span th:if="${subscription.price >= 100000}" class="material-symbols-outlined" style="font-size: 2.5rem; color: #f97f06; font-variation-settings: 'FILL' 1;">star</span>
-                    </div>
-                    <div class="package-info">
-                        <h2 th:text="${subscription.price < 1000 ? 'Gói Miễn Phí' : (subscription.price >= 1000 and subscription.price < 100000 ? 'Gói Bạc' : 'Gói Vàng')}">Gói</h2>
-                        <p th:if="${subscription.price < 1000}">Đọc miễn phí các chương đầu trong 30 ngày.</p>
-                        <p th:if="${subscription.price >= 1000 and subscription.price < 100000}">Đọc nhiều chương truyện đặc sắc hơn.</p>
-                        <p th:if="${subscription.price >= 100000}">Đọc không giới hạn toàn bộ kho truyện.</p>
-                    </div>
-                </section>
-    
-                <!-- Payment Methods -->
-                <section class="payment-section">
-                    <h3>Phương thức thanh toán</h3>
-                    <div class="payment-methods">
-                        <label class="payment-option active">
-                            <input type="radio" name="payment" value="momo" checked/>
-                            <div class="payment-badge">MoMo</div>
-                            <span class="payment-name">Ví MoMo</span>
-                            <span class="payment-check">✓</span>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="zalopay"/>
-                            <div class="payment-badge zalopay">ZaloPay</div>
-                            <span class="payment-name">ZaloPay</span>
-                            <span class="payment-check">✓</span>
-                        </label>
-                    </div>
-                </section>
-    
-                <hr class="modal-divider"/>
-    
-                <!-- Order Summary -->
-                <section class="order-summary">
-                    <div class="summary-row">
-                        <span>Tạm tính</span>
-                        <span th:text="${#numbers.formatDecimal(subscription.price, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
-                    </div>
-                    <div class="summary-row discount">
-                        <span>Khuyến mãi</span>
-                        <span>0đ</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Tổng thanh toán</span>
-                        <span th:text="${#numbers.formatDecimal(subscription.price, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
-                    </div>
-                </section>
-            </div>
-    
-            <!-- Action Footer -->
-            <footer class="modal-footer">
-                <button type="button" class="btn-cancel" onclick="this.closest('.modal-overlay').style.display='none';">Hủy bỏ</button>
-                <button type="submit" class="btn-confirm" style="border: none; cursor: pointer; font-family: inherit;">Thanh toán ngay</button>
+                    OK
+                </button>
             </footer>
-        </form>
-    </main>
-</div>
+        </main>
+    </div>
 
-<script>
-    function openLoginModal() {
-        document.getElementById('loginModal').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
+    <!-- Confirm Modals -->
+    <div th:each="subscription : ${subscriptions}" th:id="'confirmModal-' + ${subscription.subscriptionId}"
+        class="modal-overlay">
+        <div class="modal-backdrop"></div>
+        <main class="modal-main">
+            <!-- Header -->
+            <header class="modal-header" style="justify-content: center;">
+                <h1>Xác Nhận Đăng Ký</h1>
+            </header>
 
-    function closeLoginModal() {
-        document.getElementById('loginModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
+            <form th:action="@{/pricing/pay}" method="post">
+                <input type="hidden" name="subscriptionId" th:value="${subscription.subscriptionId}" />
+                <input type="hidden" name="discountAmount" th:value="${subChecks != null and subChecks[subscription.subscriptionId] != null ? subChecks[subscription.subscriptionId].discountAmount : 0}" />
 
-    function showMessageModal(title, message, icon = 'info') {
-        console.log('showMessageModal called with:', title, message, icon);
-        const modal = document.getElementById('messageModal');
-        const titleEl = document.getElementById('messageModalTitle');
-        const contentEl = document.getElementById('messageModalContent');
-        const iconEl = document.getElementById('messageModalIcon');
+                <!-- Content Body -->
+                <div class="modal-body">
+                    <!-- Package Summary -->
+                    <section class="package-summary">
+                        <div class="package-icon">
+                            <span th:if="${subscription.price < 1000}" class="material-symbols-outlined"
+                                style="font-size: 2.5rem;">star</span>
+                            <span th:if="${subscription.price >= 1000 and subscription.price < 100000}"
+                                class="material-symbols-outlined"
+                                style="font-size: 2.5rem; color: #C0C0C0;">star_outline</span>
+                            <span th:if="${subscription.price >= 100000}" class="material-symbols-outlined"
+                                style="font-size: 2.5rem; color: #f97f06; font-variation-settings: 'FILL' 1;">star</span>
+                        </div>
+                        <div class="package-info">
+                            <h2
+                                th:text="${subscription.price < 1000 ? 'Gói Miễn Phí' : (subscription.price >= 1000 and subscription.price < 100000 ? 'Gói Bạc' : 'Gói Vàng')}">
+                                Gói</h2>
+                            <p th:if="${subscription.price < 1000}">Đọc miễn phí các chương đầu trong 30 ngày.</p>
+                            <p th:if="${subscription.price >= 1000 and subscription.price < 100000}">Đọc nhiều chương
+                                truyện đặc sắc hơn.</p>
+                            <p th:if="${subscription.price >= 100000}">Đọc không giới hạn toàn bộ kho truyện.</p>
+                        </div>
+                    </section>
 
-        console.log('Modal element:', modal);
-        console.log('Title element:', titleEl);
-        console.log('Content element:', contentEl);
-        console.log('Icon element:', iconEl);
+                    <!-- Payment Methods -->
+                    <section class="payment-section">
+                        <h3>Phương thức thanh toán</h3>
+                        <div class="payment-methods">
+                            <label class="payment-option active">
+                                <input type="radio" name="payment" value="momo" checked />
+                                <div class="payment-badge">MoMo</div>
+                                <span class="payment-name">Ví MoMo</span>
+                                <span class="payment-check">✓</span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="zalopay" />
+                                <div class="payment-badge zalopay">ZaloPay</div>
+                                <span class="payment-name">ZaloPay</span>
+                                <span class="payment-check">✓</span>
+                            </label>
+                        </div>
+                    </section>
 
-        if (!modal) {
-            console.error('messageModal not found!');
-            return;
+                    <hr class="modal-divider" />
+
+                    <!-- Order Summary -->
+                    <section class="order-summary" th:with="checkResult=${subChecks != null ? subChecks[subscription.subscriptionId] : null}, discountAmount=${checkResult != null ? checkResult.discountAmount : 0}, finalPrice=${subscription.price - discountAmount > 0 ? subscription.price - discountAmount : 0}">
+                        <div class="summary-row">
+                            <span>Tạm tính</span>
+                            <span
+                                th:text="${#numbers.formatDecimal(subscription.price, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+                        </div>
+                        <div class="summary-row discount">
+                            <span>Khuyến mãi</span>
+                            <span th:text="${#numbers.formatDecimal(discountAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Tổng thanh toán</span>
+                            <span
+                                th:text="${#numbers.formatDecimal(finalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Action Footer -->
+                <footer class="modal-footer">
+                    <button type="button" class="btn-cancel"
+                        onclick="this.closest('.modal-overlay').style.display='none';">Hủy bỏ</button>
+                    <button type="submit" class="btn-confirm"
+                        style="border: none; cursor: pointer; font-family: inherit;">Thanh toán ngay</button>
+                </footer>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         }
 
-        titleEl.textContent = title;
-        contentEl.textContent = message;
-
-        // ✅ Set icon color based on type
-        iconEl.textContent = icon;
-        if (icon === 'block') {
-            iconEl.style.color = '#ef4444'; // Red for error
-        } else if (icon === 'check_circle') {
-            iconEl.style.color = '#22c55e'; // Green for success
-        } else {
-            iconEl.style.color = '#f97f06'; // Orange for info
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
-        modal.style.display = 'flex';
-        console.log('Modal display set to flex');
-        document.body.style.overflow = 'hidden';
-    }
+        function showMessageModal(title, message, icon = 'info') {
+            console.log('showMessageModal called with:', title, message, icon);
+            const modal = document.getElementById('messageModal');
+            const titleEl = document.getElementById('messageModalTitle');
+            const contentEl = document.getElementById('messageModalContent');
+            const iconEl = document.getElementById('messageModalIcon');
 
-    function closeMessageModal() {
-        document.getElementById('messageModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
+            console.log('Modal element:', modal);
+            console.log('Title element:', titleEl);
+            console.log('Content element:', contentEl);
+            console.log('Icon element:', iconEl);
 
-    function handleSubscriptionClick(subscriptionId) {
-        console.log('Clicked subscription:', subscriptionId);
+            if (!modal) {
+                console.error('messageModal not found!');
+                return;
+            }
 
-        // Call check-subscription endpoint
-        fetch(`/pricing/check-subscription?subscriptionId=${subscriptionId}`)
-            .then(response => {
-                console.log('Response status:', response.status);
-                return response.json();
-            })
-            .then(data => {
-                console.log('Response data:', data);
-                if (!data.canSubscribe) {
-                    // User cannot subscribe (already has this subscription)
-                    showMessageModal('Thông báo', data.message, 'info');
-                } else {
-                    // User can subscribe, show confirmation modal
-                    const modalId = 'confirmModal-' + subscriptionId;
-                    const modal = document.getElementById(modalId);
-                    console.log('Modal element:', modal);
-                    if (modal) {
-                        // Get original price from "Tạm tính" row (first summary-row)
-                        const tempRow = modal.querySelector('.summary-row:first-child span:last-child');
-                        const originalPrice = tempRow ? parseInt(tempRow.textContent.replace(/[^\d]/g, '')) : 0;
+            titleEl.textContent = title;
+            contentEl.textContent = message;
 
-                        // Update discount display in modal
-                        const discountRow = modal.querySelector('.summary-row.discount span:last-child');
-                        const discountInput = modal.querySelector('input[name="discountAmount"]');
+            // ✅ Set icon color based on type
+            iconEl.textContent = icon;
+            if (icon === 'block') {
+                iconEl.style.color = '#ef4444'; // Red for error
+            } else if (icon === 'check_circle') {
+                iconEl.style.color = '#22c55e'; // Green for success
+            } else {
+                iconEl.style.color = '#f97f06'; // Orange for info
+            }
 
-                        // Reset total to original price first
-                        const totalRow = modal.querySelector('.summary-row.total span:last-child');
-                        if (totalRow) {
-                            const totalFormatted = new Intl.NumberFormat('vi-VN', {
-                                minimumFractionDigits: 0,
-                                maximumFractionDigits: 0
-                            }).format(originalPrice);
-                            totalRow.textContent = totalFormatted + 'đ';
-                        }
+            modal.style.display = 'flex';
+            console.log('Modal display set to flex');
+            document.body.style.overflow = 'hidden';
+        }
 
-                        if (discountRow && data.discountAmount > 0) {
-                            const discountFormatted = new Intl.NumberFormat('vi-VN', {
-                                minimumFractionDigits: 0,
-                                maximumFractionDigits: 0
-                            }).format(data.discountAmount);
-                            discountRow.textContent = discountFormatted + 'đ';
+        function closeMessageModal() {
+            document.getElementById('messageModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
 
-                            // Set discount input for form submission
-                            if (discountInput) {
-                                discountInput.value = data.discountAmount;
-                            }
+        function openConfirmModal(subscriptionId) {
+            const modal = document.getElementById('confirmModal-' + subscriptionId);
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
 
-                            // Calculate and update total based on original price
-                            if (totalRow) {
-                                const newTotal = originalPrice - data.discountAmount;
-                                const totalFormatted = new Intl.NumberFormat('vi-VN', {
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0
-                                }).format(newTotal);
-                                totalRow.textContent = totalFormatted + 'đ';
-                            }
-                        } else {
-                            // No discount, ensure discount row shows 0đ
-                            if (discountRow) {
-                                discountRow.textContent = '0đ';
-                            }
-                            if (discountInput) {
-                                discountInput.value = '0';
-                            }
-                        }
+        function handleSubscribeClick(button) {
+            const canSubscribe = button.getAttribute('data-can-subscribe') === 'true';
+            const subId = button.getAttribute('data-sub-id');
+            const message = button.getAttribute('data-message');
 
-                        modal.style.display = 'flex';
-                    } else {
-                        console.error('Modal not found:', modalId);
+            if (canSubscribe) {
+                openConfirmModal(subId);
+            } else {
+                showMessageModal('Thông báo', message, 'info');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // ✅ Check URL parameters for error messages
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Handle cannot_downgrade error
+            if (urlParams.has('error') && urlParams.get('error') === 'cannot_downgrade') {
+                showMessageModal(
+                    '⚠️ Không thể Hạ Cấp',
+                    'Bạn không thể hạ cấp gói hội viên. Vui lòng đợi hết hạn gói hiện tại rồi mới có thể đăng ký gói khác.',
+                    'block'
+                );
+            }
+
+            // Handle free_subscription success
+            if (urlParams.has('success') && urlParams.get('success') === 'free_subscription') {
+                showMessageModal(
+                    '✅ Thành Công',
+                    'Bạn đã đăng ký gói miễn phí thành công! Bây giờ bạn có thể bắt đầu đọc.',
+                    'check_circle'
+                );
+            }
+
+            // Handle modal backdrop click
+            const loginBackdrop = document.querySelector('#loginModal .modal-backdrop');
+            if (loginBackdrop) {
+                loginBackdrop.addEventListener('click', closeLoginModal);
+            }
+
+            // Handle message modal backdrop click
+            const messageBackdrop = document.querySelector('#messageModal .modal-backdrop');
+            if (messageBackdrop) {
+                messageBackdrop.addEventListener('click', closeMessageModal);
+            }
+
+            // Handle payment options
+            const paymentOptions = document.querySelectorAll('.payment-option');
+            paymentOptions.forEach(option => {
+                option.addEventListener('click', function () {
+                    const form = this.closest('form');
+                    if (form) {
+                        form.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
                     }
-                }
-            })
-            .catch(error => {
-                console.error('Error checking subscription:', error);
-                showMessageModal('Lỗi', 'Lỗi khi kiểm tra đăng ký: ' + error.message, 'error');
+                    this.classList.add('active');
+
+                    // Update radio button state
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        console.log('Payment method selected:', radio.value);
+                    }
+                });
             });
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // ✅ Check URL parameters for error messages
-        const urlParams = new URLSearchParams(window.location.search);
+            // Handle modal backdrop clicks for payment modals
+            const paymentBackdrops = document.querySelectorAll('.modal-overlay:not(#loginModal) .modal-backdrop');
+            paymentBackdrops.forEach(backdrop => {
+                backdrop.addEventListener('click', function () {
+                    this.closest('.modal-overlay').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                });
+            });
 
-        // Handle cannot_downgrade error
-        if (urlParams.has('error') && urlParams.get('error') === 'cannot_downgrade') {
-            showMessageModal(
-                '⚠️ Không thể Hạ Cấp',
-                'Bạn không thể hạ cấp gói hội viên. Vui lòng đợi hết hạn gói hiện tại rồi mới có thể đăng ký gói khác.',
-                'block'
-            );
-        }
-
-        // Handle free_subscription success
-        if (urlParams.has('success') && urlParams.get('success') === 'free_subscription') {
-            showMessageModal(
-                '✅ Thành Công',
-                'Bạn đã đăng ký gói miễn phí thành công! Bây giờ bạn có thể bắt đầu đọc.',
-                'check_circle'
-            );
-        }
-
-        // Handle modal backdrop click
-        const loginBackdrop = document.querySelector('#loginModal .modal-backdrop');
-        if (loginBackdrop) {
-            loginBackdrop.addEventListener('click', closeLoginModal);
-        }
-
-        // Handle message modal backdrop click
-        const messageBackdrop = document.querySelector('#messageModal .modal-backdrop');
-        if (messageBackdrop) {
-            messageBackdrop.addEventListener('click', closeMessageModal);
-        }
-
-        // Handle payment options
-        const paymentOptions = document.querySelectorAll('.payment-option');
-        paymentOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const form = this.closest('form');
-                if (form) {
-                    form.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
-                }
-                this.classList.add('active');
-
-                // Update radio button state
-                const radio = this.querySelector('input[type="radio"]');
-                if (radio) {
-                    radio.checked = true;
-                    console.log('Payment method selected:', radio.value);
-                }
+            // Handle cancel buttons in modals
+            const cancelButtons = document.querySelectorAll('.btn-cancel');
+            cancelButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.body.style.overflow = 'auto';
+                });
             });
         });
-
-        // Handle subscription button clicks
-        const subscriptionButtons = document.querySelectorAll('.btn-subscribe');
-        subscriptionButtons.forEach(button => {
-            button.addEventListener('click', function(event) {
-                const isFree = this.getAttribute('data-is-free') === 'true';
-
-                // Free subscriptions go through normal link
-                if (isFree) {
-                    return;
-                }
-
-                event.preventDefault();
-                const subscriptionId = this.getAttribute('data-subscription-id');
-                handleSubscriptionClick(subscriptionId);
-            });
-        });
-
-        // Handle modal backdrop clicks for payment modals
-        const paymentBackdrops = document.querySelectorAll('.modal-overlay:not(#loginModal) .modal-backdrop');
-        paymentBackdrops.forEach(backdrop => {
-            backdrop.addEventListener('click', function() {
-                this.closest('.modal-overlay').style.display = 'none';
-            });
-        });
-    });
-</script>
+    </script>
 </body>
+
 </html>

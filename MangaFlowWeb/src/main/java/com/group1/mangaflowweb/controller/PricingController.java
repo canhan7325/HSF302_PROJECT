@@ -49,7 +49,40 @@ public class PricingController {
     @GetMapping
     public String getPricingPage(Model model) {
         try {
-            model.addAttribute("subscriptions", subscriptionsService.getAllActiveSubscriptions());
+            java.util.List<SubscriptionsDTO> subscriptions = subscriptionsService.getAllActiveSubscriptions();
+            model.addAttribute("subscriptions", subscriptions);
+
+            // Pre-calculate subscription checks for the current user
+            java.util.Map<Integer, SubscriptionCheckDTO> subChecks = new java.util.HashMap<>();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            boolean isLoggedIn = authentication != null && authentication.isAuthenticated()
+                    && !"anonymousUser".equals(authentication.getName());
+
+            if (isLoggedIn) {
+                String username = authentication.getName();
+                Optional<Users> userOpt = userRepository.findByUsername(username);
+                if (userOpt.isPresent()) {
+                    Users user = userOpt.get();
+                    for (SubscriptionsDTO sub : subscriptions) {
+                        SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
+                                user.getUserId(),
+                                sub.getPrice().longValue(),
+                                sub.getPrice());
+                        subChecks.put(sub.getSubscriptionId(), checkResult);
+                    }
+                }
+            } else {
+                for (SubscriptionsDTO sub : subscriptions) {
+                    subChecks.put(sub.getSubscriptionId(), SubscriptionCheckDTO.builder()
+                            .canSubscribe(true)
+                            .currentPrice(0L)
+                            .discountAmount(0L)
+                            .isUpgrade(false)
+                            .build());
+                }
+            }
+            model.addAttribute("subChecks", subChecks);
+
             return "clients/buysubscriptions";
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,26 +98,24 @@ public class PricingController {
             SubscriptionsDTO subscription = subscriptionsService.getSubscriptionById(subscriptionId);
             if (subscription == null) {
                 return ResponseEntity.badRequest().body(
-                    SubscriptionCheckDTO.builder()
-                        .canSubscribe(false)
-                        .message("Gói không tồn tại")
-                        .build()
-                );
+                        SubscriptionCheckDTO.builder()
+                                .canSubscribe(false)
+                                .message("Gói không tồn tại")
+                                .build());
             }
 
             // Get current user
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null || !authentication.isAuthenticated() ||
-                "anonymousUser".equals(authentication.getName())) {
+                    "anonymousUser".equals(authentication.getName())) {
                 // Người dùng chưa đăng nhập, cho phép đăng kí
                 return ResponseEntity.ok(
-                    SubscriptionCheckDTO.builder()
-                        .canSubscribe(true)
-                        .currentPrice(0L)
-                        .discountAmount(0L)
-                        .isUpgrade(false)
-                        .build()
-                );
+                        SubscriptionCheckDTO.builder()
+                                .canSubscribe(true)
+                                .currentPrice(0L)
+                                .discountAmount(0L)
+                                .isUpgrade(false)
+                                .build());
             }
 
             String username = authentication.getName();
@@ -92,31 +123,28 @@ public class PricingController {
 
             if (!userOptional.isPresent()) {
                 return ResponseEntity.ok(
-                    SubscriptionCheckDTO.builder()
-                        .canSubscribe(true)
-                        .currentPrice(0L)
-                        .discountAmount(0L)
-                        .isUpgrade(false)
-                        .build()
-                );
+                        SubscriptionCheckDTO.builder()
+                                .canSubscribe(true)
+                                .currentPrice(0L)
+                                .discountAmount(0L)
+                                .isUpgrade(false)
+                                .build());
             }
 
             // Check subscription
             Users user = userOptional.get();
             SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
-                user.getUserId(),
-                subscription.getPrice().longValue(),
-                subscription.getPrice()
-            );
+                    user.getUserId(),
+                    subscription.getPrice().longValue(),
+                    subscription.getPrice());
 
             return ResponseEntity.ok(checkResult);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                SubscriptionCheckDTO.builder()
-                    .canSubscribe(false)
-                    .message("Lỗi: " + e.getMessage())
-                    .build()
-            );
+                    SubscriptionCheckDTO.builder()
+                            .canSubscribe(false)
+                            .message("Lỗi: " + e.getMessage())
+                            .build());
         }
     }
 
@@ -139,7 +167,8 @@ public class PricingController {
 
         // Get current user to check membership
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+        if (authentication != null && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getName())) {
             String username = authentication.getName();
             Optional<Users> userOptional = userRepository.findByUsername(username);
 
@@ -147,17 +176,17 @@ public class PricingController {
                 // ✅ CHECK: Kiểm tra xem user có được phép downgrade không
                 Users user = userOptional.get();
                 SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
-                    user.getUserId(),
-                    subscription.getPrice().longValue(),
-                    subscription.getPrice()
-                );
+                        user.getUserId(),
+                        subscription.getPrice().longValue(),
+                        subscription.getPrice());
 
                 // Nếu canSubscribe = false (downgrade hoặc rule khác bị vi phạm), từ chối
                 if (!checkResult.isCanSubscribe()) {
                     return new RedirectView("/pricing?error=cannot_downgrade");
                 }
 
-                // Store discount info vào session (use passed value if available, otherwise use checkResult)
+                // Store discount info vào session (use passed value if available, otherwise use
+                // checkResult)
                 if (discountAmount > 0) {
                     session.setAttribute("discountAmount", discountAmount);
                     session.setAttribute("isUpgrade", checkResult.isUpgrade());
@@ -170,10 +199,12 @@ public class PricingController {
 
         // Calculate final amount after discount
         Long finalAmount = subscription.getPrice().longValue() - discountAmount;
-        if (finalAmount < 0) finalAmount = 0L;
+        if (finalAmount < 0)
+            finalAmount = 0L;
 
         String amount = String.valueOf(finalAmount);
-        System.out.println("Final Amount to Gateway: " + amount + "đ (Original: " + subscription.getPrice() + "đ, Discount: " + discountAmount + "đ)");
+        System.out.println("Final Amount to Gateway: " + amount + "đ (Original: " + subscription.getPrice()
+                + "đ, Discount: " + discountAmount + "đ)");
 
         String orderId = subscriptionId + "_" + UUID.randomUUID().toString().substring(0, 8);
         String orderInfo = "Thanh toan goi " + subscription.getName();
@@ -218,7 +249,7 @@ public class PricingController {
             // Get current user ID
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication != null ? authentication.getName() : null;
-            
+
             if (username == null || "anonymousUser".equals(username)) {
                 // User not logged in, redirect to login
                 return new RedirectView("/login?redirect=/pricing");
@@ -227,13 +258,12 @@ public class PricingController {
             // Get user from database using username
             Users user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            
+
             // ✅ CHECK: Không cho phép hạ cấp xuống FREE (subscription.getPrice() = 0)
             SubscriptionCheckDTO checkResult = transactionsService.checkSubscription(
-                user.getUserId(),
-                subscription.getPrice().longValue(),
-                subscription.getPrice()
-            );
+                    user.getUserId(),
+                    subscription.getPrice().longValue(),
+                    subscription.getPrice());
 
             // Nếu canSubscribe = false (downgrade hoặc rule khác bị vi phạm), từ chối
             if (!checkResult.isCanSubscribe()) {

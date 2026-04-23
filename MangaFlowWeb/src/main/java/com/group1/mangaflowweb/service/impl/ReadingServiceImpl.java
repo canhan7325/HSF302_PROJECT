@@ -62,12 +62,22 @@ public class ReadingServiceImpl implements ReadingService{
         }
 
 
-        AccessService.ChapterAccess access = currentUserOpt
-                .map(accessService::getChapterAccess)
-                .orElse(new AccessService.ChapterAccess(false, 2));
+        String tier = currentUserOpt
+                .map(accessService::getSubscriptionTier)
+                .orElse("none");
 
-        boolean canReadFull = access.isCanReadFull();
-        int previewCount = access.getPreviewCount();
+        boolean canReadFull = false;
+        int chapNum = chapter.getChapterNumber() != null ? chapter.getChapterNumber() : 0;
+
+        if (chapNum == 1) {
+            canReadFull = true;
+        } else if (chapNum <= 10) {
+            canReadFull = "silver".equals(tier) || "gold".equals(tier);
+        } else {
+            canReadFull = "gold".equals(tier);
+        }
+
+        int previewCount = 0; // No longer used for page-level preview
 
 
         boolean isOwner = currentUserId != null && comic.getUserId() != null

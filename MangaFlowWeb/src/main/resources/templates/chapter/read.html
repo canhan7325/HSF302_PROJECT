@@ -33,23 +33,32 @@
 
         <div class="content">
 
-            <div th:each="p,iter : ${pages}" th:with="locked=${!canReadFull and iter.index >= previewCount}"
-                th:classappend="${locked} ? ' page-wrap locked' : ' page-wrap'">
+            <!-- Nếu có quyền đọc -->
+            <th:block th:if="${canReadFull}">
+                <div th:each="p,iter : ${pages}" class="page-wrap">
+                    <img th:src="${@imageUrlResolver.resolve(p.imgPath)}" class="comic-img"
+                        th:alt="|Page ${p.pageNumber}|" />
+                </div>
+            </th:block>
 
-                <img th:src="${@imageUrlResolver.resolve(p.imgPath)}" class="comic-img"
-                    th:alt="|Page ${p.pageNumber}|" />
-
-                <div class="lock-overlay" th:if="${locked}">
-                    <div>
-                        <div th:if="${!isLoggedIn}">
-                            Bạn cần đăng nhập để xem tiếp.
+            <!-- Nếu không có quyền đọc -->
+            <div th:if="${!canReadFull}" class="page-wrap locked" style="height: 60vh; display: flex; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border-radius: 16px; margin: 2rem auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-width: 900px; padding: 2rem;">
+                <div class="lock-overlay" style="position: relative; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; background: none; backdrop-filter: none;">
+                    <div style="text-align: center;">
+                        <h3 style="color: #fff; margin-bottom: 20px;">Chương này yêu cầu gói hội viên</h3>
+                        <div th:if="${!isLoggedIn}" style="color: #ccc; font-size: 1.1rem;">
+                            Bạn cần <a href="/login" style="color: #ffc107; text-decoration: underline;">đăng nhập</a> để tiếp tục.
                         </div>
-                        <div th:if="${isLoggedIn}">
-                            Bạn cần mua gói hội viên để xem tiếp
+                        <div th:if="${isLoggedIn}" style="color: #ccc; font-size: 1.1rem;">
+                            Bạn cần nâng cấp gói hội viên để đọc chương này.
+                            <div style="margin-top: 25px;">
+                                <a href="/pricing" class="btn btn-warning" style="font-weight: 600; padding: 10px 24px; border-radius: 8px;">Nâng cấp Hội viên</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <div class="page-slider">

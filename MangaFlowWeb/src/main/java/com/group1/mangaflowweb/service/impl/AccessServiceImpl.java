@@ -25,27 +25,40 @@ public class AccessServiceImpl implements AccessService {
     }
 
     @Override
-    public ChapterAccess getChapterAccess(Users user) {
+    public String getSubscriptionTier(Users user) {
         if (user == null || user.getUserId() == null) {
-            return new ChapterAccess(false, DEFAULT_PREVIEW_COUNT);
+            return "none";
         }
 
-        // Find a *valid* subscription: SUCCESS + not expired
+        // Find a *valid* subscription: SUCCESS or UPDATED + not expired
         var now = LocalDateTime.now();
-        var txOpt = transactionRepository
-                .findFirstByUser_UserIdAndStatusAndEndedAtAfterOrderByEndedAtDesc(user.getUserId(), TransactionEnum.SUCCESS, now);
+        var transactions = transactionRepository.findByUser_UserIdOrderByCreatedAtDesc(user.getUserId());
 
-        if (txOpt.isEmpty() || txOpt.get().getSubscription() == null) {
-            return new ChapterAccess(false, DEFAULT_PREVIEW_COUNT);
+        com.group1.mangaflowweb.entity.Transactions activeTx = null;
+        for (var tx : transactions) {
+            if ((tx.getStatus() == TransactionEnum.SUCCESS || tx.getStatus() == TransactionEnum.UPDATED) &&
+                    (tx.getEndedAt() == null || tx.getEndedAt().isAfter(now))) {
+                activeTx = tx;
+                break;
+            }
         }
 
-        String subName = txOpt.get().getSubscription().getName();
-        subName = (subName == null) ? "" : subName.trim();
+        if (activeTx == null || activeTx.getSubscription() == null) {
+            return "none";
+        }
 
-        if ("gold".equalsIgnoreCase(subName)) {
+        String subName = activeTx.getSubscription().getName();
+        return (subName == null) ? "none" : subName.trim().toLowerCase();
+    }
+
+    @Override
+    public ChapterAccess getChapterAccess(Users user) {
+        String tier = getSubscriptionTier(user);
+
+        if ("gold".equals(tier)) {
             return new ChapterAccess(true, Integer.MAX_VALUE);
         }
-        if ("silver".equalsIgnoreCase(subName)) {
+        if ("silver".equals(tier)) {
             return new ChapterAccess(false, SILVER_PREVIEW_COUNT);
         }
 

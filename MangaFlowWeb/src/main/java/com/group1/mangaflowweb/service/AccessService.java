@@ -7,6 +7,8 @@ public interface AccessService {
     @Deprecated
     boolean canReadFullChapter(Users user);
 
+    String getSubscriptionTier(Users user);
+
     ChapterAccess getChapterAccess(Users user);
 
     class ChapterAccess {

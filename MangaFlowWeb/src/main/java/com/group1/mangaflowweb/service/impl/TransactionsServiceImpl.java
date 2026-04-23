@@ -106,8 +106,8 @@ public class TransactionsServiceImpl implements TransactionsService {
         java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
         for (Transactions trans : transactions) {
-            // Find the most recent active (SUCCESS status) subscription
-            if (trans.getStatus() == TransactionEnum.SUCCESS &&
+            // Find the most recent active (SUCCESS or UPDATED status) subscription
+            if ((trans.getStatus() == TransactionEnum.SUCCESS || trans.getStatus() == TransactionEnum.UPDATED) &&
                     trans.getSubscription() != null &&
                     (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
 
@@ -130,8 +130,8 @@ public class TransactionsServiceImpl implements TransactionsService {
         java.util.List<Transactions> transactions = transactionsRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
         for (Transactions trans : transactions) {
-            // Find silver package transactions that are still active (SUCCESS status)
-            if (trans.getStatus() == TransactionEnum.SUCCESS &&
+            // Find silver package transactions that are still active (SUCCESS or UPDATED status)
+            if ((trans.getStatus() == TransactionEnum.SUCCESS || trans.getStatus() == TransactionEnum.UPDATED) &&
                     trans.getSubscription() != null &&
                     trans.getSubscription().getPrice().longValue() < 100000 &&
                     (trans.getEndedAt() == null || trans.getEndedAt().isAfter(LocalDateTime.now()))) {
@@ -169,12 +169,12 @@ public class TransactionsServiceImpl implements TransactionsService {
             return 0L;
         }
 
-        // Find the first ACTIVE transaction (SUCCESS status and not expired)
+        // Find the first ACTIVE transaction (SUCCESS/UPDATED status and not expired)
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
         for (Transactions transaction : transactions) {
-            // Check if transaction status is SUCCESS (completed and active)
+            // Check if transaction status is active
             if (transaction.getStatus() != null &&
-                transaction.getStatus().equals(TransactionEnum.SUCCESS)) {
+                (transaction.getStatus().equals(TransactionEnum.SUCCESS) || transaction.getStatus().equals(TransactionEnum.UPDATED))) {
 
                 // Check if transaction is not expired
                 if (transaction.getEndedAt() == null || transaction.getEndedAt().isAfter(now)) {

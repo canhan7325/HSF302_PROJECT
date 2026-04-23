@@ -21,6 +21,8 @@ public interface TransactionRepository extends JpaRepository<Transactions, Integ
                                                         TransactionEnum status,
                                                         LocalDateTime endedAt);
 
+    List<Transactions> findByUser_UserIdOrderByCreatedAtDesc(Integer userId);
+
     Optional<Transactions> findFirstByUser_UserIdAndStatusAndEndedAtAfterOrderByEndedAtDesc(
             Integer userId,
             TransactionEnum status,
