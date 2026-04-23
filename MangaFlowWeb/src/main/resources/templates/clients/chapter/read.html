@@ -51,13 +51,15 @@
             </th:block>
 
             <!-- Nếu không có quyền đọc -->
-            <div th:if="${!canReadFull}" class="page-wrap locked" style="height: 60vh; display: flex; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border-radius: 16px; margin: 2rem auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-width: 900px; padding: 2rem;">
-                <div class="lock-overlay" style="position: relative; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; background: none; backdrop-filter: none;">
-                    <div style="text-align: center;">
+            <div th:if="${!canReadFull}" class="page-wrap locked active">
+                <div class="lock-overlay">
+                    <div style="text-align: center; padding: 20px;">
                         <h3 style="color: #fff; margin-bottom: 20px;">Chương này yêu cầu gói hội viên</h3>
+
                         <div th:if="${!isLoggedIn}" style="color: #ccc; font-size: 1.1rem;">
                             Bạn cần <a href="/login" style="color: #ffc107; text-decoration: underline;">đăng nhập</a> để tiếp tục.
                         </div>
+
                         <div th:if="${isLoggedIn}" style="color: #ccc; font-size: 1.1rem;">
                             Bạn cần nâng cấp gói hội viên để đọc chương này.
                             <div style="margin-top: 25px;">
