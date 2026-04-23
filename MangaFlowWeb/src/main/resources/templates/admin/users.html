@@ -8,6 +8,22 @@
 </head>
 <body class="bg-background text-on-surface flex min-h-screen">
 
+<!-- Custom confirm modal -->
+<div id="confirm-modal" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
+  <div id="confirm-backdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.45);"></div>
+  <div style="position:relative;background:#fff;border-radius:16px;padding:28px 32px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18);text-align:center;">
+    <div style="font-size:36px;margin-bottom:8px;">⚠️</div>
+    <div id="confirm-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:6px;"></div>
+    <div id="confirm-msg" style="font-size:.875rem;color:#5c5b5b;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button id="confirm-cancel" class="px-5 py-2 rounded-lg border border-outline-variant text-sm font-bold hover:bg-surface-container">Cancel</button>
+      <button id="confirm-ok" class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Confirm</button>
+    </div>
+  </div>
+</div>
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:28px;right:28px;z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;"></div>
+
 <th:block th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar(activeSection='users')}"></th:block>
 
 <main class="ml-72 flex-1 p-8 bg-background">
@@ -24,6 +40,12 @@
     </a>
   </header>
   <th:block th:replace="~{admin/fragments/admin :: flash(${successMessage}, ${errorMessage})}"></th:block>
+  <script th:if="${successMessage != null}" th:inline="javascript">
+    document.addEventListener('DOMContentLoaded',function(){showToast([[${successMessage}]],'success');});
+  </script>
+  <script th:if="${errorMessage != null}" th:inline="javascript">
+    document.addEventListener('DOMContentLoaded',function(){showToast([[${errorMessage}]],'error');});
+  </script>
   <form th:action="@{/admin/users}" method="get" class="flex gap-2 max-w-md mb-6">
     <div class="relative flex-1">
       <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size:18px">search</span>
@@ -63,8 +85,9 @@
               <a th:href="@{/admin/users/{id}/edit(id=${u.userId})}" title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-secondary transition-colors">
                 <span class="material-symbols-outlined" style="font-size:18px">edit</span>
               </a>
-              <form th:if="${u.enabled}" th:action="@{/admin/users/{id}/delete(id=${u.userId})}" method="post" onsubmit="return confirm('Disable this user?')">
-                <button type="submit" title="Disable" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors">
+              <form th:if="${u.enabled}" th:action="@{/admin/users/{id}/delete(id=${u.userId})}" method="post" class="delete-form">
+                <button type="button" title="Disable" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors delete-btn"
+                        data-title="Disable User" data-msg="This user will be disabled and won't be able to log in.">
                   <span class="material-symbols-outlined" style="font-size:18px">person_off</span>
                 </button>
               </form>
@@ -157,5 +180,34 @@
 </th:block>
 
 </main>
+<script>
+function showConfirm(title,msg,onOk){
+  var m=document.getElementById('confirm-modal');
+  document.getElementById('confirm-title').textContent=title||'Confirm';
+  document.getElementById('confirm-msg').textContent=msg||'Are you sure?';
+  m.style.display='flex';
+  function close(){m.style.display='none';}
+  document.getElementById('confirm-ok').onclick=function(){close();onOk();};
+  document.getElementById('confirm-cancel').onclick=close;
+  document.getElementById('confirm-backdrop').onclick=close;
+}
+function showToast(message,type){
+  var c=document.getElementById('toast');
+  var item=document.createElement('div');
+  item.style.cssText='display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:12px;font-size:.875rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.12);opacity:0;transform:translateY(12px);transition:opacity .3s,transform .3s;pointer-events:auto;background:'+(type==='error'?'#fee2e2;color:#991b1b':'#dcfce7;color:#166534')+';';
+  item.innerHTML='<span class="material-symbols-outlined" style="font-size:18px">'+(type==='error'?'error':'check_circle')+'</span><span>'+message+'</span>';
+  c.appendChild(item);
+  requestAnimationFrame(function(){item.style.opacity='1';item.style.transform='translateY(0)';});
+  setTimeout(function(){item.style.opacity='0';setTimeout(function(){item.remove();},350);},3500);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.delete-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var form=btn.closest('.delete-form');
+      showConfirm(btn.dataset.title||'Confirm',btn.dataset.msg||'Are you sure?',function(){form.submit();});
+    });
+  });
+});
+</script>
 </body>
 </html>

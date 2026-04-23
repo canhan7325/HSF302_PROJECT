@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -52,19 +53,25 @@ public class PageAdController {
     }
 
     @PostMapping("/manga/{id}/chapters/{chId}/pages/add")
-    @ResponseBody
-    public ResponseEntity<String> pageAdd(@PathVariable Integer id, @PathVariable Integer chId,
-                                          @RequestParam MultipartFile file) {
-        String imgPath = pageService.uploadAndAddPage(chId, file);
-        return ResponseEntity.ok(imgPath);
+    public String pageAdd(@PathVariable Integer id, @PathVariable Integer chId,
+                          @RequestParam("file") List<MultipartFile> files,
+                          RedirectAttributes redirectAttributes) {
+        for (MultipartFile file : files) {
+            if (file != null && !file.isEmpty()) {
+                pageService.uploadAndAddPage(chId, file);
+            }
+        }
+        redirectAttributes.addFlashAttribute("successMessage", "Pages uploaded.");
+        return "redirect:/admin/manga/" + id + "/chapters/" + chId + "/pages";
     }
 
     @PostMapping("/manga/{id}/chapters/{chId}/pages/{pageId}/delete")
-    @ResponseBody
-    public ResponseEntity<String> pageDelete(@PathVariable Integer id, @PathVariable Integer chId,
-                                             @PathVariable Integer pageId) {
+    public String pageDelete(@PathVariable Integer id, @PathVariable Integer chId,
+                             @PathVariable Integer pageId,
+                             RedirectAttributes redirectAttributes) {
         pageService.deletePage(pageId);
-        return ResponseEntity.ok("ok");
+        redirectAttributes.addFlashAttribute("successMessage", "Page deleted.");
+        return "redirect:/admin/manga/" + id + "/chapters/" + chId + "/pages";
     }
 
     @PostMapping("/manga/{id}/chapters/{chId}/pages/reorder")

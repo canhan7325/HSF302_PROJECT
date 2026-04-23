@@ -1,12 +1,7 @@
 package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.dto.comic.ComicRequest;
-import com.group1.mangaflowweb.service.BookmarkService;
-import com.group1.mangaflowweb.service.CloudinaryUploadService;
-import com.group1.mangaflowweb.service.ComicService;
-import com.group1.mangaflowweb.service.ReadingHistoryService;
-import com.group1.mangaflowweb.service.UserContextService;
-import com.group1.mangaflowweb.service.UserService;
+import com.group1.mangaflowweb.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -28,7 +23,7 @@ import java.util.Locale;
 @Controller
 @RequiredArgsConstructor
 public class ComicDetailController {
-
+    private final GenreService genreService;
     private final ComicService comicService;
     private final BookmarkService bookmarkService;
     private final ReadingHistoryService readingHistoryService;
@@ -68,6 +63,7 @@ public class ComicDetailController {
     @GetMapping("/upload-comic")
     public String showCreateComicForm(Model model) {
         model.addAttribute("comic", new ComicRequest()); // Thêm một đối tượng trống để form binding
+        model.addAttribute("genres", genreService.getAllGenres());
         return "author/upload-comic";
     }
 
@@ -116,6 +112,7 @@ public class ComicDetailController {
 
         // Validate request fields
         if (bindingResult.hasErrors()) {
+            model.addAttribute("genres", genreService.getAllGenres());
             String details = bindingResult.getFieldErrors().stream()
                     .map(err -> err.getField() + ": " + err.getDefaultMessage())
                     .distinct()

@@ -50,6 +50,20 @@
                                 </div>
 
                                 <div class="col-12">
+                                    <label class="form-label mf-form-label">Genres</label>
+
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <div th:each="g : ${genres}" class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="genreIds"
+                                                   th:value="${g.genreId}">
+                                            <label class="form-check-label" th:text="${g.name}"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
                                     <label for="coverFileInput" class="form-label mf-form-label">Cover image</label>
                                     <input id="coverFileInput" type="file" class="form-control mf-form-control" name="coverFile" accept="image/*">
                                     <div class="form-text">Image will be saved to <code>/uploads</code> and used as cover.</div>
