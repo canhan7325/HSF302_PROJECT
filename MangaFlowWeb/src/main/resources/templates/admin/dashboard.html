@@ -147,7 +147,7 @@
                     data: {
                         labels,
                         datasets: [{
-                            label: 'Revenue ($)',
+                            label: 'Revenue (VND)',
                             data: values,
                             backgroundColor: '#914700cc',
                             borderRadius: 6,
@@ -160,12 +160,12 @@
                             legend: { display: false },
                             tooltip: {
                                 callbacks: {
-                                    label: ctx => ' $' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+                                    label: ctx => ' ' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' VND'
                                 }
                             }
                         },
                         scales: {
-                            y: { beginAtZero: true, ticks: { callback: v => '$' + v } },
+                            y: { beginAtZero: true, ticks: { callback: v => v + ' VND' } },
                             x: { ticks: { maxRotation: 45 } }
                         }
                     }
