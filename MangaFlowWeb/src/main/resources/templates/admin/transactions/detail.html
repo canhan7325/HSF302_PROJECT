@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Transaction Detail — Admin Panel</title>
+  <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
+</head>
+<body class="bg-background text-on-surface flex min-h-screen">
+
+<th:block th:replace="~{admin/fragments/admin-sidebar :: admin-sidebar(activeSection='revenue')}"></th:block>
+
+<main class="ml-72 flex-1 p-8 bg-background">
+  <header class="mb-8">
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Finance</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter">Transaction Detail</h2>
+  </header>
+
+  <!-- Back button -->
+  <div class="mb-6">
+    <a href="/admin/revenue" class="inline-flex items-center gap-2 text-primary hover:text-primary-dark transition">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back to Revenue</span>
+    </a>
+  </div>
+
+  <!-- Transaction Info -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+    <!-- Transaction Details Card -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+      <h3 class="text-lg font-bold mb-6 pb-4 border-b border-surface-container-high">Transaction Information</h3>
+
+      <div class="space-y-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Transaction ID</p>
+          <p class="text-lg font-mono" th:text="'#' + ${transaction.transactionId}"></p>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Amount</p>
+          <p class="text-2xl font-extrabold text-green-600">$<span th:text="${#numbers.formatDecimal(transaction.price, 1, 2)}">0.00</span></p>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Status</p>
+          <span th:text="${transaction.status}"
+                class="inline-block text-xs font-bold px-3 py-1.5 rounded-full"
+                th:classappend="${transaction.status.name() == 'SUCCESS'} ? ' text-green-700 bg-green-100' : (${transaction.status.name() == 'PENDING'} ? ' text-yellow-700 bg-yellow-100' : (${transaction.status.name() == 'FAILED'} ? ' text-red-700 bg-red-100' : (${transaction.status.name() == 'CANCELED'} ? ' text-orange-700 bg-orange-100' : ' text-stone-500 bg-stone-100')))"></span>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Subscription</p>
+          <p class="text-base font-medium" th:text="${transaction.subscription.name}"></p>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Created At</p>
+          <p class="text-sm" th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+      <h3 class="text-lg font-bold mb-6 pb-4 border-b border-surface-container-high">User Information</h3>
+
+      <div class="space-y-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">User ID</p>
+          <p class="text-lg font-mono" th:text="'#' + ${transaction.user.userId}"></p>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Username</p>
+          <p class="text-base font-medium" th:text="${transaction.user.username}"></p>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Email</p>
+          <p class="text-base" th:text="${transaction.user.email}"></p>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Role</p>
+          <p class="text-base font-medium" th:text="${transaction.user.role}"></p>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Account Status</p>
+          <span th:text="${transaction.user.enabled ? 'Active' : 'Disabled'}"
+                class="inline-block text-xs font-bold px-3 py-1.5 rounded-full"
+                th:classappend="${transaction.user.enabled} ? ' text-green-700 bg-green-100' : ' text-red-700 bg-red-100'"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Period Details -->
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 mb-8">
+    <h3 class="text-lg font-bold mb-6 pb-4 border-b border-surface-container-high">Subscription Period</h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Started At</p>
+        <p class="text-base" th:text="${#temporals.format(transaction.startedAt, 'dd/MM/yyyy HH:mm:ss')}"></p>
+      </div>
+
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Ended At</p>
+        <p class="text-base" th:if="${transaction.endedAt}" th:text="${#temporals.format(transaction.endedAt, 'dd/MM/yyyy HH:mm:ss')}"></p>
+        <p class="text-base text-on-surface-variant italic" th:unless="${transaction.endedAt}">Ongoing</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subscription Details -->
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+    <h3 class="text-lg font-bold mb-6 pb-4 border-b border-surface-container-high">Plan Details</h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Plan Name</p>
+        <p class="text-base font-medium" th:text="${transaction.subscription.name}"></p>
+      </div>
+
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Price</p>
+        <p class="text-lg font-extrabold text-green-600">$<span th:text="${#numbers.formatDecimal(transaction.subscription.price, 1, 2)}">0.00</span> /month</p>
+      </div>
+
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Description</p>
+        <p class="text-base text-on-surface-variant" th:text="${transaction.subscription.description ?: 'N/A'}"></p>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>
+
