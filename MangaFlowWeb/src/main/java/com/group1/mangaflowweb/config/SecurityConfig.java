@@ -17,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Configuration
 @EnableWebSecurity
@@ -38,18 +41,23 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index", "/search-comic", "/login", "/register", "/favicon.ico", "/css/**", "/js/**", "/error", "/api/auth/**", "/*.css", "/*.js", "/images/**", "/fonts/**", "/uploads/**").permitAll()
-                .requestMatchers("/", "/index", "/search-comic", "/login", "/register", "/favicon.ico", "/css/**", "/js/**", "/error", "/api/auth/**", "/*.css", "/*.js", "/images/**", "/fonts/**", "/pricing/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/comic/**", "/pricing/**", "/api/comics/search", "/chapters/**", "/search-comic").permitAll()
-                    .requestMatchers("/", "/index", "/search-comic", "/login", "/register", "/favicon.ico", "/css/**", "/js/**", "/error", "/api/auth/**", "/*.css", "/*.js", "/images/**", "/fonts/**", "/pricing/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/comic/**", "/pricing/**", "/api/comics/search", "/search-comic").permitAll()
+                .requestMatchers(
+                    "/", "/index", "/login", "/register", "/search-comic", "/pricing/**",
+                    "/comic/**", "/chapters/**", "/api/comics/search", "/api/auth/**",
+                    "/css/**", "/js/**", "/images/**", "/fonts/**", "/uploads/**", 
+                    "/favicon.ico", "/error", "/*.css", "/*.js"
+                ).permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/reader/**").hasAnyRole("READER", "USER")
+                .requestMatchers("/reader/**", "/chapters/*/read").hasAnyRole("READER", "USER", "ADMIN")
                 .requestMatchers("/author/**").hasAnyRole("AUTHOR")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                .sessionRegistry(sessionRegistry())
+                .expiredUrl("/login?expired=true")
             )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -85,5 +93,15 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 }

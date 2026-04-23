@@ -29,7 +29,7 @@ public class RegisterController {
 
     @PostMapping("/register")
     public String registerUser(
-            @Valid @ModelAttribute UserDTO registerRequest,
+            @Valid @ModelAttribute("registerRequest") UserDTO registerRequest,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -51,7 +51,12 @@ public class RegisterController {
                 bindingResult.rejectValue("email", "error.email", "Email đã được đăng ký!");
                 return "clients/home/register";
             }
-            bindingResult.reject("error.register", "Không thể đăng ký tài khoản, vui lòng thử lại.");
+            bindingResult.reject("error.register", "Không thể đăng ký tài khoản: " + ex.getMessage());
+            return "clients/home/register";
+        } catch (Exception ex) {
+            System.err.println("REGISTRATION ERROR: " + ex.getMessage());
+            ex.printStackTrace();
+            bindingResult.reject("error.register", "Lỗi hệ thống khi đăng ký. Vui lòng thử lại sau.");
             return "clients/home/register";
         }
 

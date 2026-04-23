@@ -66,25 +66,35 @@ public class ReadingServiceImpl implements ReadingService{
                 .map(accessService::getSubscriptionTier)
                 .orElse("none");
 
+        boolean isLoggedIn = currentUserId != null;
         boolean canReadFull = false;
         int chapNum = chapter.getChapterNumber() != null ? chapter.getChapterNumber() : 0;
 
-        if (chapNum == 1) {
-            canReadFull = true;
-        } else if (chapNum <= 10) {
-            canReadFull = "silver".equals(tier) || "gold".equals(tier);
-        } else {
-            canReadFull = "gold".equals(tier);
-        }
-
-        int previewCount = 0; // No longer used for page-level preview
-
-
+        // 1. Comic owner or Admin always has full access
+        boolean isAdmin = currentUserOpt.map(u -> u.getRole() != null && "ADMIN".equalsIgnoreCase(u.getRole())).orElse(false);
         boolean isOwner = currentUserId != null && comic.getUserId() != null
                 && comic.getUserId().equals(currentUserId);
 
-        if (isOwner) {
+        if (isOwner || isAdmin) {
             canReadFull = true;
+        } else {
+            // 2. Public access: Only Chapter 1
+            if (chapNum == 1) {
+                canReadFull = true;
+            } 
+            // 3. Logged-in access
+            else if (isLoggedIn) {
+                if (chapNum <= 3) {
+                    canReadFull = true; // Logged in users get up to Chap 3 free
+                } else if (chapNum <= 20) {
+                    // Silver/Gold can read up to Chap 20
+                    canReadFull = "silver".equals(tier) || "gold".equals(tier);
+                } else {
+                    // Only Gold can read Chap 21+
+                    canReadFull = "gold".equals(tier);
+                }
+            }
+            // 4. Guest access for Chap 2+: canReadFull remains false
         }
 
         boolean isBookmarked = (currentUserId != null && comicId != null)
@@ -101,7 +111,7 @@ public class ReadingServiceImpl implements ReadingService{
                 .prevChapterId(prevChapterId)
                 .nextChapterId(nextChapterId)
                 .canReadFull(canReadFull)
-                .previewCount(previewCount)
+                .previewCount(0)
                 .isOwner(isOwner)
                 .isBookmarked(isBookmarked)
                 .tier(tier)

@@ -54,11 +54,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.45);
     color: #fff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 18px;
     text-align: center;
     padding: 20px;
+    line-height: 1.6; /* Fix overlap from .page-wrap line-height: 0 */
 }
 
 .bottom-bar {
@@ -603,39 +605,80 @@ html, body, .mf-body, .mf-main-content, .content {
 }
 
 .locked .lock-overlay {
-    background: rgba(255, 255, 255, 0.95); /* Màu trắng gần như đặc để chữ rõ nét */
-    border-radius: 20px;
-    padding: 40px !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* Đổ bóng sâu để tạo cảm giác nổi */
-    border: 1px solid #ffffff;
-    max-width: 450px;
-    height: auto !important; /* Để nó co giãn theo nội dung */
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 24px;
+    padding: 48px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 1);
+    max-width: 500px;
+    height: auto !important;
     margin: auto;
+    backdrop-filter: blur(10px);
 }
 
 /* Tinh chỉnh màu chữ bên trong để hài hòa */
 .locked .lock-overlay h3 {
-    color: #2c3e50 !important; /* Màu xanh đen sang trọng */
-    font-weight: 700;
-    margin-bottom: 15px;
+    color: #1e293b !important;
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
 }
 
-.locked .lock-overlay div {
-    color: #5f6769 !important; /* Màu xám đậm dễ đọc */
+.lock-content {
+    text-align: center;
+    width: 100%;
+}
+
+.lock-message {
+    color: #475569 !important;
+    font-size: 1.15rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+}
+
+.login-link {
+    color: #f59e0b;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.lock-actions {
+    margin-top: 32px;
+}
+
+.btn-upgrade {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white !important;
+    font-weight: 700;
+    padding: 12px 32px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-upgrade:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4);
+    filter: brightness(1.1);
 }
 
 .horizontal-mode .lock-overlay {
     position: relative !important;
-    background: #ffffff !important; /* Màu trắng đặc */
-    color: #333 !important; /* Chữ tối màu */
-    width: min(500px, 90%) !important;
+    background: #ffffff !important;
+    color: #333 !important;
+    width: min(550px, 92%) !important;
     height: auto !important;
-    min-height: 400px;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    inset: auto !important; /* Hủy bỏ position: absolute inset 0 */
+    min-height: 420px;
+    border-radius: 28px;
+    padding: 60px;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.2);
+    inset: auto !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
 }

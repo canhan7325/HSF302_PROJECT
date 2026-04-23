@@ -50,20 +50,19 @@
                 </div>
             </th:block>
 
-            <!-- Nếu không có quyền đọc -->
             <div th:if="${!canReadFull}" class="page-wrap locked active">
                 <div class="lock-overlay">
-                    <div style="text-align: center; padding: 20px;">
-                        <h3 style="color: #fff; margin-bottom: 20px;">Chương này yêu cầu gói hội viên</h3>
+                    <div class="lock-content">
+                        <h3>Chương này yêu cầu gói hội viên</h3>
 
-                        <div th:if="${!isLoggedIn}" style="color: #ccc; font-size: 1.1rem;">
-                            Bạn cần <a href="/login" style="color: #ffc107; text-decoration: underline;">đăng nhập</a> để tiếp tục.
+                        <div th:if="${!isLoggedIn}" class="lock-message">
+                            Bạn cần <a href="/login" class="login-link">đăng nhập</a> để tiếp tục.
                         </div>
 
-                        <div th:if="${isLoggedIn}" style="color: #ccc; font-size: 1.1rem;">
+                        <div th:if="${isLoggedIn}" class="lock-message">
                             Bạn cần nâng cấp gói hội viên để đọc chương này.
-                            <div style="margin-top: 25px;">
-                                <a href="/pricing" class="btn btn-warning" style="font-weight: 600; padding: 10px 24px; border-radius: 8px;">Nâng cấp Hội viên</a>
+                            <div class="lock-actions">
+                                <a href="/pricing" class="btn btn-upgrade">Nâng cấp Hội viên</a>
                             </div>
                         </div>
                     </div>
@@ -183,16 +182,12 @@
 
     <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 
-    <!-- Inject security state -->
-    <script th:inline="javascript">
-        window.APP_IS_LOGGED_IN = /*[[${isLoggedIn}]]*/ false;
-        // Cho phép Admin hoặc Tác giả của bộ truyện được phép F12/Chụp màn hình
-        window.APP_CAN_USE_DEVTOOLS = /*[[${#authorization.expression('hasRole(''ADMIN'')') or readView.isOwner}]]*/ false;
-    </script>
-
+    <!-- Inject state -->
     <script th:inline="javascript">
         window.APP_IS_LOGGED_IN = /*[[${isLoggedIn}]]*/ false;
         window.APP_TIER = /*[[${tier}]]*/ 'none';
+        // Cho phép Admin hoặc Tác giả của bộ truyện được phép F12/Chụp màn hình
+        window.APP_CAN_USE_DEVTOOLS = /*[[${#authorization.expression('hasRole(''ADMIN'')') or readView.isOwner}]]*/ false;
     </script>
 
     <!-- Shared bookmark script -->
