@@ -29,4 +29,6 @@ public class ChapterAdminDTO {
     private LocalDateTime createdAt;
 
     private List<PageAdminDTO> pages;
+
+    private List<Integer> pageIds;
 }

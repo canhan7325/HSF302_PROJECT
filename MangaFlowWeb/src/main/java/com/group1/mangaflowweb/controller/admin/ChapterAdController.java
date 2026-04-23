@@ -3,6 +3,7 @@ package com.group1.mangaflowweb.controller.admin;
 import com.group1.mangaflowweb.dto.chapter.ChapterAdminDTO;
 import com.group1.mangaflowweb.service.ChapterService;
 import com.group1.mangaflowweb.service.ComicService;
+import com.group1.mangaflowweb.service.PageService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -20,10 +21,12 @@ public class ChapterAdController {
 
     private final ChapterService chapterService;
     private final ComicService comicService;
+    private final PageService pageService;
 
-    public ChapterAdController(ChapterService chapterService, ComicService comicService) {
+    public ChapterAdController(ChapterService chapterService, ComicService comicService, PageService pageService) {
         this.chapterService = chapterService;
         this.comicService = comicService;
+        this.pageService = pageService;
     }
 
     @GetMapping("/manga/{id}/chapters")
@@ -60,6 +63,9 @@ public class ChapterAdController {
                                 RedirectAttributes redirectAttributes) {
         if (!result.hasErrors()) {
             chapterService.updateChapter(chId, chapter);
+            if (chapter.getPageIds() != null && !chapter.getPageIds().isEmpty()) {
+                pageService.reorderPages(chId, chapter.getPageIds());
+            }
             redirectAttributes.addFlashAttribute("successMessage", "Chapter updated.");
         }
         return "redirect:/admin/manga/" + id + "/chapters";

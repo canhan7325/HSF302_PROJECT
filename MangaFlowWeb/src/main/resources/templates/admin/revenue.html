@@ -72,6 +72,7 @@
           <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Gói Đăng Ký</th>
           <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Số Tiền</th>
           <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Trạng Thái</th>
+          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Gói Trạng Thái</th>
           <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Ngày</th>
         </tr>
       </thead>
@@ -93,6 +94,12 @@
                 (${t.status.name() == 'CANCELED'} ? 'text-gray-700 bg-gray-100' :
                 (${t.status.name() == 'UPDATED'} ? 'text-yellow-700 bg-yellow-100' :
                 'text-stone-500 bg-stone-100'))))">
+            </span>
+          </td>
+          <td class="px-6 py-3">
+            <span th:text="${t.statusSubs}"
+              class="text-xs font-bold px-2 py-0.5 rounded-full"
+              th:classappend="${t.statusSubs == 'ACTIVE'} ? 'text-emerald-700 bg-emerald-100' : 'text-stone-500 bg-stone-100'">
             </span>
           </td>
           <td class="px-6 py-3 text-sm text-on-surface-variant" th:text="${#temporals.format(t.createdAt, 'dd/MM/yyyy')}"></td>

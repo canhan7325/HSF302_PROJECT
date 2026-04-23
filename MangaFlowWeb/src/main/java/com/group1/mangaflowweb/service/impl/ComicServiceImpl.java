@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -65,6 +66,11 @@ public class ComicServiceImpl implements ComicService {
     @Transactional
     public void createComic(ComicAdminDTO form) {
         LocalDateTime now = LocalDateTime.now();
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Users currentUser = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Authenticated user not found: " + username));
+
         Comics comic = new Comics();
         comic.setTitle(form.getTitle());
         comic.setSlug(SlugUtils.toSlug(form.getTitle()));
@@ -74,6 +80,7 @@ public class ComicServiceImpl implements ComicService {
         comic.setViewCount(0);
         comic.setCreatedAt(now);
         comic.setUpdatedAt(now);
+        comic.setUser(currentUser);
         Comics saved = comicRepository.save(comic);
 
         if (form.getGenreIds() != null && !form.getGenreIds().isEmpty()) {
