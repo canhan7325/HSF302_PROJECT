@@ -47,13 +47,15 @@ public class UserAdController {
     }
 
     @PostMapping("/users/new")
-    public String userCreate(@Valid UserAdminDTO user, BindingResult result,
+    public String userCreate(@Valid @ModelAttribute("user") UserAdminDTO user, BindingResult result,
             Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
         
         // Manual validation for password (required for create)
         if (user.getPassword() == null || user.getPassword().isBlank()) {
             result.rejectValue("password", "NotBlank", "Mật khẩu không được để trống");
+        } else if (user.getPassword().length() < 6) {
+            result.rejectValue("password", "Size", "Mật khẩu phải tối thiểu 6 ký tự");
         }
         
         if (result.hasErrors()) {
@@ -65,14 +67,21 @@ public class UserAdController {
         try {
             userService.createUser(user);
         } catch (DataIntegrityViolationException e) {
+            result.reject("duplicate", "Username hoặc email đã tồn tại.");
             model.addAttribute("user", user);
-            model.addAttribute("duplicateError", "Username or email already exists.");
             model.addAttribute("view", "form");
             model.addAttribute("username", usernameCtx);
             return "admin/users";
         } catch (IllegalArgumentException e) {
+            String message = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+            if (message.contains("username")) {
+                result.rejectValue("username", "duplicate", "Username đã tồn tại.");
+            } else if (message.contains("email")) {
+                result.rejectValue("email", "duplicate", "Email đã tồn tại.");
+            } else {
+                result.reject("business", e.getMessage());
+            }
             model.addAttribute("user", user);
-            model.addAttribute("duplicateError", e.getMessage());
             model.addAttribute("view", "form");
             model.addAttribute("username", usernameCtx);
             return "admin/users";
@@ -95,9 +104,15 @@ public class UserAdController {
 
     @PostMapping("/users/{id}/edit")
     public String userUpdate(@PathVariable Integer id,
-            @Valid UserAdminDTO user, BindingResult result,
+            @Valid @ModelAttribute("user") UserAdminDTO user, BindingResult result,
             Model model, RedirectAttributes redirectAttributes) {
         String usernameCtx = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // Optional password in edit, but if provided must meet min length
+        if (user.getPassword() != null && !user.getPassword().isBlank() && user.getPassword().length() < 6) {
+            result.rejectValue("password", "Size", "Mật khẩu phải tối thiểu 6 ký tự");
+        }
+
         if (result.hasErrors()) {
             model.addAttribute("user", user);
             model.addAttribute("editMode", true);
@@ -109,16 +124,23 @@ public class UserAdController {
         try {
             userService.updateUser(id, user);
         } catch (DataIntegrityViolationException e) {
+            result.reject("duplicate", "Username hoặc email đã tồn tại.");
             model.addAttribute("user", user);
-            model.addAttribute("duplicateError", "Username or email already exists.");
             model.addAttribute("editMode", true);
             model.addAttribute("userId", id);
             model.addAttribute("view", "form");
             model.addAttribute("username", usernameCtx);
             return "admin/users";
         } catch (IllegalArgumentException e) {
+            String message = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+            if (message.contains("username")) {
+                result.rejectValue("username", "duplicate", "Username đã tồn tại.");
+            } else if (message.contains("email")) {
+                result.rejectValue("email", "duplicate", "Email đã tồn tại.");
+            } else {
+                result.reject("business", e.getMessage());
+            }
             model.addAttribute("user", user);
-            model.addAttribute("duplicateError", e.getMessage());
             model.addAttribute("editMode", true);
             model.addAttribute("userId", id);
             model.addAttribute("view", "form");

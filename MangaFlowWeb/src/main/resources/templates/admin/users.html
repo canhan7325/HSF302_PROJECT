@@ -114,6 +114,9 @@
 
      <!-- Create -->
      <form th:if="${editMode == null or !editMode}" th:action="@{/admin/users/new}" method="post" th:object="${user}" class="space-y-6">
+      <div th:if="${#fields.hasGlobalErrors()}" class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium">
+        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+      </div>
        <div>
          <label class="block text-sm font-bold mb-1">Tên Đăng Nhập</label>
          <input type="text" th:field="*{username}" th:classappend="${#fields.hasErrors('username') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
@@ -126,12 +129,13 @@
        </div>
       <div>
         <label class="block text-sm font-bold mb-1">Vai Trò</label>
-        <select th:field="*{role}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+        <select th:field="*{role}" th:classappend="${#fields.hasErrors('role') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="">-- Chọn Vai Trò --</option>
           <option value="READER">READER</option>
           <option value="AUTHOR">AUTHOR</option>
           <option value="ADMIN">ADMIN</option>
         </select>
+        <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="text-xs text-red-600 mt-1"></p>
       </div>
       <div>
         <label class="block text-sm font-bold mb-1">Mật Khẩu</label>
@@ -147,6 +151,9 @@
 
      <!-- Edit -->
      <form th:if="${editMode}" th:action="@{/admin/users/{id}/edit(id=${userId})}" method="post" th:object="${user}" class="space-y-6">
+      <div th:if="${#fields.hasGlobalErrors()}" class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium">
+        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+      </div>
        <div>
          <label class="block text-sm font-bold mb-1">Tên Đăng Nhập</label>
          <input type="text" th:field="*{username}" th:classappend="${#fields.hasErrors('username') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
@@ -159,12 +166,13 @@
        </div>
       <div>
         <label class="block text-sm font-bold mb-1">Vai Trò</label>
-        <select th:field="*{role}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+        <select th:field="*{role}" th:classappend="${#fields.hasErrors('role') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="">-- Chọn Vai Trò --</option>
           <option value="READER">READER</option>
           <option value="AUTHOR">AUTHOR</option>
           <option value="ADMIN">ADMIN</option>
         </select>
+        <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="text-xs text-red-600 mt-1"></p>
       </div>
       <div>
         <label class="block text-sm font-bold mb-1">Mật Khẩu Mới</label>
