@@ -25,9 +25,9 @@
                 <div class="d-flex flex-column flex-md-row gap-3 align-items-md-center justify-content-between">
                     <div>
                         <h1 class="mb-1 mf-page-heading">Dashboard</h1>
-                        <p class="mb-0 mf-page-subtitle">Your uploaded comics.</p>
+                        <p class="mb-0 mf-page-subtitle">Truyện đã đăng.</p>
                     </div>
-                    <a th:href="@{/upload-comic}" class="btn mf-btn-gradient px-4">Upload Comic</a>
+                    <a th:href="@{/upload-comic}" class="btn mf-btn-gradient px-4">Đăng truyện</a>
                 </div>
                 <div th:if="${error}" class="alert alert-warning mt-3 mb-0" th:text="${error}"></div>
             </div>
@@ -35,7 +35,7 @@
             <section>
                 <h3 class="mb-3 mf-section-title">
                     <span class="material-symbols-outlined me-1">auto_stories</span>
-                    My Comics
+                    Truyện của tôi
                 </h3>
 
                 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 g-3 g-md-4" th:if="${myComics != null and !#lists.isEmpty(myComics)}">
@@ -47,7 +47,7 @@
                                          class="w-100 h-100 object-fit-cover mf-comic-cover" th:alt="${comic.title}">
                                     <div class="mf-cover-overlay"></div>
                                 </div>
-                                <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Comic Title</h6>
+                                <h6 class="mb-1 mf-comic-title" th:text="${comic.title}">Truyện</h6>
                                 <small class="mf-comic-chapter" th:text="${comic.status}">ONGOING</small>
                             </article>
                         </a>
@@ -55,8 +55,8 @@
                 </div>
 
                 <div class="mf-empty-state text-center py-5" th:if="${myComics != null and #lists.isEmpty(myComics)}">
-                    <p class="mb-2">You haven't uploaded any comics yet.</p>
-                    <a th:href="@{/upload-comic}" class="btn mf-btn-gradient px-4">Create your first series</a>
+                    <p class="mb-2">Bạn chưa đăng truyện.</p>
+                    <a th:href="@{/author/upload-comic}" class="btn mf-btn-gradient px-4">Hãy đăng truyện đầu tiên</a>
                 </div>
             </section>
         </div>
