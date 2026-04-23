@@ -16,16 +16,17 @@ import java.time.LocalDateTime;
 public class UserAdminDTO {
     private Integer userId;
 
-    @NotBlank
+    @NotBlank(message = "Username không được để trống")
     private String username;
 
-    @NotBlank
-    @Email
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email phải đúng định dạng")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Vai trò không được để trống")
     private String role;
 
+    @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
     private Boolean enabled;
     private LocalDateTime createdAt;

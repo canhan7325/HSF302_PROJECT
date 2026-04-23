@@ -3,6 +3,7 @@ package com.group1.mangaflowweb.controller.admin;
 import com.group1.mangaflowweb.dto.comic.ComicAdminDTO;
 import com.group1.mangaflowweb.service.CloudinaryUploadService;
 import com.group1.mangaflowweb.service.ComicService;
+import com.group1.mangaflowweb.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,10 +21,12 @@ public class ComicAdController {
 
     private final ComicService comicService;
     private final CloudinaryUploadService cloudinaryUploadService;
+    private final UserService userService;
 
-    public ComicAdController(ComicService comicService, CloudinaryUploadService cloudinaryUploadService) {
+    public ComicAdController(ComicService comicService, CloudinaryUploadService cloudinaryUploadService, UserService userService) {
         this.comicService = comicService;
         this.cloudinaryUploadService = cloudinaryUploadService;
+        this.userService = userService;
     }
 
     @GetMapping("/manga")
@@ -55,9 +58,25 @@ public class ComicAdController {
             model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
             return "admin/manga";
         }
-        comicService.createComic(comic);
-        redirectAttributes.addFlashAttribute("successMessage", "Manga created successfully.");
-        return "redirect:/admin/manga";
+        
+        // Get current user ID from authentication
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var userDTO = userService.findByUsername(username);
+        if (userDTO != null) {
+            comic.setUploaderId(userDTO.getUserId());
+        }
+        
+        try {
+            comicService.createComic(comic);
+            redirectAttributes.addFlashAttribute("successMessage", "Manga created successfully.");
+            return "redirect:/admin/manga";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("genres", comicService.getAllGenresWithCount());
+            model.addAttribute("view", "form");
+            model.addAttribute("username", username);
+            return "admin/manga";
+        }
     }
 
     @GetMapping("/manga/{id}/edit")

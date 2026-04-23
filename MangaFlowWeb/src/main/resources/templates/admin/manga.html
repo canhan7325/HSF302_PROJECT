@@ -200,6 +200,9 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
   </header>
 
   <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8 max-w-2xl">
+    <!-- Error message -->
+    <div th:if="${errorMessage}" class="mb-6 px-4 py-3 bg-red-100 text-red-800 rounded-lg text-sm font-medium border border-red-300" th:text="${errorMessage}"></div>
+
     <!-- Create form -->
     <form th:if="${editMode == null or !editMode}" th:action="@{/admin/manga/new}" method="post"
           enctype="multipart/form-data" class="space-y-6">

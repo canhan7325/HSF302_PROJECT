@@ -17,6 +17,13 @@ public class GlobalExceptionHandler {
         return "error-404";
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleIllegalArgument(IllegalArgumentException ex, Model model) {
+        model.addAttribute("message", ex.getMessage());
+        return "error-400";
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGenericException(Exception ex, Model model) {

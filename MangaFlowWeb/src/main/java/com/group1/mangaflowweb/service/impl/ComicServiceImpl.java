@@ -64,6 +64,12 @@ public class ComicServiceImpl implements ComicService {
     @Override
     @Transactional
     public void createComic(ComicAdminDTO form) {
+        // Check for duplicate title
+        comicRepository.findByTitleIgnoreCase(form.getTitle())
+                .ifPresent(comic -> {
+                    throw new IllegalArgumentException("Comic with title '" + form.getTitle() + "' already exists");
+                });
+        
         LocalDateTime now = LocalDateTime.now();
         Comics comic = new Comics();
         comic.setTitle(form.getTitle());
@@ -74,6 +80,14 @@ public class ComicServiceImpl implements ComicService {
         comic.setViewCount(0);
         comic.setCreatedAt(now);
         comic.setUpdatedAt(now);
+        
+        // Set user from uploaderId
+        if (form.getUploaderId() != null) {
+            Users user = usersRepository.findById(form.getUploaderId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + form.getUploaderId()));
+            comic.setUser(user);
+        }
+        
         Comics saved = comicRepository.save(comic);
 
         if (form.getGenreIds() != null && !form.getGenreIds().isEmpty()) {
@@ -217,6 +231,12 @@ public class ComicServiceImpl implements ComicService {
     public ComicDTO create(ComicDTO request) {
         Users user = usersRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // Check for duplicate title
+        comicRepository.findByTitleIgnoreCase(request.getTitle())
+                .ifPresent(comic -> {
+                    throw new IllegalArgumentException("Comic with title '" + request.getTitle() + "' already exists");
+                });
 
         comicRepository.findBySlug(request.getSlug())
                 .ifPresent(comic -> {

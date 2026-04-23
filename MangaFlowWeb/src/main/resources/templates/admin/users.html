@@ -94,7 +94,7 @@
             </div>
           </td>
         </tr>
-        <tr th:if="${page.content.empty}">
+        <tr th:if="${#lists.isEmpty(page.content)}">
           <td colspan="6" class="px-6 py-10 text-center text-on-surface-variant text-sm">Không tìm thấy người dùng.</td>
         </tr>
       </tbody>
