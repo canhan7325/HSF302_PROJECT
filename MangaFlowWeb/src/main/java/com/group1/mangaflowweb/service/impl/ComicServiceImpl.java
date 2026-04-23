@@ -6,8 +6,7 @@ import com.group1.mangaflowweb.dto.response.admin.ComicAdminResponse;
 import com.group1.mangaflowweb.dto.response.admin.GenreAdminResponse;
 import com.group1.mangaflowweb.dto.comic.ComicRequest;
 import com.group1.mangaflowweb.dto.comic.ComicResponse;
-import com.group1.mangaflowweb.entity.Comics;
-import com.group1.mangaflowweb.entity.Users;
+import com.group1.mangaflowweb.entity.*;
 import com.group1.mangaflowweb.enums.ComicEnum;
 import com.group1.mangaflowweb.repository.ComicRepository;
 import com.group1.mangaflowweb.repository.GenreRepository;
@@ -213,7 +212,27 @@ public class ComicServiceImpl implements ComicService {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return toResponse(comicRepository.save(comic));
+        Comics savedComic = comicRepository.save(comic);
+
+        if (request.getGenreIds() != null && !request.getGenreIds().isEmpty()) {
+
+            for (Integer genreId : request.getGenreIds()) {
+
+                Genres genre = genreRepository.findById(genreId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+
+                GenreComics gc = GenreComics.builder()
+                        .id(new GenreComicsId(savedComic.getComicId(), genreId))
+                        .comic(savedComic)
+                        .genre(genre)
+                        .build();
+
+                savedComic.getGenreComics().add(gc);
+            }
+            comicRepository.save(savedComic);
+        }
+
+        return toResponse(savedComic);
     }
 
     @Override
