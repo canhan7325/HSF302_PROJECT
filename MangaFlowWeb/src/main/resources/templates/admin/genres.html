@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Genre Management — Admin Panel</title>
+<title>Quản Lý Thể Loại — Trang Quản Trị</title>
 <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
 </head>
 <body class="bg-background text-on-surface flex min-h-screen">
@@ -16,8 +16,8 @@
     <div id="confirm-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:6px;"></div>
     <div id="confirm-msg" style="font-size:.875rem;color:#5c5b5b;margin-bottom:20px;"></div>
     <div style="display:flex;gap:10px;justify-content:center;">
-      <button id="confirm-cancel" class="px-5 py-2 rounded-lg border border-outline-variant text-sm font-bold hover:bg-surface-container">Cancel</button>
-      <button id="confirm-ok" class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Delete</button>
+      <button id="confirm-cancel" class="px-5 py-2 rounded-lg border border-outline-variant text-sm font-bold hover:bg-surface-container">Hủy</button>
+      <button id="confirm-ok" class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Xóa</button>
     </div>
   </div>
 </div>
@@ -32,37 +32,33 @@
 <th:block th:if="${view == 'list'}">
   <header class="mb-8 flex justify-between items-end">
     <div>
-      <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Catalog</p>
-      <h2 class="text-4xl font-extrabold tracking-tighter">Genre Management</h2>
+      <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Danh Mục</p>
+      <h2 class="text-4xl font-extrabold tracking-tighter">Quản Lý Thể Loại</h2>
     </div>
     <a th:href="@{/admin/genres/new}" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-sm">
-      <span class="material-symbols-outlined" style="font-size:18px">add</span>Add Genre
+      <span class="material-symbols-outlined" style="font-size:18px">add</span>Thêm Thể Loại
     </a>
   </header>
   <th:block th:replace="~{admin/fragments/admin :: flash(${successMessage}, ${errorMessage})}"></th:block>
-  <script th:if="${successMessage != null}" th:inline="javascript">
-    document.addEventListener('DOMContentLoaded',function(){showToast([[${successMessage}]],'success');});
-  </script>
-  <script th:if="${errorMessage != null}" th:inline="javascript">
-    document.addEventListener('DOMContentLoaded',function(){showToast([[${errorMessage}]],'error');});
-  </script>
+  <div id="page-messages"
+       th:attr="data-success=${successMessage}, data-error=${errorMessage}"></div>
   <form th:action="@{/admin/genres}" method="get" class="flex gap-2 max-w-md mb-6">
     <div class="relative flex-1">
       <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size:18px">search</span>
-      <input type="text" name="search" th:value="${search}" placeholder="Search..."
+      <input type="text" name="search" th:value="${search}" placeholder="Tìm kiếm..."
              class="w-full pl-9 pr-3 py-2 text-sm border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-surface-container-lowest"/>
     </div>
-    <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dim text-on-primary rounded-lg text-sm font-bold">Search</button>
-    <a th:if="${search != null and search != ''}" th:href="@{/admin/genres}" class="px-3 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container">Clear</a>
+    <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dim text-on-primary rounded-lg text-sm font-bold">Tìm Kiếm</button>
+    <a th:if="${search != null and search != ''}" th:href="@{/admin/genres}" class="px-3 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container">Xóa Bộ Lọc</a>
   </form>
   <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
     <table class="w-full text-left border-collapse">
       <thead>
         <tr class="border-b border-surface-container-high">
-          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Name</th>
+          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Tên</th>
           <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Slug</th>
-          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Comics</th>
-          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Actions</th>
+          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Truyện</th>
+          <th class="px-6 py-4 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Thao Tác</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-surface-container">
@@ -77,7 +73,7 @@
               </a>
               <form th:action="@{/admin/genres/{id}/delete(id=${g.genreId})}" method="post" class="delete-form">
                 <button type="button" title="Delete" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors delete-btn"
-                        data-title="Delete Genre" data-msg="This will permanently delete the genre. Comics using it will lose this genre tag.">
+                        data-title="Xóa Thể Loại" data-msg="Thao tác này sẽ xóa vĩnh viễn thể loại. Các truyện dùng thể loại này sẽ mất nhãn.">
                   <span class="material-symbols-outlined" style="font-size:18px">delete</span>
                 </button>
               </form>
@@ -85,7 +81,7 @@
           </td>
         </tr>
         <tr th:if="${genres.empty}">
-          <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant text-sm">No genres found.</td>
+          <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant text-sm">Không tìm thấy thể loại.</td>
         </tr>
       </tbody>
     </table>
@@ -95,35 +91,35 @@
 <!-- FORM -->
 <th:block th:if="${view == 'form'}">
   <header class="mb-8">
-    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Catalog</p>
-    <h2 class="text-4xl font-extrabold tracking-tighter" th:text="${editMode} ? 'Edit Genre' : 'Add Genre'">Genre Form</h2>
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Danh Mục</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter" th:text="${editMode} ? 'Chỉnh Sửa Thể Loại' : 'Thêm Thể Loại'">Genre Form</h2>
   </header>
   <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8 max-w-lg">
     <div th:if="${duplicateError}" class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium" th:text="${duplicateError}"></div>
 
     <!-- Create -->
-    <form th:if="${!editMode}" th:action="@{/admin/genres/new}" method="post" class="space-y-6">
+    <form th:if="${editMode == null or !editMode}" th:action="@{/admin/genres/new}" method="post" class="space-y-6">
       <div>
-        <label class="block text-sm font-bold mb-1">Genre Name</label>
-        <input type="text" name="name" placeholder="e.g. Action" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
-        <p class="text-xs text-on-surface-variant mt-1">Slug will be auto-generated from the name.</p>
+        <label class="block text-sm font-bold mb-1">Tên Thể Loại</label>
+        <input type="text" name="name" placeholder="VD: Hành Động" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+        <p class="text-xs text-on-surface-variant mt-1">Slug sẽ được tự động tạo từ tên.</p>
       </div>
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Create Genre</button>
-        <a th:href="@{/admin/genres}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Cancel</a>
+        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Tạo Thể Loại</button>
+        <a th:href="@{/admin/genres}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Hủy</a>
       </div>
     </form>
 
     <!-- Edit -->
     <form th:if="${editMode}" th:action="@{/admin/genres/{id}/edit(id=${genreId})}" method="post" class="space-y-6">
       <div>
-        <label class="block text-sm font-bold mb-1">Genre Name</label>
+        <label class="block text-sm font-bold mb-1">Tên Thể Loại</label>
         <input type="text" name="name" th:value="${genreInfo != null ? genreInfo.name : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
-        <p class="text-xs text-on-surface-variant mt-1">Slug will be regenerated from the updated name.</p>
+        <p class="text-xs text-on-surface-variant mt-1">Slug sẽ được tạo lại từ tên mới.</p>
       </div>
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Save Changes</button>
-        <a th:href="@{/admin/genres}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Cancel</a>
+        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Lưu Thay Đổi</button>
+        <a th:href="@{/admin/genres}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Hủy</a>
       </div>
     </form>
   </div>
@@ -151,6 +147,13 @@ function showToast(message,type){
   setTimeout(function(){item.style.opacity='0';setTimeout(function(){item.remove();},350);},3500);
 }
 document.addEventListener('DOMContentLoaded',function(){
+  var msgs = document.getElementById('page-messages');
+  if (msgs) {
+    var s = msgs.dataset.success;
+    var e = msgs.dataset.error;
+    if (s && s !== 'null') showToast(s, 'success');
+    if (e && e !== 'null') showToast(e, 'error');
+  }
   document.querySelectorAll('.delete-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
       var form=btn.closest('.delete-form');

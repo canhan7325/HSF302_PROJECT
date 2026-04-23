@@ -63,12 +63,7 @@ public class ComicAdController {
     @GetMapping("/manga/{id}/edit")
     public String mangaEditForm(@PathVariable Integer id, Model model) {
         var existing = comicService.getComicById(id);
-        ComicAdminDTO form = new ComicAdminDTO();
-        form.setTitle(existing.getTitle());
-        form.setDescription(null);
-        form.setCoverImg(null);
-        form.setStatus(existing.getStatus());
-        model.addAttribute("comic", form);
+        model.addAttribute("comic", existing);
         model.addAttribute("comicInfo", existing);
         model.addAttribute("genres", comicService.getAllGenresWithCount());
         model.addAttribute("editMode", true);

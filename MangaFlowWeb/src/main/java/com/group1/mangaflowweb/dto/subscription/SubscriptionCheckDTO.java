@@ -15,5 +15,6 @@ public class SubscriptionCheckDTO {
     private Long currentPrice;     // giá gói hiện tại của user
     private Long discountAmount;   // giảm giá nếu upgrade từ Bạc → Vàng
     private boolean isUpgrade;     // true nếu đang upgrade
+    private boolean isCurrent;     // true nếu là gói hiện tại
 }
 

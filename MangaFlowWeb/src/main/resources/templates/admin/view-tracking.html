@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>View Tracking — Admin Panel</title>
+<title>Theo Dõi Lượt Xem — Trang Quản Trị</title>
 <th:block th:replace="~{admin/fragments/admin-styles :: admin-styles}"></th:block>
 </head>
 <body class="bg-background text-on-surface flex min-h-screen">
@@ -12,8 +12,8 @@
 
 <main class="ml-72 flex-1 p-8 bg-background">
   <header class="mb-6">
-    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Analytics</p>
-    <h2 class="text-4xl font-extrabold tracking-tighter">View Tracking</h2>
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Phân Tích</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter">Theo Dõi Lượt Xem</h2>
   </header>
 
   <!-- Search + filters -->
@@ -21,7 +21,7 @@
     <form th:action="@{/admin/view-tracking}" method="get" class="flex flex-wrap gap-3 items-end">
       <div class="relative flex-1 min-w-48">
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size:18px">search</span>
-        <input type="text" name="search" th:value="${searchQuery}" placeholder="Search by title..."
+        <input type="text" name="search" th:value="${searchQuery}" placeholder="Tìm theo tiêu đề..."
                class="w-full pl-9 pr-3 py-2 text-sm border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-surface-container-lowest"/>
       </div>
       <div class="flex gap-1">
@@ -41,15 +41,15 @@
       <div class="flex gap-1">
         <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder})}"
            class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
-           th:classappend="${filterBy == null or filterBy == ''} ? ' bg-secondary text-white border-secondary' : ''">All</a>
+           th:classappend="${filterBy == null or filterBy == ''} ? ' bg-secondary text-white border-secondary' : ''">Tất Cả</a>
         <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder},filterBy='most-viewed')}"
            class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
-           th:classappend="${filterBy == 'most-viewed'} ? ' bg-secondary text-white border-secondary' : ''">Most Viewed</a>
+           th:classappend="${filterBy == 'most-viewed'} ? ' bg-secondary text-white border-secondary' : ''">Xem Nhiều Nhất</a>
         <a th:href="@{/admin/view-tracking(sortBy=${sortBy},sortOrder=${sortOrder},filterBy='least-viewed')}"
            class="px-3 py-2 rounded-lg text-xs font-bold border border-outline-variant hover:bg-surface-container transition-colors"
-           th:classappend="${filterBy == 'least-viewed'} ? ' bg-secondary text-white border-secondary' : ''">Least Viewed</a>
+           th:classappend="${filterBy == 'least-viewed'} ? ' bg-secondary text-white border-secondary' : ''">Xem Ít Nhất</a>
       </div>
-      <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dim text-on-primary rounded-lg text-sm font-bold">Search</button>
+      <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dim text-on-primary rounded-lg text-sm font-bold">Tìm Kiếm</button>
     </form>
   </div>
 
@@ -59,10 +59,10 @@
       <thead>
         <tr class="border-b border-surface-container-high">
           <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">ID</th>
-          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Title</th>
-          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Author</th>
-          <th class="px-6 py-3 text-on-surface-variant text-right" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Views</th>
-          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Status</th>
+          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Tiêu Đề</th>
+          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Tác Giả</th>
+          <th class="px-6 py-3 text-on-surface-variant text-right" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Lượt Xem</th>
+          <th class="px-6 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Trạng Thái</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-surface-container">

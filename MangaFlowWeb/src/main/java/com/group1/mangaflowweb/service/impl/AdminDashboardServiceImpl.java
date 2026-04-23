@@ -23,16 +23,16 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     private final UsersRepository usersRepository;
     private final ComicRepository comicRepository;
     private final GenreRepository genreRepository;
-    private final TransactionsRepository TransactionsRepository;
+    private final TransactionsRepository transactionsRepository;
 
     public AdminDashboardServiceImpl(UsersRepository usersRepository,
                                      ComicRepository comicRepository,
                                      GenreRepository genreRepository,
-                                     TransactionsRepository TransactionsRepository) {
+                                     TransactionsRepository transactionsRepository) {
         this.usersRepository = usersRepository;
         this.comicRepository = comicRepository;
         this.genreRepository = genreRepository;
-        this.TransactionsRepository = TransactionsRepository;
+        this.transactionsRepository = transactionsRepository;
     }
 
     @Override
@@ -94,12 +94,12 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
         List<Object[]> rows;
         if ("week".equals(period)) {
             LocalDateTime since = LocalDateTime.now().minusWeeks(12);
-            rows = TransactionsRepository.findRevenueByWeek(since);
+            rows = transactionsRepository.findRevenueByWeek(since);
         } else if ("year".equals(period)) {
-            rows = TransactionsRepository.findRevenueByYear();
+            rows = transactionsRepository.findRevenueByYear();
         } else {
             LocalDateTime since = LocalDateTime.of(2000, 1, 1, 0, 0);
-            rows = TransactionsRepository.findRevenueByMonth(since);
+            rows = transactionsRepository.findRevenueByMonth(since);
         }
         return rows.stream()
                 .map(row -> RevenueDataPointDTO.builder()

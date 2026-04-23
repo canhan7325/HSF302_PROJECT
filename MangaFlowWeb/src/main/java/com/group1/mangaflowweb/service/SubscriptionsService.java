@@ -5,7 +5,7 @@ import com.group1.mangaflowweb.dto.subscription.SubscriptionAdminDTO;
 
 import java.util.List;
 
-public interface SubcriptionsService {
+public interface SubscriptionsService {
 
     // --- CLIENTS ---
     List<SubscriptionsDTO> getAllActiveSubscriptions();

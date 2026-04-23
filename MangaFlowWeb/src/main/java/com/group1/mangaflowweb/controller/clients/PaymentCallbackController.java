@@ -2,7 +2,7 @@ package com.group1.mangaflowweb.controller.clients;
 
 import com.group1.mangaflowweb.dto.transaction.TransactionsDTO;
 import com.group1.mangaflowweb.dto.user.UserDTO;
-import com.group1.mangaflowweb.service.SubcriptionsService;
+import com.group1.mangaflowweb.service.SubscriptionsService;
 import com.group1.mangaflowweb.service.TransactionsService;
 import com.group1.mangaflowweb.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -26,7 +26,7 @@ public class PaymentCallbackController {
     private TransactionsService transactionsService;
 
     @Autowired
-    private SubcriptionsService subscriptionsService;
+    private SubscriptionsService subscriptionsService;
 
     @Autowired
     private UserService userService;

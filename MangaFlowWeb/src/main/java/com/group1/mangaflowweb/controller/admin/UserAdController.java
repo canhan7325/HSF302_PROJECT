@@ -75,6 +75,7 @@ public class UserAdController {
     @GetMapping("/users/{id}/edit")
     public String userEditForm(@PathVariable Integer id, Model model) {
         UserAdminDTO existing = userService.getUserById(id);
+        model.addAttribute("user", existing);
         model.addAttribute("userInfo", existing);
         model.addAttribute("editMode", true);
         model.addAttribute("userId", id);
@@ -130,4 +131,3 @@ public class UserAdController {
         return "redirect:/admin/users";
     }
 }
-

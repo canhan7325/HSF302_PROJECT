@@ -194,7 +194,7 @@ public class TransactionsServiceImpl implements TransactionsService {
         java.util.List<Transactions> transactions = transactionsRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
 
         if (transactions.isEmpty()) {
-            return 0L;
+            return null;
         }
 
         // Find the first ACTIVE transaction (SUCCESS/UPDATED status and not expired)
@@ -212,7 +212,7 @@ public class TransactionsServiceImpl implements TransactionsService {
             }
         }
 
-        return 0L;
+        return null;
     }
 
     @Override
@@ -224,18 +224,21 @@ public class TransactionsServiceImpl implements TransactionsService {
         long discountAmount = 0;
 
         // Nếu chưa có membership, có thể đăng kí
-        if (currentPrice == 0) {
+        if (currentPrice == null) {
             return SubscriptionCheckDTO.builder()
                     .canSubscribe(true)
                     .currentPrice(0L)
                     .discountAmount(0L)
                     .isUpgrade(false)
+                    .isCurrent(false)
                     .build();
         }
 
         // Nếu đăng kí cùng gói → BLOCK
         if (currentPrice.equals(newSubscriptionPrice)) {
             String membership = getMembershipFromPrice(BigDecimal.valueOf(currentPrice));
+            if (membership == null && currentPrice == 0) membership = "Gói Miễn Phí";
+            
             java.util.List<Transactions> transactions = transactionsRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
             if (!transactions.isEmpty()) {
                 Transactions current = transactions.get(0);
@@ -245,13 +248,14 @@ public class TransactionsServiceImpl implements TransactionsService {
                 String endDate = current.getEndedAt() != null
                         ? current.getEndedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         : "";
-                String message = "Bạn đã là " + membership + " từ ngày " + startDate + " đến ngày " + endDate;
+                String message = "Bạn đang sử dụng " + membership + (endDate.isEmpty() ? "" : " đến ngày " + endDate);
                 return SubscriptionCheckDTO.builder()
                         .canSubscribe(false)
                         .message(message)
                         .currentPrice(currentPrice)
                         .discountAmount(0L)
                         .isUpgrade(false)
+                        .isCurrent(true)
                         .build();
             }
         }
@@ -296,6 +300,7 @@ public class TransactionsServiceImpl implements TransactionsService {
                 .currentPrice(currentPrice)
                 .discountAmount(discountAmount)
                 .isUpgrade(isUpgrade)
+                .isCurrent(false)
                 .build();
     }
 

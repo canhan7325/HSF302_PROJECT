@@ -4,7 +4,7 @@ import com.group1.mangaflowweb.dto.subscription.SubscriptionsDTO;
 import com.group1.mangaflowweb.dto.subscription.SubscriptionAdminDTO;
 import com.group1.mangaflowweb.entity.Subscriptions;
 import com.group1.mangaflowweb.repository.SubscriptionsRepository;
-import com.group1.mangaflowweb.service.SubcriptionsService;
+import com.group1.mangaflowweb.service.SubscriptionsService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class SubcriptionsServiceImpl implements SubcriptionsService {
+public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     @Autowired
     private SubscriptionsRepository subscriptionsRepository;

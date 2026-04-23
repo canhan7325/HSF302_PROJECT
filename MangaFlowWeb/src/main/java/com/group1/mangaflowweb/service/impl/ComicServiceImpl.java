@@ -375,6 +375,7 @@ public class ComicServiceImpl implements ComicService {
                 .comicId(comic.getComicId())
                 .title(comic.getTitle())
                 .slug(comic.getSlug())
+                .description(comic.getDescription())
                 .status(comic.getStatus())
                 .viewCount(comic.getViewCount())
                 .chapterCount(chapterCount)

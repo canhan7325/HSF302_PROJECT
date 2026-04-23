@@ -26,7 +26,7 @@ import java.util.UUID;
 public class PricingController {
 
     @Autowired
-    private SubcriptionsService subscriptionsService;
+    private SubscriptionsService subscriptionsService;
 
     @Autowired
     private MomoService momoService;

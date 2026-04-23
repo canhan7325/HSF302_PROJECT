@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Manga Management — Admin Panel</title>
+<title>Quản Lý Manga — Trang Quản Trị</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -47,11 +47,11 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
   <div id="confirm-backdrop"></div>
   <div id="confirm-box">
     <div id="confirm-icon">🗑️</div>
-    <div id="confirm-title">Delete Manga</div>
-    <div id="confirm-msg">This will permanently delete the manga and all its chapters. This cannot be undone.</div>
+    <div id="confirm-title">Xóa Manga</div>
+    <div id="confirm-msg">Thao tác này sẽ xóa vĩnh viễn manga và tất cả các chương. Không thể hoàn tác.</div>
     <div id="confirm-actions">
-      <button id="confirm-cancel" class="px-5 py-2 rounded-lg border border-outline-variant text-sm font-bold hover:bg-surface-container">Cancel</button>
-      <button id="confirm-ok" class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Delete</button>
+      <button id="confirm-cancel" class="px-5 py-2 rounded-lg border border-outline-variant text-sm font-bold hover:bg-surface-container">Hủy</button>
+      <button id="confirm-ok" class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Xóa</button>
     </div>
   </div>
 </div>
@@ -67,31 +67,26 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
 <th:block th:if="${view == 'list'}">
   <header class="mb-6 flex justify-between items-end">
     <div>
-      <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Content</p>
-      <h2 class="text-4xl font-extrabold tracking-tighter">Manga Management</h2>
+      <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Nội Dung</p>
+      <h2 class="text-4xl font-extrabold tracking-tighter">Quản Lý Manga</h2>
     </div>
     <a th:href="@{/admin/manga/new}" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-sm">
-      <span class="material-symbols-outlined" style="font-size:18px">add</span>Add Manga
+      <span class="material-symbols-outlined" style="font-size:18px">add</span>Thêm Manga
     </a>
   </header>
 
   <th:block th:replace="~{admin/fragments/admin :: flash(${successMessage}, ${errorMessage})}"></th:block>
-  <script th:if="${successMessage != null}" th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function() { showToast([[${successMessage}]], 'success'); });
-  </script>
-  <script th:if="${errorMessage != null}" th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function() { showToast([[${errorMessage}]], 'error'); });
-  </script>
+  <div id="page-messages" th:attr="data-success=${successMessage}, data-error=${errorMessage}"></div>
 
   <div class="flex items-center gap-3 mb-6">
     <form th:action="@{/admin/manga}" method="get" class="flex gap-2 max-w-md flex-1">
       <div class="relative flex-1">
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size:18px">search</span>
-        <input type="text" name="search" th:value="${search}" placeholder="Search title..."
+        <input type="text" name="search" th:value="${search}" placeholder="Tìm tiêu đề..."
                class="w-full pl-9 pr-3 py-2 text-sm border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-surface-container-lowest"/>
       </div>
-      <button type="submit" class="px-4 py-2 bg-primary text-on-primary rounded-lg text-sm font-bold hover:bg-primary-dim">Search</button>
-      <a th:if="${search != null and search != ''}" th:href="@{/admin/manga}" class="px-3 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container">Clear</a>
+      <button type="submit" class="px-4 py-2 bg-primary text-on-primary rounded-lg text-sm font-bold hover:bg-primary-dim">Tìm Kiếm</button>
+      <a th:if="${search != null and search != ''}" th:href="@{/admin/manga}" class="px-3 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container">Xóa Bộ Lọc</a>
     </form>
     <div class="flex gap-1 ml-auto">
       <button id="btn-grid" onclick="setView('grid')" class="p-2 rounded-lg bg-primary text-on-primary transition-colors" title="Grid">
@@ -108,9 +103,9 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
     <div th:each="comic : ${page.content}" class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col group">
       <div class="cover-box bg-surface-container relative">
         <th:block th:replace="~{admin/fragments/admin :: coverImg(${comic.coverImg}, ${comic.title})}"></th:block>
-        <span th:if="${comic.status.name() == 'ONGOING'}"   class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Ongoing</span>
-        <span th:if="${comic.status.name() == 'SCHEDULED'}" class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Scheduled</span>
-        <span th:if="${comic.status.name() == 'CANCELED'}"  class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Canceled</span>
+        <span th:if="${comic.status.name() == 'ONGOING'}"   class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Đang Ra</span>
+        <span th:if="${comic.status.name() == 'SCHEDULED'}" class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Sắp Ra</span>
+        <span th:if="${comic.status.name() == 'CANCELED'}"  class="absolute top-2 left-2 text-white px-2 py-0.5 rounded-full font-bold" style="font-size:10px">Đã Hủy</span>
       </div>
       <div class="p-3 flex flex-col gap-1 flex-1">
         <p class="text-sm font-bold leading-tight" th:text="${comic.title}"></p>
@@ -136,7 +131,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
         </div>
       </div>
     </div>
-    <p th:if="${page.content.empty}" class="text-on-surface-variant text-sm py-10">No manga found.</p>
+    <p th:if="${page.content.empty}" class="text-on-surface-variant text-sm py-10">Không tìm thấy manga.</p>
   </div>
 
   <!-- List view -->
@@ -145,13 +140,13 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
       <thead>
         <tr class="border-b border-surface-container-high">
           <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:48px"></th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Title</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Status</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Views</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Tiêu Đề</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Trạng Thái</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Lượt Xem</th>
           <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Ch.</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Uploader</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Created</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Actions</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Người Đăng</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Ngày Tạo</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Thao Tác</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-surface-container">
@@ -188,7 +183,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
           </td>
         </tr>
         <tr th:if="${page.content.empty}">
-          <td colspan="8" class="px-6 py-10 text-center text-on-surface-variant text-sm">No manga found.</td>
+          <td colspan="8" class="px-6 py-10 text-center text-on-surface-variant text-sm">Không tìm thấy manga.</td>
         </tr>
       </tbody>
     </table>
@@ -200,36 +195,42 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
 <!-- ═══════════════════════════════════════════════════════ FORM VIEW ════ -->
 <th:block th:if="${view == 'form'}">
   <header class="mb-8">
-    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Content</p>
-    <h2 class="text-4xl font-extrabold tracking-tighter text-on-surface" th:text="${editMode} ? 'Edit Manga' : 'Add Manga'">Manga Form</h2>
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Nội Dung</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter text-on-surface" th:text="${editMode} ? 'Chỉnh Sửa Manga' : 'Thêm Manga'">Manga Form</h2>
   </header>
 
   <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8 max-w-2xl">
     <!-- Create form -->
-    <form th:if="${editMode == null or !editMode}" th:action="@{/admin/manga/new}" method="post" class="space-y-6">
+    <form th:if="${editMode == null or !editMode}" th:action="@{/admin/manga/new}" method="post"
+          enctype="multipart/form-data" class="space-y-6">
       <div>
-        <label class="block text-sm font-bold mb-1" for="title">Title</label>
+        <label class="block text-sm font-bold mb-1" for="title">Tiêu Đề</label>
         <input id="title" type="text" name="title" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-1" for="description">Description</label>
+        <label class="block text-sm font-bold mb-1" for="description">Mô Tả</label>
         <textarea id="description" name="description" rows="4" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-1" for="coverImg">Cover Image URL</label>
-        <input id="coverImg" type="text" name="coverImg" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+        <label class="block text-sm font-bold mb-2">Ảnh Bìa</label>
+        <label for="coverFile" class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-sm font-bold cursor-pointer hover:bg-surface-container w-fit">
+          <span class="material-symbols-outlined" style="font-size:18px">upload</span>Choose file
+        </label>
+        <input id="coverFile" type="file" name="coverFile" accept="image/*" class="hidden"
+               onchange="document.getElementById('cover-file-name-new').textContent=this.files[0]?this.files[0].name:'Chưa chọn tệp'"/>
+        <p id="cover-file-name-new" class="text-xs text-on-surface-variant mt-2">Chưa chọn tệp</p>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-1" for="status">Status</label>
+        <label class="block text-sm font-bold mb-1" for="status">Trạng Thái</label>
         <select id="status" name="status" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-          <option value="">-- Select Status --</option>
+          <option value="">-- Chọn Trạng Thái --</option>
           <option value="SCHEDULED">SCHEDULED</option>
           <option value="ONGOING">ONGOING</option>
           <option value="CANCELED">CANCELED</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-2">Genres</label>
+        <label class="block text-sm font-bold mb-2">Thể Loại</label>
         <div class="grid grid-cols-2 gap-2">
           <label th:each="genre : ${genres}" class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="genreIds" th:value="${genre.genreId}" class="rounded border-outline-variant text-primary focus:ring-primary"/>
@@ -238,8 +239,8 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
         </div>
       </div>
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Create Manga</button>
-        <a th:href="@{/admin/manga}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Cancel</a>
+        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Tạo Manga</button>
+        <a th:href="@{/admin/manga}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Hủy</a>
       </div>
     </form>
 
@@ -247,36 +248,36 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
     <form th:if="${editMode}" th:action="@{/admin/manga/{id}/edit(id=${comicId})}" method="post"
           enctype="multipart/form-data" class="space-y-6">
       <div>
-        <label class="block text-sm font-bold mb-1" for="titleEdit">Title</label>
+        <label class="block text-sm font-bold mb-1" for="titleEdit">Tiêu Đề</label>
         <input id="titleEdit" type="text" name="title"
                th:value="${comicInfo != null ? comicInfo.title : ''}"
                class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-1" for="descriptionEdit">Description</label>
+        <label class="block text-sm font-bold mb-1" for="descriptionEdit">Mô Tả</label>
         <textarea id="descriptionEdit" name="description" rows="4" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-2">Cover Image</label>
+        <label class="block text-sm font-bold mb-2">Ảnh Bìa</label>
         <label for="coverFile" class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-sm font-bold cursor-pointer hover:bg-surface-container w-fit">
           <span class="material-symbols-outlined" style="font-size:18px">upload</span>Choose file
         </label>
         <input id="coverFile" type="file" name="coverFile" accept="image/*" class="hidden"
-               onchange="document.getElementById('cover-file-name').textContent=this.files[0]?this.files[0].name:'No file chosen'"/>
-        <p id="cover-file-name" class="text-xs text-on-surface-variant mt-2">No file chosen — leave empty to keep current</p>
+               onchange="document.getElementById('cover-file-name').textContent=this.files[0]?this.files[0].name:'Chưa chọn tệp'"/>
+        <p id="cover-file-name" class="text-xs text-on-surface-variant mt-2">Chưa chọn tệp — leave empty to keep current</p>
         <input type="hidden" name="coverImg" th:value="${comicInfo != null ? comicInfo.coverImg : ''}"/>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-1" for="statusEdit">Status</label>
+        <label class="block text-sm font-bold mb-1" for="statusEdit">Trạng Thái</label>
         <select id="statusEdit" name="status" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-          <option value="">-- Select Status --</option>
+          <option value="">-- Chọn Trạng Thái --</option>
           <option value="SCHEDULED" th:selected="${comicInfo != null and comicInfo.status != null and comicInfo.status.name() == 'SCHEDULED'}">SCHEDULED</option>
           <option value="ONGOING"   th:selected="${comicInfo != null and comicInfo.status != null and comicInfo.status.name() == 'ONGOING'}">ONGOING</option>
           <option value="CANCELED"  th:selected="${comicInfo != null and comicInfo.status != null and comicInfo.status.name() == 'CANCELED'}">CANCELED</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-2">Genres</label>
+        <label class="block text-sm font-bold mb-2">Thể Loại</label>
         <div class="grid grid-cols-2 gap-2">
           <label th:each="genre : ${genres}" class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="genreIds" th:value="${genre.genreId}"
@@ -287,8 +288,8 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
         </div>
       </div>
       <div class="flex gap-3 pt-2 items-center">
-        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Save Changes</button>
-        <a th:href="@{/admin/manga}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Cancel</a>
+        <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-lg font-bold">Lưu Thay Đổi</button>
+        <a th:href="@{/admin/manga}" class="px-4 py-2 rounded-lg border border-outline-variant font-bold text-sm hover:bg-surface-container">Hủy</a>
       </div>
     </form>
 
@@ -296,8 +297,8 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
     <div th:if="${editMode}" class="mt-4 pt-4 border-t border-outline-variant">
       <form th:action="@{/admin/manga/{id}/hard-delete(id=${comicId})}" method="post" class="delete-form">
         <button type="button" class="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-sm font-bold delete-btn"
-                data-title="Delete Manga" data-msg="This will permanently delete the manga and all its chapters. This cannot be undone.">
-          <span class="material-symbols-outlined" style="font-size:18px">delete</span>Delete Manga
+                data-title="Xóa Manga" data-msg="Thao tác này sẽ xóa vĩnh viễn manga và tất cả các chương. Không thể hoàn tác.">
+          <span class="material-symbols-outlined" style="font-size:18px">delete</span>Xóa Manga
         </button>
       </form>
     </div>
@@ -321,10 +322,10 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
       <thead>
         <tr class="border-b border-surface-container-high">
           <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:80px">Ch #</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Title</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:60px">Pages</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:100px">Created</th>
-          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:120px">Actions</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Tiêu Đề</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:60px">Trang</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:100px">Ngày Tạo</th>
+          <th class="px-4 py-3 text-on-surface-variant" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;width:120px">Thao Tác</th>
         </tr>
         <!-- Add chapter row at top -->
         <tr class="border-b border-surface-container bg-surface-container-low">
@@ -333,7 +334,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
                   class="flex items-center gap-2">
               <input type="number" name="chapterNumber" placeholder="Ch #"
                      class="border border-outline-variant rounded-lg px-2 py-1.5 text-sm w-20 focus:outline-none focus:ring-2 focus:ring-primary"/>
-              <input type="text" name="title" placeholder="Chapter title"
+              <input type="text" name="title" placeholder="Tên chương"
                      class="border border-outline-variant rounded-lg px-2 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-primary"/>
               <button type="submit" class="bg-primary hover:bg-primary-dim text-on-primary px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1">
                 <span class="material-symbols-outlined" style="font-size:16px">add</span>Add
@@ -368,7 +369,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
                 </a>
                 <form th:action="@{/admin/manga/{id}/chapters/{chId}/delete(id=${comic.comicId},chId=${ch.chapterId})}"
                       method="post" class="delete-form">
-                  <button type="button" title="Delete" class="p-1 rounded hover:bg-red-50 text-red-500 transition-colors delete-btn" data-title="Delete Chapter" data-msg="This will permanently delete the chapter and all its pages.">
+                  <button type="button" title="Delete" class="p-1 rounded hover:bg-red-50 text-red-500 transition-colors delete-btn" data-title="Xóa Chương" data-msg="Thao tác này sẽ xóa vĩnh viễn chương và tất cả các trang.">
                     <span class="material-symbols-outlined" style="font-size:16px">delete</span>
                   </button>
                 </form>
@@ -387,7 +388,10 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
                     <img th:src="${p.imgPath}" th:alt="'Page ' + ${p.pageNumber}"
                          class="page-zoom-img"
                          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in;"
-                         onerror="this.style.display='none'"/>
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+                    <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:#eae7e7;">
+                      <span class="material-symbols-outlined" style="font-size:20px;color:#afadac;">broken_image</span>
+                    </div>
                   </div>
                   <div class="absolute bottom-0 left-0 right-0 text-white font-bold text-center"
                        style="font-size:8px;background:rgba(0,0,0,.5);padding:1px 0;"
@@ -397,7 +401,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
                         method="post" class="delete-form">
                     <button type="button"
                             class="delete-btn absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                            data-title="Delete Page" data-msg="This will permanently delete this page.">
+                            data-title="Xóa Trang" data-msg="Thao tác này sẽ xóa vĩnh viễn trang này.">
                       <span class="material-symbols-outlined" style="font-size:10px;line-height:1">close</span>
                     </button>
                   </form>
@@ -408,7 +412,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
                   <label class="flex flex-col items-center justify-center rounded border-2 border-dashed border-outline-variant cursor-pointer hover:bg-surface-container transition-colors text-on-surface-variant"
                          style="width:56px;height:84px;">
                     <span class="material-symbols-outlined" style="font-size:20px">add</span>
-                    <span style="font-size:9px;font-weight:700;">Add</span>
+                    <span style="font-size:9px;font-weight:700;">Thêm</span>
                     <input type="file" name="file" accept="image/*" multiple class="hidden" onchange="this.form.submit()"/>
                   </label>
                 </form>
@@ -418,7 +422,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
           </tr>
         </th:block>
         <tr th:if="${chapters.empty}">
-          <td colspan="5" class="px-4 py-10 text-center text-on-surface-variant text-sm">No chapters yet. Add one above.</td>
+          <td colspan="5" class="px-4 py-10 text-center text-on-surface-variant text-sm">Chưa có chương. Thêm ở trên.</td>
         </tr>
       </tbody>
     </table>
@@ -431,8 +435,8 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
     <a th:href="@{/admin/manga/{id}/chapters(id=${comic.comicId})}" class="text-sm text-primary font-bold hover:underline flex items-center gap-1 mb-3">
       <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>Back to Chapters
     </a>
-    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Pages</p>
-    <h2 class="text-4xl font-extrabold tracking-tighter" th:text="${comic.title} + ' — Ch.' + ${chapter.chapterNumber} + ': ' + ${chapter.title}">Pages</h2>
+    <p class="text-sm font-bold text-primary tracking-widest uppercase mb-1">Trang</p>
+    <h2 class="text-4xl font-extrabold tracking-tighter" th:text="${comic.title} + ' — Ch.' + ${chapter.chapterNumber} + ': ' + ${chapter.title}">Trang</h2>
   </header>
 
   <div th:if="${successMessage}" class="mb-4 px-4 py-3 bg-green-100 text-green-800 rounded-lg text-sm font-medium" th:text="${successMessage}"></div>
@@ -445,7 +449,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
       <span class="material-symbols-outlined" style="font-size:18px">add_photo_alternate</span>Add Pages
       <input type="file" name="file" accept="image/*" multiple class="hidden" onchange="this.form.submit()"/>
     </label>
-    <span class="text-xs text-on-surface-variant">Select one or more images to upload</span>
+    <span class="text-xs text-on-surface-variant">Chọn một hoặc nhiều ảnh để tải lên</span>
   </form>
 
   <!-- Page grid -->
@@ -455,7 +459,10 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
         <img th:src="${p.imgPath}" th:alt="'Page ' + ${p.pageNumber}"
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in;"
              class="page-zoom-img"
-             onerror="this.style.display='none'"/>
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:#eae7e7;">
+          <span class="material-symbols-outlined" style="font-size:24px;color:#afadac;">broken_image</span>
+        </div>
       </div>
       <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white font-bold px-1 py-0.5 text-center" style="font-size:10px"
            th:text="${p.pageNumber}"></div>
@@ -464,7 +471,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
             method="post" class="delete-form">
         <button type="button" title="Delete page"
                 class="delete-btn absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
-                data-title="Delete Page" data-msg="This will permanently delete this page.">
+                data-title="Xóa Trang" data-msg="Thao tác này sẽ xóa vĩnh viễn trang này.">
           <span class="material-symbols-outlined" style="font-size:12px;line-height:1">close</span>
         </button>
       </form>
@@ -521,6 +528,13 @@ function showToast(message, type) {
 
 // ── Delete buttons ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
+  var msgs = document.getElementById('page-messages');
+  if (msgs) {
+    var s = msgs.dataset.success;
+    var e = msgs.dataset.error;
+    if (s && s !== 'null') showToast(s, 'success');
+    if (e && e !== 'null') showToast(e, 'error');
+  }
   document.querySelectorAll('.delete-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var form  = btn.closest('.delete-form');

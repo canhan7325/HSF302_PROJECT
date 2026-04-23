@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ComicAdminDTO {
     private Integer comicId;
-
     @NotBlank
     private String title;
 
