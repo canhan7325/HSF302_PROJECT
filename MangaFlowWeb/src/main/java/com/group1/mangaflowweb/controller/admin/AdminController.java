@@ -9,11 +9,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -59,14 +66,102 @@ public class AdminController {
     // ── Revenue page ──────────────────────────────────────────────────────────
 
     @GetMapping("/revenue")
-    public String revenuePage(Model model) {
+    public String revenuePage(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String subscription,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            Model model) {
+        var allTransactions = transactionService.getAllTransactions();
+        LocalDate from = parseDate(fromDate);
+        LocalDate to = parseDate(toDate);
+        String normalizedSearch = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
+        String normalizedStatus = status == null ? "" : status.trim();
+        String normalizedSubscription = subscription == null ? "" : subscription.trim().toLowerCase(Locale.ROOT);
+
+        var filteredTransactions = allTransactions.stream()
+                .filter(t -> t.getPrice() != null && t.getPrice().compareTo(java.math.BigDecimal.ZERO) > 0)
+                .filter(t -> {
+                    if (normalizedSearch.isBlank()) {
+                        return true;
+                    }
+                    String transactionId = t.getTransactionId() == null ? "" : String.valueOf(t.getTransactionId());
+                    String username = t.getUser() != null && t.getUser().getUsername() != null
+                            ? t.getUser().getUsername().toLowerCase(Locale.ROOT) : "";
+                    String email = t.getUser() != null && t.getUser().getEmail() != null
+                            ? t.getUser().getEmail().toLowerCase(Locale.ROOT) : "";
+                    return transactionId.contains(normalizedSearch)
+                            || username.contains(normalizedSearch)
+                            || email.contains(normalizedSearch);
+                })
+                .filter(t -> normalizedStatus.isBlank()
+                        || (t.getStatus() != null && t.getStatus().name().equalsIgnoreCase(normalizedStatus)))
+                .filter(t -> normalizedSubscription.isBlank()
+                        || (t.getSubscription() != null
+                        && t.getSubscription().getName() != null
+                        && t.getSubscription().getName().toLowerCase(Locale.ROOT).contains(normalizedSubscription)))
+                .filter(t -> {
+                    if (from == null || t.getCreatedAt() == null) {
+                        return true;
+                    }
+                    return !t.getCreatedAt().toLocalDate().isBefore(from);
+                })
+                .filter(t -> {
+                    if (to == null || t.getCreatedAt() == null) {
+                        return true;
+                    }
+                    return !t.getCreatedAt().toLocalDate().isAfter(to);
+                })
+                .sorted(Comparator.comparing(
+                        transaction -> Objects.requireNonNullElse(transaction.getCreatedAt(), java.time.LocalDateTime.MIN),
+                        Comparator.reverseOrder()))
+                .toList();
+
+        Set<String> subscriptionNames = allTransactions.stream()
+                .map(t -> t.getSubscription() != null ? t.getSubscription().getName() : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(java.util.TreeSet::new));
+
         model.addAttribute("totalRevenue",         transactionService.getTotalRevenue());
         model.addAttribute("totalTransactions",    transactionService.getTotalTransactionCount());
         model.addAttribute("activeTransactions",   transactionService.getActiveTransactions());
         model.addAttribute("revenueBySubscription",transactionService.getRevenueBySubscription());
-        model.addAttribute("transactions",         transactionService.getAllTransactions());
+        model.addAttribute("transactions",         filteredTransactions);
+        model.addAttribute("subscriptionNames",    subscriptionNames);
+        model.addAttribute("search",               search);
+        model.addAttribute("status",               status);
+        model.addAttribute("subscription",         subscription);
+        model.addAttribute("fromDate",             fromDate);
+        model.addAttribute("toDate",               toDate);
         model.addAttribute("username",             SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/revenue";
+    }
+
+    @GetMapping("/revenue/transactions/{id}")
+    public String revenueTransactionDetail(@PathVariable Integer id, Model model) {
+        var transaction = transactionService.getAllTransactions().stream()
+                .filter(t -> t.getTransactionId() != null && t.getTransactionId().equals(id))
+                .findFirst()
+                .orElse(null);
+        if (transaction == null) {
+            return "redirect:/admin/revenue";
+        }
+
+        model.addAttribute("transaction", transaction);
+        model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
+        return "admin/revenue-transaction-detail";
+    }
+
+    private LocalDate parseDate(String input) {
+        try {
+            if (input == null || input.isBlank()) {
+                return null;
+            }
+            return LocalDate.parse(input);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // ── View tracking page ────────────────────────────────────────────────────

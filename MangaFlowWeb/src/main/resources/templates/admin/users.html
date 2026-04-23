@@ -94,7 +94,7 @@
             </div>
           </td>
         </tr>
-        <tr th:if="${page.content.empty}">
+        <tr th:if="${#lists.isEmpty(page.content)}">
           <td colspan="6" class="px-6 py-10 text-center text-on-surface-variant text-sm">Không tìm thấy người dùng.</td>
         </tr>
       </tbody>
@@ -112,28 +112,35 @@
   <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8 max-w-2xl">
     <div th:if="${duplicateError}" class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium" th:text="${duplicateError}"></div>
 
-    <!-- Create -->
-    <form th:if="${editMode == null or !editMode}" th:action="@{/admin/users/new}" method="post" class="space-y-6">
-      <div>
-        <label class="block text-sm font-bold mb-1">Tên Đăng Nhập</label>
-        <input type="text" name="username" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+     <!-- Create -->
+     <form th:if="${editMode == null or !editMode}" th:action="@{/admin/users/new}" method="post" th:object="${user}" class="space-y-6">
+      <div th:if="${#fields.hasGlobalErrors()}" class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium">
+        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
       </div>
-      <div>
-        <label class="block text-sm font-bold mb-1">Email</label>
-        <input type="email" name="email" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
-      </div>
+       <div>
+         <label class="block text-sm font-bold mb-1">Tên Đăng Nhập</label>
+         <input type="text" th:field="*{username}" th:classappend="${#fields.hasErrors('username') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+         <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-xs text-red-600 mt-1"></p>
+       </div>
+       <div>
+         <label class="block text-sm font-bold mb-1">Email</label>
+         <input type="email" th:field="*{email}" th:classappend="${#fields.hasErrors('email') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+         <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-xs text-red-600 mt-1"></p>
+       </div>
       <div>
         <label class="block text-sm font-bold mb-1">Vai Trò</label>
-        <select name="role" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+        <select th:field="*{role}" th:classappend="${#fields.hasErrors('role') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="">-- Chọn Vai Trò --</option>
           <option value="READER">READER</option>
           <option value="AUTHOR">AUTHOR</option>
           <option value="ADMIN">ADMIN</option>
         </select>
+        <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="text-xs text-red-600 mt-1"></p>
       </div>
       <div>
         <label class="block text-sm font-bold mb-1">Mật Khẩu</label>
-        <input type="password" name="password" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+        <input type="password" th:field="*{password}" th:classappend="${#fields.hasErrors('password') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+        <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-xs text-red-600 mt-1"></p>
         <p class="text-xs text-on-surface-variant mt-1">Bắt buộc khi tạo người dùng mới.</p>
       </div>
       <div class="flex gap-3 pt-2">
@@ -142,28 +149,35 @@
       </div>
     </form>
 
-    <!-- Edit -->
-    <form th:if="${editMode}" th:action="@{/admin/users/{id}/edit(id=${userId})}" method="post" class="space-y-6">
-      <div>
-        <label class="block text-sm font-bold mb-1">Tên Đăng Nhập</label>
-        <input type="text" name="username" th:value="${userInfo != null ? userInfo.username : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+     <!-- Edit -->
+     <form th:if="${editMode}" th:action="@{/admin/users/{id}/edit(id=${userId})}" method="post" th:object="${user}" class="space-y-6">
+      <div th:if="${#fields.hasGlobalErrors()}" class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium">
+        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
       </div>
-      <div>
-        <label class="block text-sm font-bold mb-1">Email</label>
-        <input type="email" name="email" th:value="${userInfo != null ? userInfo.email : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
-      </div>
+       <div>
+         <label class="block text-sm font-bold mb-1">Tên Đăng Nhập</label>
+         <input type="text" th:field="*{username}" th:classappend="${#fields.hasErrors('username') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+         <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-xs text-red-600 mt-1"></p>
+       </div>
+       <div>
+         <label class="block text-sm font-bold mb-1">Email</label>
+         <input type="email" th:field="*{email}" th:classappend="${#fields.hasErrors('email') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+         <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-xs text-red-600 mt-1"></p>
+       </div>
       <div>
         <label class="block text-sm font-bold mb-1">Vai Trò</label>
-        <select name="role" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+        <select th:field="*{role}" th:classappend="${#fields.hasErrors('role') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="">-- Chọn Vai Trò --</option>
-          <option value="READER" th:selected="${userInfo != null and userInfo.role == 'READER'}">READER</option>
-          <option value="AUTHOR" th:selected="${userInfo != null and userInfo.role == 'AUTHOR'}">AUTHOR</option>
-          <option value="ADMIN"  th:selected="${userInfo != null and userInfo.role == 'ADMIN'}">ADMIN</option>
+          <option value="READER">READER</option>
+          <option value="AUTHOR">AUTHOR</option>
+          <option value="ADMIN">ADMIN</option>
         </select>
+        <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="text-xs text-red-600 mt-1"></p>
       </div>
       <div>
         <label class="block text-sm font-bold mb-1">Mật Khẩu Mới</label>
-        <input type="password" name="password" autocomplete="new-password" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+        <input type="password" th:field="*{password}" autocomplete="new-password" th:classappend="${#fields.hasErrors('password') ? 'border-red-500' : ''}" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"/>
+        <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-xs text-red-600 mt-1"></p>
         <p class="text-xs text-on-surface-variant mt-1">Để trống để giữ mật khẩu hiện tại.</p>
       </div>
       <div class="flex gap-3 pt-2">

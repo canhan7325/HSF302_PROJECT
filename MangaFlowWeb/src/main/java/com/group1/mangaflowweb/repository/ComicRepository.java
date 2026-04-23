@@ -25,6 +25,7 @@ public interface ComicRepository extends JpaRepository<Comics, Integer> {
 
 	List<Comics> findByTitleContainingIgnoreCase(String title);
 
+	Optional<Comics> findByTitleIgnoreCase(String title);
 
 	@Query("SELECT DISTINCT c FROM Comics c " +
 			"LEFT JOIN FETCH c.user " +

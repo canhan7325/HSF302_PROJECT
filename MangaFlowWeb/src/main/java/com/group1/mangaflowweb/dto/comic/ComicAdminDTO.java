@@ -25,6 +25,7 @@ public class ComicAdminDTO {
     private ComicEnum status;
     private Integer viewCount;
     private int chapterCount;
+    private Integer uploaderId;
     private String uploaderUsername;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

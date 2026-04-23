@@ -51,8 +51,8 @@ public class GlobalControllerAdvice {
             // Get user's current membership price
             Long membershipPrice = transactionsService.getCurrentMembershipPrice(user.getUserId());
 
-            // Get membership label from price
-            if (membershipPrice > 0) {
+            // Get membership label from price (null-safe to avoid NPE)
+            if (membershipPrice != null && membershipPrice > 0) {
                 String membership = transactionsService.getMembershipFromPrice(new java.math.BigDecimal(membershipPrice));
                 logger.info("User membership: {}", membership);
                 return membership;
