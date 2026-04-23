@@ -14,8 +14,8 @@
                 <span class="material-symbols-outlined">person</span>
             </div>
             <div class="mf-author-profile__meta">
-                <div class="mf-author-profile__title">Author Studio</div>
-                <div class="mf-author-profile__subtitle">Creator Workspace</div>
+                <div class="mf-author-profile__title">Trang đăng truyện</div>
+                <div class="mf-author-profile__subtitle">Không gian sáng tạo</div>
             </div>
         </div>
 
@@ -27,18 +27,18 @@
                 <span>Dashboard</span>
             </a>
 
-            <a th:href="@{/upload-comic}"
+            <a th:href="@{/author/upload-comic}"
                class="mf-author-nav__item"
                th:classappend="${active} == 'upload-comic' ? ' active' : ''">
                 <span class="material-symbols-outlined">library_add</span>
-                <span>Upload Comic</span>
+                <span>Đăng truyện</span>
             </a>
 
             <a th:href="@{/author/upload-chapter}"
                class="mf-author-nav__item"
                th:classappend="${active} == 'upload-chapter' ? ' active' : ''">
                 <span class="material-symbols-outlined">upload</span>
-                <span>Upload Chapter</span>
+                <span>Đăng chương</span>
             </a>
 
             <a th:href="@{/author/analytics}"
@@ -56,11 +56,6 @@
             </a>
         </nav>
 
-        <div class="mt-auto">
-            <a th:href="@{/comic-create}" class="mf-author-cta">
-                New Series
-            </a>
-        </div>
     </div>
 </aside>
 

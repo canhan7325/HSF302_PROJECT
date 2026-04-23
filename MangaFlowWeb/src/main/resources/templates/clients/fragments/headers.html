@@ -33,7 +33,7 @@
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item"><a th:href="@{/}" class="nav-link active">Trang chủ</a></li>
                     <li class="nav-item" sec:authorize="hasRole('AUTHOR')">
-                        <a th:href="@{/author/dashboard}" class="nav-link">Author Studio</a>
+                        <a th:href="@{/author/dashboard}" class="nav-link">Đăng truyện</a>
                     </li>
                     <li class="nav-item"><a th:href="@{/bookmarks}" class="nav-link">Thư viện</a></li>
                     <li class="nav-item"><a th:href="@{/reading-histories}" class="nav-link">Lịch sử đọc</a></li>
