@@ -24,4 +24,7 @@ public interface UserService {
 
     void restoreUser(Integer id);
     UserResponse findByUsername(String username);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
+    void registerUser(com.group1.mangaflowweb.dto.request.RegisterRequest request);
 }

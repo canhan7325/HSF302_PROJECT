@@ -28,7 +28,6 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
     private final ChapterRepository chapterRepository;
     private final ComicRepository comicRepository;
 
-
     @Override
     public ReadingHistoryResponse readingHistory(ReadingHistoryRequest readingHistoryRequest) {
         Users user = userRepository.findById(readingHistoryRequest.getUserId())
@@ -115,7 +114,8 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
     @Override
     @Transactional
     public void incrementComicViewCount(Integer comicId) {
-        if (comicId == null) return;
+        if (comicId == null)
+            return;
 
         Comics comic = comicRepository.findById(comicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comic not found"));
@@ -123,5 +123,10 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
         Integer current = comic.getViewCount() == null ? 0 : comic.getViewCount();
         comic.setViewCount(current + 1);
         comicRepository.save(comic);
+    }
+
+    @Override
+    public java.util.List<ReadingHistories> findByUserIdOrderByReadAtDesc(Integer userId) {
+        return readingHistoryRepository.findByUser_UserIdOrderByReadAtDesc(userId);
     }
 }

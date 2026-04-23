@@ -1,7 +1,7 @@
 package com.group1.mangaflowweb.controller;
 
 import com.group1.mangaflowweb.entity.ReadingHistories;
-import com.group1.mangaflowweb.repository.ReadingHistoryRepository;
+import com.group1.mangaflowweb.service.ReadingHistoryService;
 import com.group1.mangaflowweb.service.PageService;
 import com.group1.mangaflowweb.service.UserContextService;
 import com.group1.mangaflowweb.util.ImageUrlResolver;
@@ -25,7 +25,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ReadingHistoryController {
 
-    private final ReadingHistoryRepository readingHistoryRepository;
+    private final ReadingHistoryService readingHistoryService;
     private final PageService pageService;
     private final UserContextService userContextService;
     private final ImageUrlResolver imageUrlResolver;
@@ -40,7 +40,7 @@ public class ReadingHistoryController {
             return "reading-histories";
         }
 
-        List<ReadingHistories> histories = readingHistoryRepository.findByUser_UserIdOrderByReadAtDesc(currentUserId);
+        List<ReadingHistories> histories = readingHistoryService.findByUserIdOrderByReadAtDesc(currentUserId);
         List<ReadingHistoryItemView> views = histories.stream()
                 .filter(Objects::nonNull)
                 .filter(h -> h.getChapter() != null && h.getChapter().getComic() != null)

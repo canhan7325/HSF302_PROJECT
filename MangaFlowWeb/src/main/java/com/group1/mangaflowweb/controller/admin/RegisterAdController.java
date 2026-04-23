@@ -1,8 +1,7 @@
 package com.group1.mangaflowweb.controller.admin;
 
 import com.group1.mangaflowweb.dto.request.RegisterRequest;
-import com.group1.mangaflowweb.entity.Users;
-import com.group1.mangaflowweb.repository.UserRepository;
+import com.group1.mangaflowweb.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,12 +15,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class RegisterAdController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
-    public RegisterAdController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public RegisterAdController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/register")
@@ -46,26 +43,18 @@ public class RegisterAdController {
         }
 
         // Kiểm tra tên đăng nhập đã tồn tại
-        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+        if (userService.existsByUsername(registerRequest.getUsername())) {
             bindingResult.rejectValue("username", "error.username", "Tên đăng nhập đã tồn tại!");
             return "register";
         }
 
         // Kiểm tra email đã tồn tại
-        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+        if (userService.existsByEmail(registerRequest.getEmail())) {
             bindingResult.rejectValue("email", "error.email", "Email đã được đăng ký!");
             return "register";
         }
 
-        Users newUser = Users.builder()
-                .email(registerRequest.getEmail())
-                .username(registerRequest.getUsername())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .role("READER")
-                .enabled(true)
-                .build();
-
-        userRepository.save(newUser);
+        userService.registerUser(registerRequest);
 
         redirectAttributes.addFlashAttribute("message", "Đăng ký thành công! Vui lòng đăng nhập.");
         return "redirect:/login";
