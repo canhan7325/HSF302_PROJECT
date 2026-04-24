@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthFilter,
-                         CustomAccessDeniedHandler customAccessDeniedHandler) {
+            CustomAccessDeniedHandler customAccessDeniedHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthFilter = jwtAuthFilter;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
@@ -39,41 +39,37 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/", "/index", "/login", "/register", "/search-comic", "/pricing/**",
-                    "/comic/**", "/chapters/**", "/api/comics/search", "/api/auth/**",
-                    "/css/**", "/js/**", "/images/**", "/fonts/**", "/uploads/**", 
-                    "/favicon.ico", "/error", "/*.css", "/*.js"
-                ).permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/reader/**", "/chapters/*/read").hasAnyRole("READER", "USER", "ADMIN")
-                .requestMatchers("/author/**").hasAnyRole("AUTHOR")
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(false)
-                .sessionRegistry(sessionRegistry())
-                .expiredUrl("/login?expired=true")
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .formLogin(form -> form.disable())
-            .exceptionHandling(exception -> exception
-                .accessDeniedHandler(customAccessDeniedHandler)
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.sendRedirect("/login");
-                })
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-            );
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/index", "/login", "/register", "/search-comic", "/pricing/**",
+                                "/comic/**", "/chapters/**", "/api/comics/search", "/api/auth/**",
+                                "/css/**", "/js/**", "/images/**", "/fonts/**", "/uploads/**",
+                                "/favicon.ico", "/error", "/*.css", "/*.js")
+                        .permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/reader/**", "/chapters/*/read").hasAnyRole("READER", "USER", "ADMIN")
+                        .requestMatchers("/author/**").hasAnyRole("AUTHOR")
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                        .sessionRegistry(sessionRegistry())
+                        .expiredUrl("/login?expired=true"))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin(form -> form.disable())
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/login");
+                        }))
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID"));
 
         return http.build();
     }

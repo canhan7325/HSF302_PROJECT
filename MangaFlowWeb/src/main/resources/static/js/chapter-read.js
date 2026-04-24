@@ -404,13 +404,18 @@
         document.addEventListener('keydown', function(e) {
             // Chặn F12, Ctrl+Shift+I/C/J, Ctrl+U, Ctrl+P, Ctrl+S, PrintScreen
             const blockedKeys = [123, 44]; // F12, PrintScreen
-            if (blockedKeys.includes(e.keyCode) ||
+            if (blockedKeys.includes(e.keyCode) || e.key === 'PrintScreen' ||
                 (e.ctrlKey && (e.shiftKey && [73, 67, 74].includes(e.keyCode))) || // Ctrl+Shift+I/C/J
                 (e.ctrlKey && [85, 80, 83].includes(e.keyCode)) || // Ctrl+U/P/S
                 ((e.metaKey || e.osKey) && e.shiftKey && e.keyCode === 83) // Win+Shift+S
             ) {
                 e.preventDefault();
                 showSecurityOverlayImmediate();
+                
+                // Cố gắng xóa clipboard ngay lập tức
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText("Nội dung được bảo vệ - MangaFlow");
+                }
                 return false;
             }
         });
@@ -473,6 +478,14 @@
             }
         });
         window.addEventListener('keyup', e => {
+            // Xử lý riêng cho PrtSc ở sự kiện keyup vì một số trình duyệt kích hoạt ở đây
+            if (e.keyCode === 44 || e.key === 'PrintScreen') {
+                showSecurityOverlayImmediate();
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText("Nội dung được bảo vệ - MangaFlow");
+                }
+                return;
+            }
             if (!e.shiftKey && !e.metaKey && !e.altKey && !e.ctrlKey) {
                 hideSecurityOverlayWithDelay();
             }
