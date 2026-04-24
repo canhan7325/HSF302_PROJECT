@@ -2,7 +2,6 @@ package com.group1.mangaflowweb.controller.clients;
 
 import com.group1.mangaflowweb.dto.transaction.TransactionsDTO;
 import com.group1.mangaflowweb.dto.user.UserDTO;
-import com.group1.mangaflowweb.service.SubscriptionsService;
 import com.group1.mangaflowweb.service.TransactionsService;
 import com.group1.mangaflowweb.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -14,6 +13,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -28,6 +30,9 @@ public class PaymentCallbackController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.group1.mangaflowweb.config.ZaloPayConfig zaloPayConfig;
+
     /**
      * ZaloPay callback - user is redirected here after payment
      */
@@ -36,6 +41,11 @@ public class PaymentCallbackController {
             @RequestParam(value = "status", required = false, defaultValue = "0") String status,
             @RequestParam(value = "apptransid", required = false, defaultValue = "") String appTransId,
             @RequestParam(value = "amount", required = false, defaultValue = "0") String amount,
+            @RequestParam(value = "appid", required = false, defaultValue = "") String appId,
+            @RequestParam(value = "checksum", required = false, defaultValue = "") String checksum,
+            @RequestParam(value = "pmcid", required = false, defaultValue = "") String pmcid,
+            @RequestParam(value = "bankcode", required = false, defaultValue = "") String bankcode,
+            @RequestParam(value = "discountamount", required = false, defaultValue = "0") String discountAmountParam,
             HttpSession session,
             Model model) {
 
@@ -53,15 +63,39 @@ public class PaymentCallbackController {
         }
 
         if ("1".equals(status)) {
+            // Verify checksum from ZaloPay
+            try {
+                String data = appId + "|" + appTransId + "|" + pmcid + "|" + bankcode + "|" + 
+                             amount + "|" + discountAmountParam + "|" + status;
+                String calculatedMac = generateHmacSHA256(data, zaloPayConfig.getKey2());
+                
+                if (!calculatedMac.equalsIgnoreCase(checksum)) {
+                    System.out.println("Checksum mismatch! Possible tampering.");
+                    model.addAttribute("errorMessage", "XÃ¡c thá»±c giao dá»‹ch tháº¥t báº¡i (Checksum mismatch).");
+                    return "clients/subscriptions/payment-failed";
+                }
+            } catch (Exception e) {
+                System.out.println("Error verifying checksum: " + e.getMessage());
+            }
+
             try {
                 Integer subscriptionId = parseSubscriptionId(appTransId);
-                Integer userId = getCurrentUserId();
+                Integer transactionUserId = parseUserIdFromTransId(appTransId);
+                Integer currentUserId = getCurrentUserId();
 
                 System.out.println("Parsed SubscriptionId: " + subscriptionId);
-                System.out.println("Current UserId: " + userId);
+                System.out.println("Transaction UserId: " + transactionUserId);
+                System.out.println("Current UserId: " + currentUserId);
+
+                // Security check: Verify if the payment belongs to the current user
+                if (transactionUserId != 0 && !transactionUserId.equals(currentUserId)) {
+                    System.out.println("Security Violation: Transaction user does not match current user!");
+                    model.addAttribute("errorMessage", "Giao dịch này không thuộc về tài khoản của bạn.");
+                    return "clients/subscriptions/payment-failed";
+                }
 
                 // Create transaction with current user ID
-                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId,
+                TransactionsDTO dto = transactionsService.createTransaction(currentUserId, subscriptionId,
                         new BigDecimal(amount));
 
                 // Get discount info from session
@@ -96,7 +130,7 @@ public class PaymentCallbackController {
             } catch (Exception e) {
                 System.out.println("Error processing transaction: " + e.getMessage());
                 e.printStackTrace();
-                model.addAttribute("errorMessage", "Lá»—i xá»­ lÃ½ thanh toÃ¡n: " + e.getMessage());
+                model.addAttribute("errorMessage", "Lỗi xử lý thanh toán: " + e.getMessage());
             }
         } else {
             System.out.println("Status is not '1', payment failed or cancelled");
@@ -112,7 +146,7 @@ public class PaymentCallbackController {
             }
         }
 
-        model.addAttribute("errorMessage", "Giao dá»‹ch ZaloPay bá»‹ há»§y hoáº·c khÃ´ng thÃ nh cÃ´ng.");
+        model.addAttribute("errorMessage", "Giao dịch ZaloPay bị hủy hoặc không thành công.");
         return "clients/subscriptions/payment-failed";
     }
 
@@ -136,9 +170,16 @@ public class PaymentCallbackController {
         if ("0".equals(resultCode)) {
             try {
                 Integer subscriptionId = parseSubscriptionId(orderId);
-                Integer userId = getCurrentUserId();
+                Integer transactionUserId = parseUserIdFromTransId(orderId);
+                Integer currentUserId = getCurrentUserId();
 
-                TransactionsDTO dto = transactionsService.createTransaction(userId, subscriptionId,
+                // Security check: Verify if the payment belongs to the current user
+                if (transactionUserId != 0 && !transactionUserId.equals(currentUserId)) {
+                    model.addAttribute("errorMessage", "Giao dịch này không thuộc về tài khoản của bạn.");
+                    return "clients/subscriptions/payment-failed";
+                }
+
+                TransactionsDTO dto = transactionsService.createTransaction(currentUserId, subscriptionId,
                         new BigDecimal(amount));
 
                 // Get discount info from session
@@ -168,7 +209,7 @@ public class PaymentCallbackController {
                     return "clients/subscriptions/payment-success";
                 }
             } catch (Exception e) {
-                model.addAttribute("errorMessage", "Lá»—i xá»­ lÃ½ thanh toÃ¡n: " + e.getMessage());
+                model.addAttribute("errorMessage", "Lỗi xử lý thanh toán: " + e.getMessage());
             }
         } else {
             try {
@@ -184,7 +225,7 @@ public class PaymentCallbackController {
         }
 
         model.addAttribute("errorMessage",
-                "Giao dá»‹ch MoMo bá»‹ há»§y hoáº·c khÃ´ng thÃ nh cÃ´ng. MÃ£ lá»—i: " + resultCode);
+                "Giao dịch MoMo bị hủy hoặc không thành công. Mã lỗi: " + resultCode);
         return "clients/subscriptions/payment-failed";
     }
 
@@ -227,7 +268,7 @@ public class PaymentCallbackController {
 
             return "clients/subscriptions/payment-success";
         }
-        model.addAttribute("errorMessage", "KhÃ´ng tÃ¬m tháº¥y thÃ´ng tin giao dá»‹ch.");
+        model.addAttribute("errorMessage", "Không tìm thấy thông tin giao dịch.");
         return "clients/subscriptions/payment-failed";
     }
 
@@ -249,32 +290,39 @@ public class PaymentCallbackController {
 
     /**
      * Parse subscriptionId from apptransid/orderId
-     * Format from ZaloPay: yyMMdd_subscriptionId_uuid
-     * Format from MoMo: subscriptionId_uuid
+     * Format from ZaloPay: yyMMdd_subscriptionId_userId_uuid
+     * Format from MoMo: subscriptionId_userId_uuid
      */
     private Integer parseSubscriptionId(String transId) {
         try {
             String[] parts = transId.split("_");
-            // ZaloPay format: yyMMdd_subscriptionId_uuid (skip first part which is date)
-            // MoMo format: subscriptionId_uuid
-            for (int i = 0; i < parts.length; i++) {
-                try {
-                    Integer id = Integer.parseInt(parts[i]);
-                    // For ZaloPay, first part is date (6 digits), skip it
-                    // Second part should be subscriptionId
-                    if (i == 0 && parts.length > 1 && parts[i].length() == 6) {
-                        // This looks like a date (yyMMdd), skip to next
-                        continue;
-                    }
-                    return id;
-                } catch (NumberFormatException ignored) {
-                    // ...ignored
-                }
+            // yyMMdd_subId_userId_uuid
+            int startIdx = (parts.length > 0 && parts[0].length() == 6) ? 1 : 0;
+            if (parts.length > startIdx) {
+                return Integer.parseInt(parts[startIdx]);
             }
         } catch (Exception e) {
             // ...error parsing
         }
         return 1;
+    }
+
+    /**
+     * Parse userId from apptransid/orderId
+     */
+    private Integer parseUserIdFromTransId(String transId) {
+        try {
+            String[] parts = transId.split("_");
+            // ZaloPay: yyMMdd_subId_userId_uuid -> userId is index 2
+            // MoMo: subId_userId_uuid -> userId is index 1
+            int userIdIdx = (parts.length > 0 && parts[0].length() == 6) ? 2 : 1;
+            if (parts.length > userIdIdx) {
+                return Integer.parseInt(parts[userIdIdx]);
+            }
+        } catch (Exception e) {
+            // ...error parsing
+        }
+        return 0;
     }
 
     /**
@@ -289,5 +337,23 @@ public class PaymentCallbackController {
         String username = authentication.getName();
         UserDTO user = userService.findByUsername(username);
         return user != null ? user.getUserId() : 1;
+    }
+
+    private String generateHmacSHA256(String data, String key) {
+        try {
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secret_key = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            sha256_HMAC.init(secret_key);
+            byte[] hash = sha256_HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to calculate HMAC-SHA256", e);
+        }
     }
 }

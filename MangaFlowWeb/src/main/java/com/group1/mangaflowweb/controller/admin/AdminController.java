@@ -1,7 +1,6 @@
 package com.group1.mangaflowweb.controller.admin;
 
 import com.group1.mangaflowweb.dto.admin.RevenueDataPointDTO;
-import com.group1.mangaflowweb.entity.Comics;
 import com.group1.mangaflowweb.service.AdminDashboardService;
 import com.group1.mangaflowweb.service.ComicService;
 import com.group1.mangaflowweb.service.TransactionsService;
@@ -31,11 +30,11 @@ public class AdminController {
     private final ComicService comicService;
 
     public AdminController(AdminDashboardService dashboardService,
-                           TransactionsService transactionService,
-                           ComicService comicService) {
-        this.dashboardService    = dashboardService;
+            TransactionsService transactionService,
+            ComicService comicService) {
+        this.dashboardService = dashboardService;
         this.transactionService = transactionService;
-        this.comicService        = comicService;
+        this.comicService = comicService;
     }
 
     @GetMapping("")
@@ -45,14 +44,14 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(defaultValue = "year") String period, Model model) {
-        model.addAttribute("stats",     dashboardService.getDashboardStats());
+        model.addAttribute("stats", dashboardService.getDashboardStats());
         model.addAttribute("topComics", dashboardService.getComicsSortedByViewCount());
-        model.addAttribute("revenueWeek",  dashboardService.getRevenueByPeriod("week"));
+        model.addAttribute("revenueWeek", dashboardService.getRevenueByPeriod("week"));
         model.addAttribute("revenueMonth", dashboardService.getRevenueByPeriod("month"));
-        model.addAttribute("revenueYear",  dashboardService.getRevenueByPeriod("year"));
-        model.addAttribute("revenueAll",   dashboardService.getRevenueByPeriod("all"));
+        model.addAttribute("revenueYear", dashboardService.getRevenueByPeriod("year"));
+        model.addAttribute("revenueAll", dashboardService.getRevenueByPeriod("all"));
         model.addAttribute("activePeriod", period);
-        model.addAttribute("username",  SecurityContextHolder.getContext().getAuthentication().getName());
+        model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/dashboard";
     }
 
@@ -88,9 +87,11 @@ public class AdminController {
                     }
                     String transactionId = t.getTransactionId() == null ? "" : String.valueOf(t.getTransactionId());
                     String username = t.getUser() != null && t.getUser().getUsername() != null
-                            ? t.getUser().getUsername().toLowerCase(Locale.ROOT) : "";
+                            ? t.getUser().getUsername().toLowerCase(Locale.ROOT)
+                            : "";
                     String email = t.getUser() != null && t.getUser().getEmail() != null
-                            ? t.getUser().getEmail().toLowerCase(Locale.ROOT) : "";
+                            ? t.getUser().getEmail().toLowerCase(Locale.ROOT)
+                            : "";
                     return transactionId.contains(normalizedSearch)
                             || username.contains(normalizedSearch)
                             || email.contains(normalizedSearch);
@@ -99,8 +100,9 @@ public class AdminController {
                         || (t.getStatus() != null && t.getStatus().name().equalsIgnoreCase(normalizedStatus)))
                 .filter(t -> normalizedSubscription.isBlank()
                         || (t.getSubscription() != null
-                        && t.getSubscription().getName() != null
-                        && t.getSubscription().getName().toLowerCase(Locale.ROOT).contains(normalizedSubscription)))
+                                && t.getSubscription().getName() != null
+                                && t.getSubscription().getName().toLowerCase(Locale.ROOT)
+                                        .contains(normalizedSubscription)))
                 .filter(t -> {
                     if (from == null || t.getCreatedAt() == null) {
                         return true;
@@ -114,7 +116,8 @@ public class AdminController {
                     return !t.getCreatedAt().toLocalDate().isAfter(to);
                 })
                 .sorted(Comparator.comparing(
-                        transaction -> Objects.requireNonNullElse(transaction.getCreatedAt(), java.time.LocalDateTime.MIN),
+                        transaction -> Objects.requireNonNullElse(transaction.getCreatedAt(),
+                                java.time.LocalDateTime.MIN),
                         Comparator.reverseOrder()))
                 .toList();
 
@@ -123,18 +126,18 @@ public class AdminController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(java.util.TreeSet::new));
 
-        model.addAttribute("totalRevenue",         transactionService.getTotalRevenue());
-        model.addAttribute("totalTransactions",    transactionService.getTotalTransactionCount());
-        model.addAttribute("activeTransactions",   transactionService.getActiveTransactions());
-        model.addAttribute("revenueBySubscription",transactionService.getRevenueBySubscription());
-        model.addAttribute("transactions",         filteredTransactions);
-        model.addAttribute("subscriptionNames",    subscriptionNames);
-        model.addAttribute("search",               search);
-        model.addAttribute("status",               status);
-        model.addAttribute("subscription",         subscription);
-        model.addAttribute("fromDate",             fromDate);
-        model.addAttribute("toDate",               toDate);
-        model.addAttribute("username",             SecurityContextHolder.getContext().getAuthentication().getName());
+        model.addAttribute("totalRevenue", transactionService.getTotalRevenue());
+        model.addAttribute("totalTransactions", transactionService.getTotalTransactionCount());
+        model.addAttribute("activeTransactions", transactionService.getActiveTransactions());
+        model.addAttribute("revenueBySubscription", transactionService.getRevenueBySubscription());
+        model.addAttribute("transactions", filteredTransactions);
+        model.addAttribute("subscriptionNames", subscriptionNames);
+        model.addAttribute("search", search);
+        model.addAttribute("status", status);
+        model.addAttribute("subscription", subscription);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/revenue";
     }
 
@@ -178,13 +181,12 @@ public class AdminController {
                 ? comicService.searchComicsByName(search)
                 : comicService.getComicsWithFilter(sortBy, sortOrder, filterBy);
 
-        model.addAttribute("comics",      comics);
+        model.addAttribute("comics", comics);
         model.addAttribute("searchQuery", search);
-        model.addAttribute("sortBy",      sortBy);
-        model.addAttribute("sortOrder",   sortOrder);
-        model.addAttribute("filterBy",    filterBy);
-        model.addAttribute("username",    SecurityContextHolder.getContext().getAuthentication().getName());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortOrder", sortOrder);
+        model.addAttribute("filterBy", filterBy);
+        model.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
         return "admin/view-tracking";
     }
 }
-

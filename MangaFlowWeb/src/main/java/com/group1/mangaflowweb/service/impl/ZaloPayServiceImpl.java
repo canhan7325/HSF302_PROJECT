@@ -19,7 +19,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +33,8 @@ public class ZaloPayServiceImpl implements ZaloPayService {
             String embedDataString = "{\"redirecturl\":\"" + zaloPayConfig.getReturnUrl() + "\"}";
 
             String safeOrderInfo = orderInfo.replace("\"", "\\\"");
-            String itemString = "[{\"itemid\":\"" + orderId + "\",\"itemname\":\"" + safeOrderInfo + "\",\"itemprice\":" + amount + ",\"itemquantity\":1}]";
-
+            String itemString = "[{\"itemid\":\"" + orderId + "\",\"itemname\":\"" + safeOrderInfo + "\",\"itemprice\":"
+                    + amount + ",\"itemquantity\":1}]";
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT+7"));
@@ -70,8 +69,7 @@ public class ZaloPayServiceImpl implements ZaloPayService {
             ResponseEntity<ZaloPayPaymentDTO> response = restTemplate.postForEntity(
                     zaloPayConfig.getEndpoint(),
                     request,
-                    ZaloPayPaymentDTO.class
-            );
+                    ZaloPayPaymentDTO.class);
 
             return response.getBody();
         } catch (Exception e) {
@@ -89,7 +87,8 @@ public class ZaloPayServiceImpl implements ZaloPayService {
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
+                if (hex.length() == 1)
+                    hexString.append('0');
                 hexString.append(hex);
             }
             return hexString.toString();
@@ -98,4 +97,3 @@ public class ZaloPayServiceImpl implements ZaloPayService {
         }
     }
 }
-

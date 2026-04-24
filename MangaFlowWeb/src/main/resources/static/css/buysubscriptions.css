@@ -210,7 +210,8 @@ main {
     font-weight: 700;
     margin-top: 0.5rem;
     margin-bottom: 1rem;
-    min-height: 2rem; /* Keep titles aligned */
+    min-height: 2rem;
+    /* Keep titles aligned */
 }
 
 .card-gold .card-title {
@@ -225,7 +226,8 @@ main {
     margin-left: 0;
     padding-left: 0;
     text-align: left;
-    min-height: 2.2rem; /* Ensure 2 lines space to align prices */
+    min-height: 2.2rem;
+    /* Ensure 2 lines space to align prices */
 }
 
 .card-gold .card-desc {
@@ -1019,7 +1021,7 @@ footer {
 .editorial-section {
     grid-template-columns: 1fr 1fr;
 }
-}
+
 
 @media (max-width: 767px) {
     .nav-links {

@@ -101,7 +101,7 @@ public class PricingController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null || !authentication.isAuthenticated() ||
                     "anonymousUser".equals(authentication.getName())) {
-                // NgÆ°á» i dÃ¹ng chÆ°a Ä‘Äƒng nháººp, cho phÃ©p Ä‘Äƒng kÃ­
+
                 return ResponseEntity.ok(
                         SubscriptionCheckDTO.builder()
                                 .canSubscribe(true)
@@ -196,8 +196,14 @@ public class PricingController {
         String amount = String.valueOf(finalAmount);
         System.out.println("Final Amount to Gateway: " + amount + "đ (Original: " + subscription.getPrice()
                 + "đ, Discount: " + discountAmount + "đ)");
+        // Include userId in orderId to verify later in callback
+        Integer finalUserId = 0;
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            UserDTO user = userService.findByUsername(authentication.getName());
+            if (user != null) finalUserId = user.getUserId();
+        }
 
-        String orderId = subscriptionId + "_" + UUID.randomUUID().toString().substring(0, 8);
+        String orderId = subscriptionId + "_" + finalUserId + "_" + UUID.randomUUID().toString().substring(0, 8);
         String orderInfo = "Thanh toan goi " + subscription.getName();
 
         try {
@@ -264,7 +270,8 @@ public class PricingController {
             }
 
             // Không cần tạo transaction cho gói FREE (chỉ chuyển hướng)
-            // transactionsService.createAndCompleteTransaction(user.getUserId(), subscriptionId, subscription.getPrice());
+            // transactionsService.createAndCompleteTransaction(user.getUserId(),
+            // subscriptionId, subscription.getPrice());
 
             // Redirect to reading page
             return new RedirectView("/?success=free_subscription");
@@ -274,7 +281,3 @@ public class PricingController {
         }
     }
 }
-
-
-
-

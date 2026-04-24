@@ -35,20 +35,6 @@ public interface ComicRepository extends JpaRepository<Comics, Integer> {
 			"WHERE c.slug = :slug")
 	Optional<Comics> findBySlug(String slug);
 
-	@Query("SELECT DISTINCT c FROM Comics c " +
-			"LEFT JOIN FETCH c.user " +
-			"LEFT JOIN FETCH c.genreComics gc " +
-			"LEFT JOIN FETCH gc.genre " +
-			"ORDER BY c.viewCount DESC")
-	List<Comics> findTop6ByOrderByViewCountDesc();
-
-	@Query("SELECT DISTINCT c FROM Comics c " +
-			"LEFT JOIN FETCH c.user " +
-			"LEFT JOIN FETCH c.genreComics gc " +
-			"LEFT JOIN FETCH gc.genre " +
-			"ORDER BY c.updatedAt DESC")
-	Page<Comics> findAllByOrderByUpdatedAtDesc(Pageable pageable);
-
 		List<Comics> findByUser_UserId(Integer userId);
 
 	}

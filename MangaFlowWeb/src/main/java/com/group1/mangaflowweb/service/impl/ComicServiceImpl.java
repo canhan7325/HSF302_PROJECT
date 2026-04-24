@@ -3,7 +3,6 @@ package com.group1.mangaflowweb.service.impl;
 import com.group1.mangaflowweb.dto.comic.ComicAdminDTO;
 import com.group1.mangaflowweb.dto.comic.ComicDTO;
 import com.group1.mangaflowweb.dto.comic.ComicSearchDTO;
-import com.group1.mangaflowweb.dto.comic.ComicSummaryDTO;
 import com.group1.mangaflowweb.dto.genre.GenreAdminDTO;
 import com.group1.mangaflowweb.entity.*;
 import com.group1.mangaflowweb.enums.ComicEnum;
@@ -36,9 +35,9 @@ public class ComicServiceImpl implements ComicService {
     private final ImageUrlResolver imageUrlResolver;
 
     public ComicServiceImpl(ComicRepository comicRepository,
-                            GenreRepository genreRepository,
-                            UsersRepository usersRepository,
-                            ImageUrlResolver imageUrlResolver) {
+            GenreRepository genreRepository,
+            UsersRepository usersRepository,
+            ImageUrlResolver imageUrlResolver) {
         this.comicRepository = comicRepository;
         this.genreRepository = genreRepository;
         this.usersRepository = usersRepository;
@@ -71,7 +70,7 @@ public class ComicServiceImpl implements ComicService {
                 .ifPresent(comic -> {
                     throw new IllegalArgumentException("Comic with title '" + form.getTitle() + "' already exists");
                 });
-        
+
         LocalDateTime now = LocalDateTime.now();
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -87,14 +86,14 @@ public class ComicServiceImpl implements ComicService {
         comic.setViewCount(0);
         comic.setCreatedAt(now);
         comic.setUpdatedAt(now);
-        
+
         // Set user from uploaderId
         if (form.getUploaderId() != null) {
             Users user = usersRepository.findById(form.getUploaderId())
                     .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + form.getUploaderId()));
             comic.setUser(user);
         }
-        
+
         Comics saved = comicRepository.save(comic);
 
         if (form.getGenreIds() != null && !form.getGenreIds().isEmpty()) {
@@ -195,8 +194,10 @@ public class ComicServiceImpl implements ComicService {
     @Override
     public List<Comics> getComicsWithSort(String sortBy, String sortOrder) {
         List<Comics> comics = getAllComics();
-        if (sortBy == null) sortBy = "id";
-        if (sortOrder == null) sortOrder = "asc";
+        if (sortBy == null)
+            sortBy = "id";
+        if (sortOrder == null)
+            sortOrder = "asc";
         final String order = sortOrder;
         final String field = sortBy;
         if ("name".equalsIgnoreCase(field)) {
@@ -376,8 +377,7 @@ public class ComicServiceImpl implements ComicService {
         return comicRepository.findByTitleContainingIgnoreCase(normalizedKeyword).stream()
                 .sorted(Comparator.comparing(
                         Comics::getUpdatedAt,
-                        Comparator.nullsLast(Comparator.reverseOrder())
-                ))
+                        Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(this::toDTO)
                 .toList();
     }
@@ -424,14 +424,15 @@ public class ComicServiceImpl implements ComicService {
                 .status(comic.getStatus())
                 .viewCount(comic.getViewCount())
                 .followerCount(comic.getBookmarks() != null ? comic.getBookmarks().size() : 0)
-                .bookmarked(false)   // default false – controller sets the real value
+                .bookmarked(false) // default false – controller sets the real value
                 .userId(comic.getUser() != null ? comic.getUser().getUserId() : null)
                 .authorName(comic.getUser() != null ? comic.getUser().getUsername() : null)
                 .createdAt(comic.getCreatedAt())
                 .updatedAt(comic.getUpdatedAt())
                 .chapters(comic.getChapters() != null
                         ? comic.getChapters().stream()
-                                .sorted(Comparator.comparing(ch -> ch.getChapterNumber() == null ? 0 : ch.getChapterNumber()))
+                                .sorted(Comparator
+                                        .comparing(ch -> ch.getChapterNumber() == null ? 0 : ch.getChapterNumber()))
                                 .map(ch -> ComicDTO.ChapterSummary.builder()
                                         .chapterId(ch.getChapterId())
                                         .chapterNumber(ch.getChapterNumber())
@@ -452,4 +453,3 @@ public class ComicServiceImpl implements ComicService {
                 .build();
     }
 }
-
